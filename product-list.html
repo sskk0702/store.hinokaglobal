@@ -10,31 +10,21 @@
     body { padding-top: var(--nav-height); }
 
     .page-header {
-      padding: 48px 48px 32px;
+      padding: 40px 48px 28px;
       border-bottom: 1px solid var(--gray-light);
     }
-
     .breadcrumb {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      color: var(--gray-dark);
-      margin-bottom: 12px;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--gray-dark); margin-bottom: 10px;
     }
-
     .breadcrumb a { color: var(--gray-dark); }
     .breadcrumb span { margin: 0 8px; }
-
     .page-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 28px;
-      font-weight: 400;
-      letter-spacing: 0.15em;
+      font-size: 28px; font-weight: 400; letter-spacing: 0.15em;
     }
 
-    /* ── 商品グリッド ── */
-    .products-section {
-      padding: 48px;
-    }
+    .products-section { padding: 48px; }
 
     .products-grid {
       display: grid;
@@ -42,100 +32,53 @@
       gap: 32px 24px;
     }
 
-    .product-card {
-      cursor: pointer;
-    }
+    .product-card { cursor: pointer; }
 
     .product-image-wrapper {
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
       aspect-ratio: 3/4;
-      background: var(--gray-light);
-      margin-bottom: 14px;
+      background: var(--gray-light); margin-bottom: 14px;
     }
-
     .product-image-wrapper img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
       transition: opacity 0.35s ease;
     }
-
     .product-image-wrapper .main-img { opacity: 1; }
     .product-image-wrapper .sub-img  { opacity: 0; }
-
     .product-card:hover .main-img { opacity: 0; }
     .product-card:hover .sub-img  { opacity: 1; }
 
-    /* ウィッシュリストアイコン（右上） */
     .product-wish {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 2;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      background: none; border: none; cursor: pointer; padding: 4px;
     }
-
     .product-wish svg {
-      width: 18px;
-      height: 18px;
-      stroke: var(--black);
-      fill: none;
-      stroke-width: 1.5;
+      width: 18px; height: 18px;
+      stroke: var(--black); fill: none; stroke-width: 1.5;
       transition: fill 0.2s;
     }
-
     .product-wish.active svg { fill: var(--black); }
 
-    .product-name {
-      font-size: 13px;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
-    }
+    .product-name { font-size: 13px; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .product-price { font-size: 13px; color: var(--gray-dark); }
 
-    .product-price {
-      font-size: 13px;
-      color: var(--gray-dark);
-    }
-
-    /* ── さらに読み込む ── */
-    .load-more-wrap {
-      text-align: center;
-      margin-top: 48px;
-    }
-
+    .load-more-wrap { text-align: center; margin-top: 48px; }
     .load-more-btn {
-      display: inline-block;
-      padding: 14px 48px;
+      display: inline-block; padding: 14px 48px;
       border: 1px solid var(--black);
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: pointer;
-      background: none;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; background: none;
       transition: background var(--transition), color var(--transition);
     }
-
-    .load-more-btn:hover {
-      background: var(--black);
-      color: var(--white);
-    }
-
+    .load-more-btn:hover { background: var(--black); color: var(--white); }
     .load-more-btn.hidden { display: none; }
 
-    @media (max-width: 1024px) {
-      .products-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
+    @media (max-width: 1024px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
     @media (max-width: 768px) {
-      .products-section { padding: 32px 16px; }
-      .page-header { padding: 32px 16px 24px; }
-      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
+      .products-section { padding: 24px 16px; }
+      .page-header { padding: 24px 16px 20px; }
+      .products-grid { grid-template-columns: repeat(2,1fr); gap: 16px 12px; }
     }
   </style>
 </head>
@@ -143,8 +86,7 @@
 
   <div class="page-header">
     <p class="breadcrumb">
-      <a href="store.html">HOME</a>
-      <span>/</span>
+      <a href="store.html">HOME</a><span>/</span>
       <span id="breadcrumbCat">商品一覧</span>
     </p>
     <h1 class="page-title" id="pageTitle">すべての商品</h1>
@@ -157,72 +99,136 @@
     </div>
   </section>
 
+  <!-- ストアフッター -->
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">暮らしに、ときめきを。</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=fashion">ファッション</a>
+        <a href="product-list.html?category=daily">生活雑貨</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーノーティス</a>
+        <a href="legal.html#cookie">Cookieポリシー</a>
+        <a href="legal.html#shipping">配送・返品について</a>
+        <a href="../index.html">← 会社サイトへ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+      <span class="footer-shipping-badge">🚚 通常送料：550円（税込）※北海道・沖縄・離島は追加送料あり</span>
+    </div>
+  </footer>
+
   <script src="js/nav.js"></script>
   <script>
   (function () {
-    // ── ダミー商品データ（本番は API / JSON から取得に変更） ──
+    // ★ 生活雑貨のサブカテゴリーも全て含む完全版データ
     const ALL_PRODUCTS = [
-      { id: '001', name: 'プレミアム ドッグフード', price: 3850, category: 'dog-food', mainImg: 'assets/images/p001-main.jpg', subImg: 'assets/images/p001-sub.jpg' },
-      { id: '002', name: 'キャット ボウル セット', price: 5500, category: 'cat-food', mainImg: 'assets/images/p002-main.jpg', subImg: 'assets/images/p002-sub.jpg' },
-      { id: '003', name: 'ペット ロープ トイ', price: 1980, category: 'pet-toys', mainImg: 'assets/images/p003-main.jpg', subImg: 'assets/images/p003-sub.jpg' },
-      { id: '004', name: 'オーガニック コットン ベッド', price: 12100, category: 'pet-bed', mainImg: 'assets/images/p004-main.jpg', subImg: 'assets/images/p004-sub.jpg' },
-      { id: '005', name: 'レザー 首輪', price: 4400, category: 'pet-collar', mainImg: 'assets/images/p005-main.jpg', subImg: 'assets/images/p005-sub.jpg' },
-      { id: '006', name: 'リネン オーバーシャツ', price: 18700, category: 'tops', mainImg: 'assets/images/p006-main.jpg', subImg: 'assets/images/p006-sub.jpg' },
-      { id: '007', name: 'テーパード スラックス', price: 22000, category: 'bottoms', mainImg: 'assets/images/p007-main.jpg', subImg: 'assets/images/p007-sub.jpg' },
-      { id: '008', name: 'ウール コート', price: 55000, category: 'outer', mainImg: 'assets/images/p008-main.jpg', subImg: 'assets/images/p008-sub.jpg' },
-      { id: '009', name: 'シルバー チェーン', price: 8800, category: 'accessories', mainImg: 'assets/images/p009-main.jpg', subImg: 'assets/images/p009-sub.jpg' },
-      { id: '010', name: 'レザー ローファー', price: 38500, category: 'shoes', mainImg: 'assets/images/p010-main.jpg', subImg: 'assets/images/p010-sub.jpg' },
-      { id: '011', name: '鋳鉄 フライパン', price: 15400, category: 'kitchen', mainImg: 'assets/images/p011-main.jpg', subImg: 'assets/images/p011-sub.jpg' },
-      { id: '012', name: 'ラタン バスケット', price: 7700, category: 'storage', mainImg: 'assets/images/p012-main.jpg', subImg: 'assets/images/p012-sub.jpg' },
+      // ペット用品
+      { id:'001', name:'プレミアム ドッグフード',    price:3850,  category:'dog-food',    mainImg:'images/Photoroom_アパレル_162100.jpg', subImg:'images/IMG_5113ペット.PNG' },
+      { id:'002', name:'キャット ボウル セット',     price:5500,  category:'cat-food',    mainImg:'assets/images/p002-main.jpg', subImg:'assets/images/p002-sub.jpg' },
+      { id:'003', name:'ペット ロープ トイ',        price:1980,  category:'pet-toys',    mainImg:'assets/images/p003-main.jpg', subImg:'assets/images/p003-sub.jpg' },
+      { id:'004', name:'オーガニック コットン ベッド', price:12100, category:'pet-bed',    mainImg:'assets/images/p004-main.jpg', subImg:'assets/images/p004-sub.jpg' },
+      { id:'005', name:'レザー 首輪',               price:4400,  category:'pet-collar',  mainImg:'assets/images/p005-main.jpg', subImg:'assets/images/p005-sub.jpg' },
+      // ファッション
+      { id:'006', name:'リネン オーバーシャツ',      price:18700, category:'tops',        mainImg:'assets/images/p006-main.jpg', subImg:'assets/images/p006-sub.jpg' },
+      { id:'007', name:'テーパード スラックス',      price:22000, category:'bottoms',     mainImg:'assets/images/p007-main.jpg', subImg:'assets/images/p007-sub.jpg' },
+      { id:'008', name:'ウール コート',             price:55000, category:'outer',       mainImg:'assets/images/p008-main.jpg', subImg:'assets/images/p008-sub.jpg' },
+      { id:'009', name:'シルバー チェーン',          price:8800,  category:'accessories', mainImg:'assets/images/p009-main.jpg', subImg:'assets/images/p009-sub.jpg' },
+      { id:'010', name:'レザー ローファー',          price:38500, category:'shoes',       mainImg:'assets/images/p010-main.jpg', subImg:'assets/images/p010-sub.jpg' },
+      // 生活雑貨 - キッチン
+      { id:'011', name:'鋳鉄 フライパン',           price:15400, category:'kitchen',     mainImg:'assets/images/p011-main.jpg', subImg:'assets/images/p011-sub.jpg' },
+      // 生活雑貨 - インテリア ★ 追加
+      { id:'012', name:'ナチュラル ラグ',           price:22000, category:'interior',    mainImg:'assets/images/p012-main.jpg', subImg:'assets/images/p012-sub.jpg' },
+      { id:'013', name:'ウォールシェルフ',           price:9800,  category:'interior',    mainImg:'assets/images/p013-main.jpg', subImg:'assets/images/p013-sub.jpg' },
+      // 生活雑貨 - バス・トイレ ★ 追加
+      { id:'014', name:'リネン バスタオル セット',   price:6600,  category:'bath',        mainImg:'assets/images/p014-main.jpg', subImg:'assets/images/p014-sub.jpg' },
+      { id:'015', name:'竹製 バスマット',           price:4400,  category:'bath',        mainImg:'assets/images/p015-main.jpg', subImg:'assets/images/p015-sub.jpg' },
+      // 生活雑貨 - 収納
+      { id:'016', name:'ラタン バスケット',          price:7700,  category:'storage',     mainImg:'assets/images/p016-main.jpg', subImg:'assets/images/p016-sub.jpg' },
+      // 生活雑貨 - アロマ・キャンドル ★ 追加
+      { id:'017', name:'ソイ キャンドル',           price:3300,  category:'aroma',       mainImg:'assets/images/p017-main.jpg', subImg:'assets/images/p017-sub.jpg' },
+      { id:'018', name:'アロマ ディフューザー',      price:8800,  category:'aroma',       mainImg:'assets/images/p018-main.jpg', subImg:'assets/images/p018-sub.jpg' },
     ];
 
-    const BATCH_SIZE = 4;
-    let displayCount = BATCH_SIZE;
+    // ★ 親カテゴリーマッピング（生活雑貨のinterior等も"daily"でヒットする）
+    const PARENT_MAP = {
+      pet:     ['dog-food','cat-food','pet-toys','pet-bed','pet-collar'],
+      fashion: ['tops','bottoms','outer','accessories','shoes'],
+      daily:   ['kitchen','interior','bath','storage','aroma'],
+    };
 
-    // URLパラメータからカテゴリーを取得
+    const CAT_NAMES = {
+      pet:'ペット用品', fashion:'ファッション', daily:'生活雑貨',
+      'dog-food':'ドッグフード', 'cat-food':'キャットフード',
+      'pet-toys':'おもちゃ', 'pet-bed':'ベッド・ハウス', 'pet-collar':'首輪・リード',
+      tops:'トップス', bottoms:'ボトムス', outer:'アウター',
+      accessories:'アクセサリー', shoes:'シューズ',
+      kitchen:'キッチン用品', interior:'インテリア', bath:'バス・トイレ',
+      storage:'収納・整理', aroma:'アロマ・キャンドル',
+    };
+
+    const BATCH = 4;
+    let displayCount = BATCH;
+
     const params = new URLSearchParams(location.search);
-    const cat = params.get('category') || '';
-    const query = params.get('q') || '';
+    const cat    = params.get('category') || '';
+    const query  = params.get('q') || '';
 
+    // ★ 修正：親カテゴリーで絞り込むと子カテゴリーも全て含まれる
     let products = ALL_PRODUCTS;
     if (cat) {
-      products = ALL_PRODUCTS.filter(p => p.category === cat || p.category.startsWith(cat));
+      const children = PARENT_MAP[cat] || [];
+      products = ALL_PRODUCTS.filter(p =>
+        p.category === cat || children.includes(p.category)
+      );
     }
     if (query) {
       products = ALL_PRODUCTS.filter(p => p.name.includes(query));
     }
 
-    // カテゴリー表示名
-    const CAT_NAMES = {
-      pet: 'ペット用品', fashion: 'ファッション', daily: '生活雑貨',
-      'dog-food': 'ドッグフード', 'cat-food': 'キャットフード',
-      'pet-toys': 'おもちゃ', 'pet-bed': 'ベッド・ハウス', 'pet-collar': '首輪・リード',
-      tops: 'トップス', bottoms: 'ボトムス', outer: 'アウター',
-      accessories: 'アクセサリー', shoes: 'シューズ',
-      kitchen: 'キッチン用品', interior: 'インテリア', bath: 'バス・トイレ',
-      storage: '収納・整理', aroma: 'アロマ・キャンドル',
-    };
-
     const title = query ? `"${query}" の検索結果` : (CAT_NAMES[cat] || 'すべての商品');
-    document.getElementById('pageTitle').textContent = title;
-    document.getElementById('breadcrumbCat').textContent = title;
+    document.getElementById('pageTitle').textContent      = title;
+    document.getElementById('breadcrumbCat').textContent  = title;
     document.title = `HINOKA | ${title}`;
 
-    const grid = document.getElementById('productsGrid');
+    const grid        = document.getElementById('productsGrid');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+    // ウィッシュリスト状態
+    function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
+    function saveWishlist(list) { localStorage.setItem('hinoka_wishlist', JSON.stringify(list)); }
 
     function renderProducts() {
       grid.innerHTML = '';
-      const visible = products.slice(0, displayCount);
+      const visible   = products.slice(0, displayCount);
+      const wishlist  = getWishlist();
 
       visible.forEach(p => {
+        const isWished = wishlist.includes(p.id);
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
           <div class="product-image-wrapper">
             <img class="main-img" src="${p.mainImg}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            <img class="sub-img"  src="${p.subImg}"  alt="${p.name} サブ" onerror="this.src='assets/images/placeholder.jpg'">
-            <button class="product-wish" aria-label="ウィッシュリストに追加">
+            <img class="sub-img"  src="${p.subImg}"  alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <button class="product-wish ${isWished ? 'active' : ''}" data-id="${p.id}" aria-label="ウィッシュリスト">
               <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
           </div>
@@ -230,33 +236,25 @@
           <p class="product-price">¥${p.price.toLocaleString()}（税込）</p>
         `;
 
-        // ウィッシュリストボタン
+        // ウィッシュリスト
         card.querySelector('.product-wish').addEventListener('click', e => {
           e.stopPropagation();
-          e.currentTarget.classList.toggle('active');
+          const btn  = e.currentTarget;
+          const list = getWishlist();
+          const idx  = list.indexOf(p.id);
+          if (idx === -1) list.push(p.id); else list.splice(idx, 1);
+          saveWishlist(list);
+          btn.classList.toggle('active');
         });
 
-        // カードクリック → 詳細ページ
-        card.addEventListener('click', () => {
-          location.href = `product-detail.html?id=${p.id}`;
-        });
-
+        card.addEventListener('click', () => { location.href = `product-detail.html?id=${p.id}`; });
         grid.appendChild(card);
       });
 
-      // 「さらに読み込む」ボタン
-      if (displayCount >= products.length) {
-        loadMoreBtn.classList.add('hidden');
-      } else {
-        loadMoreBtn.classList.remove('hidden');
-      }
+      loadMoreBtn.classList.toggle('hidden', displayCount >= products.length);
     }
 
-    loadMoreBtn.addEventListener('click', () => {
-      displayCount += BATCH_SIZE;
-      renderProducts();
-    });
-
+    loadMoreBtn.addEventListener('click', () => { displayCount += BATCH; renderProducts(); });
     renderProducts();
   })();
   </script>
