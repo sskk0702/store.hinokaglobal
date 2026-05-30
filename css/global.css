@@ -366,3 +366,29 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.04em;
   margin-top: auto; /* ← 让它自动贴到底部 */
 }
+.dior-footer {
+  background: #f7f7f7; /* 高级淡灰白，奢侈品牌常用 */
+  padding: 60px 0 80px;
+  text-align: center;
+  margin-top: auto;
+  border-top: 1px solid rgba(0,0,0,0.08); /* 超细分隔线，优雅 */
+}
+
+.dior-footer-title {
+  display: block;
+  font-size: 20px;
+  font-family: "Cormorant Garamond", serif; /* 高级 serif 字体 */
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #111; /* 深灰，不刺眼 */
+  margin-bottom: 8px;
+}
+
+.dior-footer-sub {
+  display: block;
+  font-size: 12px;
+  font-family: "Helvetica Neue", Arial, sans-serif; /* 极简 sans-serif */
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: #666; /* 柔和灰色，奢侈品牌风 */
+}
