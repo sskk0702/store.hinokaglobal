@@ -10,12 +10,12 @@ import { getFirestore }  from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 
 // ★ ここをFirebaseコンソールの値に差し替えてください
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA",
+  authDomain:        "hinoka-0304.firebaseapp.com",
+  projectId:         "hinoka-0304",
+  storageBucket:     "hinoka-0304.firebasestorage.app",
+  messagingSenderId: "275098198657",
+  appId:             "1:275098198657:web:d9b11ff1086c972ac6e380"
 };
 
 const app  = initializeApp(firebaseConfig);
