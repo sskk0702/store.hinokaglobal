@@ -423,3 +423,20 @@ img { display: block; max-width: 100%; }
 .dior-footer {
   animation: diorLuxuryFade 1s ease-out 0.25s both;
 }
+.side-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: #f3f1ec; /* 柔和奶油灰：高奢感 */
+}
+
+.side-menu-label {
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  font-weight: 300;
+  color: #5a5144; /* 暖调深咖：比黑色更有质感 */
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  text-transform: uppercase;
+}
