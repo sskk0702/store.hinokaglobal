@@ -9,10 +9,11 @@ service cloud.firestore {
 
     // ── ユーザードキュメント ──────────────────────────────
     // 自分のデータのみ読み書き可能
-    match /users/{uid} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid;
-
+    match /{document=**} {
+      allow read, write: if false;
+   }
+  }
+}
       // 書き込み時のバリデーション
       allow create: if request.auth.uid == uid
                     && request.resource.data.keys().hasAll(['email','createdAt'])
