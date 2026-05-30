@@ -1,1 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | マイアカウント</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { padding-top: var(--nav-height); background: var(--gray-light); }
 
+    .account-wrap {
+      max-width: 480px; margin: 60px auto;
+      padding: 0 20px 80px;
+    }
+
+    .account-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 400;
+      letter-spacing: 0.15em; text-align: center;
+      margin-bottom: 8px;
+    }
+    .account-sub {
+      text-align: center; font-size: 12px;
+      color: var(--gray-dark); letter-spacing: 0.05em;
+      margin-bottom: 40px;
+    }
+
+    /* タブ：ログイン / 新規登録 */
+    .auth-tabs {
+      display: flex; border-bottom: 1px solid var(--gray-mid);
+      margin-bottom: 32px;
+    }
+    .auth-tab {
+      flex: 1; padding: 12px;
+      text-align: center; font-size: 12px;
+      letter-spacing: 0.1em; cursor: pointer;
+      background: none; border: none;
+      color: var(--gray-dark);
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      font-family: inherit;
+    }
+    .auth-tab.active { color: var(--black); border-bottom-color: var(--black); }
+
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    /* フォーム */
+    .auth-card {
+      background: var(--white);
+      padding: 36px 32px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block; font-size: 11px;
+      letter-spacing: 0.12em; color: var(--gray-dark);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%; border: 1px solid var(--gray-mid);
+      padding: 12px 14px; font-size: 13px;
+      font-family: inherit; outline: none;
+      transition: border-color 0.2s;
+      background: var(--white);
+    }
+    .form-input:focus { border-color: var(--black); }
+
+    .auth-btn {
+      width: 100%; padding: 15px;
+      background: var(--black); color: var(--white);
+      font-size: 12px; letter-spacing: 0.2em;
+      border: none; cursor: pointer;
+      font-family: inherit;
+      transition: background var(--transition);
+      margin-top: 8px;
+    }
+    .auth-btn:hover { background: #333; }
+
+    .auth-note {
+      text-align: center; font-size: 11px;
+      color: var(--gray-dark); margin-top: 16px;
+      line-height: 1.8;
+    }
+    .auth-note a { color: var(--black); text-decoration: underline; }
+
+    .error-msg {
+      background: #fff0f0; border: 1px solid #ffcccc;
+      color: #cc0000; font-size: 12px;
+      padding: 10px 14px; margin-bottom: 16px;
+      display: none;
+    }
+    .success-msg {
+      background: #f0fff4; border: 1px solid #9ae6b4;
+      color: #276749; font-size: 12px;
+      padding: 10px 14px; margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── ログイン済みダッシュボード ── */
+    .dashboard { display: none; }
+    .dashboard-header {
+      background: var(--white);
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .dashboard-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; letter-spacing: 0.1em;
+    }
+    .logout-btn {
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--gray-dark); cursor: pointer;
+      background: none; border: 1px solid var(--gray-mid);
+      padding: 8px 16px; font-family: inherit;
+      transition: border-color var(--transition), color var(--transition);
+    }
+    .logout-btn:hover { border-color: var(--black); color: var(--black); }
+
+    .dashboard-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 16px;
+    }
+    .dash-card {
+      background: var(--white);
+      padding: 24px; cursor: pointer;
+      transition: box-shadow var(--transition);
+      text-align: center;
+    }
+    .dash-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .dash-card-icon { font-size: 28px; margin-bottom: 10px; }
+    .dash-card-label { font-size: 12px; letter-spacing: 0.1em; color: var(--gray-dark); }
+    .dash-card-count {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; margin-top: 4px;
+    }
+
+    .dashboard-info {
+      background: var(--white); padding: 24px 32px;
+    }
+    .dashboard-info h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px; letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .info-row {
+      display: flex; justify-content: space-between;
+      font-size: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--gray-light);
+      letter-spacing: 0.03em;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: var(--gray-dark); }
+
+    @media (max-width: 480px) {
+      .account-wrap { padding: 0 12px 60px; margin-top: 40px; }
+      .auth-card { padding: 24px 20px; }
+      .dashboard-header { padding: 20px; }
+      .dashboard-info { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ログイン前：認証フォーム -->
+  <div class="account-wrap" id="authSection">
+    <h1 class="account-title">マイアカウント</h1>
+    <p class="account-sub">ログインまたは新規登録してください</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">ログイン</button>
+      <button class="auth-tab" data-tab="register">新規登録</button>
+    </div>
+
+    <!-- ログイン -->
+    <div class="auth-panel active" id="panel-login">
+      <div class="auth-card">
+        <div class="error-msg" id="login-error"></div>
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input type="email" class="form-input" id="login-email" placeholder="example@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">パスワード</label>
+          <input type="password" class="form-input" id="login-pass" placeholder="パスワードを入力">
+        </div>
+        <button class="auth-btn" id="loginBtn">ログイン</button>
+        <p class="auth-note">
+          パスワードをお忘れの方は<a href="mailto:sun_hua@hinokaglobal.com">こちら</a>までご連絡ください。
+        </p>
+      </div>
+    </div>
+
+    <!-- 新規登録 -->
+    <div class="auth-panel" id="panel-register">
+      <div class="auth-card">
+        <div class="error-msg"   id="reg-error"></div>
+        <div class="success-msg" id="reg-success"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label class="form-label">姓</label>
+            <input type="text" class="form-input" id="reg-last" placeholder="山田">
+          </div>
+          <div class="form-group">
+            <label class="form-label">名</label>
+            <input type="text" class="form-input" id="reg-first" placeholder="花子">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="example@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">パスワード（8文字以上）</label>
+          <input type="password" class="form-input" id="reg-pass" placeholder="パスワードを設定">
+        </div>
+        <div class="form-group">
+          <label class="form-label">パスワード（確認）</label>
+          <input type="password" class="form-input" id="reg-pass2" placeholder="パスワードを再入力">
+        </div>
+        <button class="auth-btn" id="registerBtn">アカウントを作成</button>
+        <p class="auth-note">
+          登録することで<a href="legal.html#terms">利用規約</a>および
+          <a href="legal.html#privacy">プライバシーノーティス</a>に同意したものとみなされます。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ログイン後：ダッシュボード -->
+  <div class="account-wrap dashboard" id="dashSection">
+    <div class="dashboard-header">
+      <div>
+        <div class="dashboard-name" id="dashName">山田 花子 様</div>
+        <div style="font-size:11px;color:var(--gray-dark);margin-top:4px;" id="dashEmail"></div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">ログアウト</button>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dash-card" onclick="location.href='wishlist.html'">
+        <div class="dash-card-icon">❤️</div>
+        <div class="dash-card-label">ウィッシュリスト</div>
+        <div class="dash-card-count" id="dashWishCount">0</div>
+      </div>
+      <div class="dash-card" onclick="location.href='cart.html'">
+        <div class="dash-card-icon">🛒</div>
+        <div class="dash-card-label">カート</div>
+        <div class="dash-card-count" id="dashCartCount">0</div>
+      </div>
+    </div>
+
+    <div class="dashboard-info">
+      <h3>アカウント情報</h3>
+      <div class="info-row">
+        <span>お名前</span><span id="infoName">—</span>
+      </div>
+      <div class="info-row">
+        <span>メールアドレス</span><span id="infoEmail">—</span>
+      </div>
+      <div class="info-row">
+        <span>登録日</span><span id="infoDate">—</span>
+      </div>
+      <div class="info-row" style="margin-top:8px;">
+        <span></span>
+        <a href="legal.html#terms" style="font-size:11px;color:var(--gray-dark);text-decoration:underline;">利用規約</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">暮らしに、ときめきを。</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=fashion">ファッション</a>
+        <a href="product-list.html?category=daily">生活雑貨</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーノーティス</a>
+        <a href="legal.html#cookie">Cookieポリシー</a>
+        <a href="../index.html">← 会社サイトへ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script>
+  (function () {
+    // ── ストレージキー ──
+    const USERS_KEY   = 'hinoka_users';
+    const SESSION_KEY = 'hinoka_session';
+
+    function getUsers()   { return JSON.parse(localStorage.getItem(USERS_KEY)   || '[]'); }
+    function getSession() { return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); }
+    function saveSession(user) { sessionStorage.setItem(SESSION_KEY, JSON.stringify(user)); }
+    function clearSession()    { sessionStorage.removeItem(SESSION_KEY); }
+
+    // ── タブ切替 ──
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // ── ログイン ──
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('login-email').value.trim();
+      const pass  = document.getElementById('login-pass').value;
+      const errEl = document.getElementById('login-error');
+      errEl.style.display = 'none';
+
+      if (!email || !pass) { errEl.textContent = 'メールアドレスとパスワードを入力してください。'; errEl.style.display = 'block'; return; }
+
+      const users = getUsers();
+      const user  = users.find(u => u.email === email && u.password === btoa(pass));
+      if (!user) { errEl.textContent = 'メールアドレスまたはパスワードが正しくありません。'; errEl.style.display = 'block'; return; }
+
+      saveSession(user);
+      showDashboard(user);
+    });
+
+    // ── 新規登録 ──
+    document.getElementById('registerBtn').addEventListener('click', () => {
+      const last  = document.getElementById('reg-last').value.trim();
+      const first = document.getElementById('reg-first').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pass  = document.getElementById('reg-pass').value;
+      const pass2 = document.getElementById('reg-pass2').value;
+      const errEl = document.getElementById('reg-error');
+      const sucEl = document.getElementById('reg-success');
+      errEl.style.display = 'none'; sucEl.style.display = 'none';
+
+      if (!last || !first || !email || !pass) { errEl.textContent = '全ての項目を入力してください。'; errEl.style.display = 'block'; return; }
+      if (pass.length < 8) { errEl.textContent = 'パスワードは8文字以上で設定してください。'; errEl.style.display = 'block'; return; }
+      if (pass !== pass2)  { errEl.textContent = 'パスワードが一致しません。'; errEl.style.display = 'block'; return; }
+
+      const users = getUsers();
+      if (users.find(u => u.email === email)) { errEl.textContent = 'このメールアドレスはすでに登録されています。'; errEl.style.display = 'block'; return; }
+
+      const newUser = {
+        id: Date.now().toString(),
+        lastName: last, firstName: first,
+        email, password: btoa(pass),
+        createdAt: new Date().toLocaleDateString('ja-JP')
+      };
+      users.push(newUser);
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      saveSession(newUser);
+
+      sucEl.textContent = '登録が完了しました。ようこそ！';
+      sucEl.style.display = 'block';
+      setTimeout(() => showDashboard(newUser), 1000);
+    });
+
+    // ── ログアウト ──
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      clearSession();
+      document.getElementById('dashSection').style.display = 'none';
+      document.getElementById('authSection').style.display = 'block';
+    });
+
+    // ── ダッシュボード表示 ──
+    function showDashboard(user) {
+      document.getElementById('authSection').style.display = 'none';
+      const dash = document.getElementById('dashSection');
+      dash.style.display = 'block';
+
+      const fullName = `${user.lastName} ${user.firstName}`;
+      document.getElementById('dashName').textContent  = `${fullName} 様`;
+      document.getElementById('dashEmail').textContent = user.email;
+      document.getElementById('infoName').textContent  = fullName;
+      document.getElementById('infoEmail').textContent = user.email;
+      document.getElementById('infoDate').textContent  = user.createdAt;
+
+      const wishCount = (JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]')).length;
+      const cartCount = (JSON.parse(localStorage.getItem('cartItems') || '[]')).reduce((s,i) => s + i.qty, 0);
+      document.getElementById('dashWishCount').textContent = wishCount;
+      document.getElementById('dashCartCount').textContent = cartCount;
+    }
+
+    // ── 初期チェック：セッション残っているか ──
+    const session = getSession();
+    if (session) { showDashboard(session); }
+
+  })();
+  </script>
+</body>
+</html>
