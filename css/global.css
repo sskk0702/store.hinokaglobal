@@ -360,3 +360,24 @@ img { display: block; max-width: 100%; }
    UTILITY
 ═══════════════════════════════ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.dior-footer {
+  text-align: center;
+  padding: 40px 0 48px;
+  letter-spacing: 0.04em;
+}
+
+.dior-footer-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.dior-footer-sub {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
