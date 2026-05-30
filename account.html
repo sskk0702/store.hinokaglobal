@@ -417,5 +417,24 @@
 
   })();
   </script>
+  <script type="module">
+  // 1. 导入 Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // 2. 你的配置 (从 Firebase 控制台复制来的那段)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA",
+    authDomain: "hinoka-0304.firebaseapp.com",
+    projectId: "hinoka-0304",
+    storageBucket: "hinoka-0304.appspot.com",
+    messagingSenderId: "275098198657",
+    appId: "1:275098198657:web:d9b11ff1086c972ac6e380"
+  };
+
+  // 3. 初始化并导出 auth
+  const app = initializeApp(firebaseConfig);
+  window.auth = getAuth(app); // 将 auth 挂载到 window，方便下面直接使用
+</script>
 </body>
 </html>
