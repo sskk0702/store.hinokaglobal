@@ -362,8 +362,9 @@ img { display: block; max-width: 100%; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
 .dior-footer {
   text-align: center;
-  padding: 40px 0 48px;
+  padding: 60px 0 80px; /* ← 增加上下间距 */
   letter-spacing: 0.04em;
+  margin-top: auto; /* ← 让它自动贴到底部 */
 }
 
 .dior-footer-title {
