@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | ウィッシュリスト</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { padding-top: var(--nav-height); }
+    .page-header { padding: 40px 48px 28px; border-bottom: 1px solid var(--gray-light); }
+    .page-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:400; letter-spacing:0.15em; }
 
+    .wishlist-section { padding: 48px; min-height: 50vh; }
+
+    .wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 32px 24px;
+    }
+
+    .product-card { cursor: pointer; }
+    .product-image-wrapper {
+      position: relative; overflow: hidden;
+      aspect-ratio: 3/4; background: var(--gray-light); margin-bottom: 14px;
+    }
+    .product-image-wrapper img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 0.35s ease;
+    }
+    .product-image-wrapper .main-img { opacity: 1; }
+    .product-image-wrapper .sub-img  { opacity: 0; }
+    .product-card:hover .main-img { opacity: 0; }
+    .product-card:hover .sub-img  { opacity: 1; }
+
+    .remove-wish {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      background: rgba(255,255,255,0.9); border: none;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px;
+      transition: background var(--transition);
+    }
+    .remove-wish:hover { background: var(--black); color: var(--white); }
+
+    .product-name { font-size: 13px; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .product-price { font-size: 13px; color: var(--gray-dark); margin-bottom: 10px; }
+    .add-wish-cart {
+      width: 100%; padding: 10px;
+      border: 1px solid var(--black);
+      font-size: 11px; letter-spacing: 0.15em;
+      background: none; cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .add-wish-cart:hover { background: var(--black); color: var(--white); }
+
+    .empty-state {
+      text-align: center; padding: 80px 0;
+      color: var(--gray-dark);
+    }
+    .empty-state p { font-size: 14px; margin-bottom: 24px; }
+    .empty-state a {
+      display: inline-block; padding: 14px 40px;
+      border: 1px solid var(--black);
+      font-size: 11px; letter-spacing: 0.2em;
+      transition: background var(--transition), color var(--transition);
+    }
+    .empty-state a:hover { background: var(--black); color: var(--white); }
+
+    @media (max-width: 1024px) { .wishlist-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 768px) {
+      .wishlist-section { padding: 24px 16px; }
+      .page-header { padding: 24px 16px 20px; }
+      .wishlist-grid { grid-template-columns: repeat(2,1fr); gap: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1 class="page-title">ウィッシュリスト</h1>
+  </div>
+
+  <section class="wishlist-section">
+    <div class="wishlist-grid" id="wishlistGrid"></div>
+  </section>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">暮らしに、ときめきを。</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=fashion">ファッション</a>
+        <a href="product-list.html?category=daily">生活雑貨</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーノーティス</a>
+        <a href="legal.html#cookie">Cookieポリシー</a>
+        <a href="../index.html">← 会社サイトへ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script>
+  (function () {
+    const ALL_PRODUCTS = {
+      '001':{ name:'プレミアム ドッグフード',    price:3850,  mainImg:'assets/images/p001-main.jpg', subImg:'assets/images/p001-sub.jpg' },
+      '002':{ name:'キャット ボウル セット',     price:5500,  mainImg:'assets/images/p002-main.jpg', subImg:'assets/images/p002-sub.jpg' },
+      '003':{ name:'ペット ロープ トイ',        price:1980,  mainImg:'assets/images/p003-main.jpg', subImg:'assets/images/p003-sub.jpg' },
+      '004':{ name:'オーガニック コットン ベッド',price:12100, mainImg:'assets/images/p004-main.jpg', subImg:'assets/images/p004-sub.jpg' },
+      '005':{ name:'レザー 首輪',               price:4400,  mainImg:'assets/images/p005-main.jpg', subImg:'assets/images/p005-sub.jpg' },
+      '006':{ name:'リネン オーバーシャツ',      price:18700, mainImg:'assets/images/p006-main.jpg', subImg:'assets/images/p006-sub.jpg' },
+      '007':{ name:'テーパード スラックス',      price:22000, mainImg:'assets/images/p007-main.jpg', subImg:'assets/images/p007-sub.jpg' },
+      '008':{ name:'ウール コート',             price:55000, mainImg:'assets/images/p008-main.jpg', subImg:'assets/images/p008-sub.jpg' },
+      '009':{ name:'シルバー チェーン',          price:8800,  mainImg:'assets/images/p009-main.jpg', subImg:'assets/images/p009-sub.jpg' },
+      '010':{ name:'レザー ローファー',          price:38500, mainImg:'assets/images/p010-main.jpg', subImg:'assets/images/p010-sub.jpg' },
+      '011':{ name:'鋳鉄 フライパン',           price:15400, mainImg:'assets/images/p011-main.jpg', subImg:'assets/images/p011-sub.jpg' },
+      '012':{ name:'ナチュラル ラグ',           price:22000, mainImg:'assets/images/p012-main.jpg', subImg:'assets/images/p012-sub.jpg' },
+      '013':{ name:'ウォールシェルフ',           price:9800,  mainImg:'assets/images/p013-main.jpg', subImg:'assets/images/p013-sub.jpg' },
+      '014':{ name:'リネン バスタオル セット',   price:6600,  mainImg:'assets/images/p014-main.jpg', subImg:'assets/images/p014-sub.jpg' },
+      '015':{ name:'竹製 バスマット',           price:4400,  mainImg:'assets/images/p015-main.jpg', subImg:'assets/images/p015-sub.jpg' },
+      '016':{ name:'ラタン バスケット',          price:7700,  mainImg:'assets/images/p016-main.jpg', subImg:'assets/images/p016-sub.jpg' },
+      '017':{ name:'ソイ キャンドル',           price:3300,  mainImg:'assets/images/p017-main.jpg', subImg:'assets/images/p017-sub.jpg' },
+      '018':{ name:'アロマ ディフューザー',      price:8800,  mainImg:'assets/images/p018-main.jpg', subImg:'assets/images/p018-sub.jpg' },
+    };
+
+    function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
+    function saveWishlist(l) { localStorage.setItem('hinoka_wishlist', JSON.stringify(l)); }
+
+    function render() {
+      const grid     = document.getElementById('wishlistGrid');
+      const wishlist = getWishlist();
+      grid.innerHTML = '';
+
+      if (wishlist.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+          <p>ウィッシュリストに商品がありません</p>
+          <a href="store.html">ショッピングを続ける</a>
+        </div>`;
+        return;
+      }
+
+      wishlist.forEach(id => {
+        const p = ALL_PRODUCTS[id];
+        if (!p) return;
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="product-image-wrapper">
+            <img class="main-img" src="${p.mainImg}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <img class="sub-img"  src="${p.subImg}"  alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <button class="remove-wish" data-id="${id}" title="削除">×</button>
+          </div>
+          <p class="product-name">${p.name}</p>
+          <p class="product-price">¥${p.price.toLocaleString()}（税込）</p>
+          <button class="add-wish-cart" data-id="${id}">カートに追加</button>
+        `;
+
+        card.querySelector('.remove-wish').addEventListener('click', e => {
+          e.stopPropagation();
+          const list = getWishlist();
+          const idx  = list.indexOf(id);
+          if (idx !== -1) list.splice(idx, 1);
+          saveWishlist(list);
+          render();
+        });
+
+        card.querySelector('.add-wish-cart').addEventListener('click', e => {
+          e.stopPropagation();
+          const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+          const found = items.find(i => i.id === id);
+          if (found) { found.qty++; } else {
+            items.push({ id, name: p.name, price: p.price, img: p.mainImg, qty: 1, color:'', size:'' });
+          }
+          localStorage.setItem('cartItems', JSON.stringify(items));
+          window.dispatchEvent(new Event('cartUpdated'));
+          if (typeof window.showCartToast === 'function') window.showCartToast();
+        });
+
+        card.addEventListener('click', () => { location.href = `product-detail.html?id=${id}`; });
+        grid.appendChild(card);
+      });
+    }
+
+    render();
+  })();
+  </script>
+</body>
+</html>
