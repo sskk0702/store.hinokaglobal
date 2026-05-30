@@ -85,23 +85,11 @@
         <a href="account.html">✦ マイアカウント</a>
       </div>
 
-      <div class="menu-footer-info">
-        <div class="menu-shipping-note">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-          <span>通常送料：550円（税込）<br>
-          <small>※北海道・沖縄・離島、一部大型商品は追加送料あり</small></span>
-        </div>
-        <div class="menu-contact">
-          <a href="mailto:sun_hua@hinokaglobal.com">sun_hua@hinokaglobal.com</a>
-        </div>
-        <div class="menu-back-company">
-          <a href="../index.html">← 会社サイトへ戻る</a>
-        </div>
-      </div>
-    </div>
-  </aside>
+<div class="menu-footer-info dior-footer">
+  <span class="dior-footer-title">HINOKA</span>
+  <span class="dior-footer-sub">Crafted for a calm and beautiful life.</span>
+</div>
+
 
   <!-- 検索モーダル -->
   <div class="search-modal" id="searchModal">
