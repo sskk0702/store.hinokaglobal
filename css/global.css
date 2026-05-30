@@ -407,3 +407,19 @@ img { display: block; max-width: 100%; }
 .dior-footer {
   animation: diorFadeIn 0.8s ease-out 0.2s both;
 }
+@keyframes diorLuxuryFade {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.dior-footer {
+  animation: diorLuxuryFade 1s ease-out 0.25s both;
+}
