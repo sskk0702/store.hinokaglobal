@@ -392,3 +392,18 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.12em;
   color: #666; /* 柔和灰色，奢侈品牌风 */
 }
+/* Dior 风淡入动画 */
+@keyframes diorFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dior-footer {
+  animation: diorFadeIn 0.8s ease-out 0.2s both;
+}
