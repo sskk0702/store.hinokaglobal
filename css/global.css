@@ -366,25 +366,3 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.04em;
   margin-top: auto; /* ← 让它自动贴到底部 */
 }
-
-.dior-footer-title {
-  display: block;
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.dior-footer-sub {
-  display: block;
-  font-size: 11px;
-  color: #777;
-  font-weight: 300;
-  letter-spacing: 0.08em;
-}
-.dior-footer {
-  margin-top: auto; /* ← 关键：推到底部 */
-  text-align: center;
-  padding: 60px 0 80px;
-  letter-spacing: 0.04em;
-}
