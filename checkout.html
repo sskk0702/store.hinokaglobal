@@ -4,688 +4,801 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ご注文手続き - 株式会社HINOKA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="css/global.css">
   <script src="https://js.stripe.com/v3/"></script>
   <style>
+    body { padding-top: var(--nav-height); background: #f8f8f6; }
+
+    /* ── レイアウト ── */
+    .checkout-wrap {
+      max-width: 1100px; margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; letter-spacing: 0.1em;
+      color: var(--gray-dark); margin-bottom: 24px;
+      transition: color var(--transition);
+    }
+    .back-link:hover { color: var(--black); }
+
+    /* ── カード ── */
+    .form-card {
+      background: var(--white);
+      padding: 32px;
+      margin-bottom: 16px;
+    }
+    .form-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 400;
+      letter-spacing: 0.12em; margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    /* ── フォーム ── */
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 0;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block; font-size: 11px;
+      letter-spacing: 0.12em; color: var(--gray-dark); margin-bottom: 6px;
+    }
+    .required { color: #cc0000; margin-left: 2px; }
+    .form-input {
+      width: 100%; border: 1px solid var(--gray-mid);
+      padding: 11px 14px; font-size: 13px;
+      font-family: inherit; outline: none;
+      transition: border-color 0.2s; background: var(--white);
+    }
+    .form-input:focus { border-color: var(--black); }
+    select.form-input { cursor: pointer; }
+
     /* ── 支払い方法タブ ── */
-    .payment-tabs {
-      display: flex;
-      gap: 0;
-      border: 1px solid #e5e9ec;
-      margin-bottom: 24px;
-      overflow: hidden;
+    .pay-tabs {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border: 1px solid var(--gray-mid);
+      margin-bottom: 24px; overflow: hidden;
     }
-
-    .payment-tab {
-      flex: 1;
-      padding: 14px 8px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 12px;
-      letter-spacing: 0.05em;
-      background: #fcfaf8;
-      border: none;
-      border-right: 1px solid #e5e9ec;
-      font-family: inherit;
-      color: #707a84;
+    .pay-tab {
+      padding: 14px 6px; text-align: center;
+      cursor: pointer; font-size: 11px; letter-spacing: 0.04em;
+      background: #fafaf8; border: none; border-right: 1px solid var(--gray-mid);
+      font-family: inherit; color: var(--gray-dark);
       transition: background 0.2s, color 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
     }
-
-    .payment-tab:last-child { border-right: none; }
-
-    .payment-tab.active {
-      background: #1a2530;
-      color: #fff;
-    }
-
-    .payment-tab .tab-icon { font-size: 18px; }
+    .pay-tab:last-child { border-right: none; }
+    .pay-tab .tab-icon { font-size: 20px; }
+    .pay-tab.active { background: var(--black); color: var(--white); }
 
     /* 支払いパネル */
-    .payment-panel { display: none; }
-    .payment-panel.active { display: block; }
+    .pay-panel { display: none; }
+    .pay-panel.active { display: block; }
 
+    /* Stripe card element */
+    #card-element {
+      background: #fcfaf8; border: 1px solid var(--gray-mid);
+      padding: 14px 16px; transition: border-color 0.2s;
+    }
+    #card-element.focused { border-color: var(--black); }
+    #card-errors { color: #cc0000; font-size: 12px; margin-top: 6px; min-height: 18px; }
+
+    /* セキュリティバッジ */
+    .security-note {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #f8fafb; border: 1px solid #e8edf0;
+      padding: 14px 16px; font-size: 11px;
+      color: var(--gray-dark); line-height: 1.8; margin-bottom: 20px;
+    }
+    .security-note svg { flex-shrink: 0; margin-top: 2px; }
+
+    /* 情報ボックス（銀行・コンビニ・PayPay） */
     .info-box {
-      background: #f8fafb;
-      border: 1px solid #e5e9ec;
-      padding: 16px 20px;
-      font-size: 12px;
-      color: #606a74;
-      line-height: 1.9;
-      margin-bottom: 20px;
+      background: #fafaf8; border: 1px solid #e8e4df;
+      padding: 20px; font-size: 12px;
+      color: #444; line-height: 2; margin-bottom: 20px;
+    }
+    .info-box strong { color: var(--black); }
+    .info-highlight {
+      background: #fff8f0; border: 1px solid #ffe0b2;
+      color: #e65100; padding: 12px 16px;
+      margin-top: 12px; font-size: 12px; line-height: 1.8;
     }
 
-    .info-box strong { color: #1a2530; }
-
-    .info-box .highlight {
-      background: #fff7ed;
-      border: 1px solid #ffedd5;
-      color: #ea580c;
-      padding: 10px 14px;
-      margin-top: 10px;
-      font-size: 12px;
-      line-height: 1.8;
-    }
-
-    /* PayPay QRコード風エリア */
-    .paypay-area {
-      text-align: center;
-      padding: 24px;
-      border: 1px solid #e5e9ec;
-      margin-bottom: 20px;
-      background: #fff;
-    }
-
-    .paypay-logo {
-      font-size: 28px;
-      font-weight: 700;
-      color: #e00;
-      letter-spacing: -1px;
-      margin-bottom: 8px;
-    }
-
-    .paypay-note {
-      font-size: 11px;
-      color: #808a94;
-      line-height: 1.8;
-    }
-
-    /* 戻るリンク */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      color: #707a84;
-      text-decoration: none;
-      margin-bottom: 28px;
-      transition: color 0.2s;
-    }
-    .back-link:hover { color: #1a2530; }
-
-    /* 支払い方法ラベル（サマリー右側） */
-    .summary-method-badge {
-      display: inline-block;
-      background: #1a2530;
-      color: #fff;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      padding: 3px 10px;
+    /* PayPay */
+    .paypay-logo-area {
+      text-align: center; padding: 24px 20px;
+      border: 1px solid #ffcdd2; background: #fff;
       margin-bottom: 16px;
+    }
+    .paypay-logo { font-size: 32px; font-weight: 800; color: #e00; letter-spacing: -1px; margin-bottom: 6px; }
+    .paypay-sub  { font-size: 11px; color: var(--gray-dark); line-height: 1.8; }
+
+    /* 確定ボタン */
+    .pay-btn {
+      width: 100%; padding: 17px;
+      background: var(--black); color: var(--white);
+      font-size: 12px; letter-spacing: 0.2em;
+      border: none; cursor: pointer; font-family: inherit;
+      transition: background var(--transition); margin-top: 8px;
+    }
+    .pay-btn:hover { background: #222; }
+    .pay-btn:disabled { background: #999; cursor: not-allowed; }
+
+    #pay-loading {
+      display: none; text-align: center; padding: 16px;
+      font-size: 12px; color: var(--gray-dark); letter-spacing: 0.08em;
+    }
+
+    /* ── 右：サマリー ── */
+    .checkout-summary {
+      background: var(--white);
+      padding: 28px 24px;
+      position: sticky;
+      top: calc(var(--nav-height) + 24px);
+    }
+    .checkout-summary h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 400;
+      letter-spacing: 0.12em; margin-bottom: 6px;
+    }
+    .method-badge {
+      display: inline-block; background: var(--black); color: var(--white);
+      font-size: 10px; letter-spacing: 0.1em;
+      padding: 3px 10px; margin-bottom: 20px;
+    }
+
+    .summary-item {
+      display: flex; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--gray-light);
+    }
+    .summary-item img {
+      width: 52px; aspect-ratio: 3/4;
+      object-fit: cover; background: var(--gray-light); flex-shrink: 0;
+    }
+    .summary-item-name  { font-size: 12px; margin-bottom: 3px; line-height: 1.5; }
+    .summary-item-price { font-size: 12px; color: var(--gray-dark); }
+
+    .summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; padding: 8px 0;
+      letter-spacing: 0.03em;
+    }
+    .summary-row.total {
+      font-size: 15px; font-weight: 500;
+      border-top: 1px solid var(--gray-mid);
+      padding-top: 14px; margin-top: 6px;
+    }
+    .summary-row.total span:last-child { color: #bf0000; }
+
+    .summary-shipping-note {
+      font-size: 10px; color: var(--gray-dark);
+      line-height: 1.8; margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--gray-light);
+    }
+
+    .stripe-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: #aaa; margin-top: 16px;
+    }
+
+    /* ── 成功モーダル ── */
+    .success-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .success-modal.open { display: flex; }
+    .success-box {
+      background: var(--white); padding: 48px 40px;
+      max-width: 460px; width: 90%; text-align: center;
+    }
+    .success-icon  { font-size: 48px; margin-bottom: 16px; }
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 300;
+      letter-spacing: 0.1em; margin-bottom: 16px;
+    }
+    .success-msg {
+      font-size: 13px; color: var(--gray-dark);
+      line-height: 2; margin-bottom: 28px;
+      white-space: pre-line;
+    }
+    .success-btn {
+      display: inline-block; padding: 14px 40px;
+      background: var(--black); color: var(--white);
+      font-size: 11px; letter-spacing: 0.2em;
+      cursor: pointer; border: none; font-family: inherit;
+    }
+
+    /* ── エラーメッセージ ── */
+    .form-error {
+      background: #fff0f0; border: 1px solid #ffcccc;
+      color: #cc0000; font-size: 12px;
+      padding: 12px 16px; margin-bottom: 16px; display: none;
+    }
+
+    @media (max-width: 768px) {
+      .checkout-wrap { grid-template-columns: 1fr; gap: 20px; padding: 24px 16px 60px; }
+      .checkout-summary { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+      .pay-tabs { grid-template-columns: repeat(2,1fr); }
+      .pay-tab:nth-child(2) { border-right: none; }
+      .pay-tab:nth-child(3) { border-top: 1px solid var(--gray-mid); }
+      .pay-tab:nth-child(4) { border-top: 1px solid var(--gray-mid); border-right: none; }
+      .form-card { padding: 24px 20px; }
     }
   </style>
 </head>
 <body>
 
-  <header id="header">
-    <a href="../index.html" class="logo-text">
-      HINOKA
-      <span>株式会社 · HINOKA Co., Ltd.</span>
-    </a>
-    <nav class="main-nav">
-      <a href="../index.html">ホーム</a>
-      <a href="store.html">オンラインショップ</a>
-      <a href="../about.html">会社概要</a>
-      <a href="../contact.html" class="nav-contact">お問い合わせ</a>
-    </nav>
-  </header>
+  <div class="checkout-wrap">
 
-  <div class="page-hero" style="min-height:0;">
-    <div class="page-hero-inner" style="padding-bottom:32px;">
-      <div class="page-hero-content">
-        <div class="breadcrumb">
-          <a href="../index.html">Home</a><span>/</span>
-          <a href="store.html">オンラインショップ</a><span>/</span>
-          <a href="cart.html">カート</a><span>/</span>
-          ご注文手続き
+    <!-- ══ 左：フォーム ══ -->
+    <div>
+      <a class="back-link" href="cart.html">← カートに戻る</a>
+
+      <!-- お届け先 -->
+      <div class="form-card">
+        <h3>お届け先情報</h3>
+        <div class="form-error" id="form-error"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">姓 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="last-name" placeholder="山田" autocomplete="family-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">名 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="first-name" placeholder="花子" autocomplete="given-name">
+          </div>
         </div>
-        <h1 class="page-title">ご注文手続き</h1>
+        <div class="form-group">
+          <label class="form-label">メールアドレス <span class="required">*</span></label>
+          <input type="email" class="form-input" id="email" placeholder="example@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">電話番号 <span class="required">*</span></label>
+          <input type="tel" class="form-input" id="phone" placeholder="090-0000-0000" autocomplete="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">郵便番号 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8" autocomplete="postal-code">
+        </div>
+        <div class="form-group">
+          <label class="form-label">都道府県 <span class="required">*</span></label>
+          <select class="form-input" id="prefecture" autocomplete="address-level1">
+            <option value="" disabled selected>選択してください</option>
+            <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+            <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+            <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+            <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+            <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+            <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+            <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+            <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+            <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+            <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+            <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+            <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">市区町村・番地 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="address" placeholder="大阪市浪速区〇番〇号" autocomplete="address-line1">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">建物名・部屋番号</label>
+          <input type="text" class="form-input" id="address2" placeholder="〇〇マンション 101号室" autocomplete="address-line2">
+        </div>
+      </div>
+
+      <!-- お支払い方法 -->
+      <div class="form-card">
+        <h3>お支払い方法</h3>
+
+        <div class="pay-tabs">
+          <button class="pay-tab active" data-tab="credit">
+            <span class="tab-icon">💳</span>クレジット
+          </button>
+          <button class="pay-tab" data-tab="bank">
+            <span class="tab-icon">🏦</span>銀行振込
+          </button>
+          <button class="pay-tab" data-tab="conbini">
+            <span class="tab-icon">🏪</span>コンビニ
+          </button>
+          <button class="pay-tab" data-tab="paypay">
+            <span class="tab-icon">📱</span>PayPay
+          </button>
+        </div>
+
+        <!-- ① クレジットカード -->
+        <div class="pay-panel active" id="panel-credit">
+          <div class="form-group">
+            <label class="form-label">カード情報 <span class="required">*</span></label>
+            <div id="card-element"></div>
+            <div id="card-errors"></div>
+          </div>
+          <div class="security-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <span>お支払い情報はStripeにより暗号化・安全に処理されます。カード情報は当社サーバーに保存されません。</span>
+          </div>
+        </div>
+
+        <!-- ② 銀行振込 -->
+        <div class="pay-panel" id="panel-bank">
+          <div class="info-box">
+            <strong>【銀行振込のご案内】</strong><br>
+            ご注文確定後、登録のメールアドレスへ振込先口座情報をお送りします。<br><br>
+            🏦 振込先口座：<br>
+            　銀行名：<strong id="bank-name-display">〇〇銀行</strong><br>
+            　支店名：<strong id="bank-branch-display">〇〇支店</strong><br>
+            　口座種別：普通　口座番号：<strong id="bank-number-display">1234567</strong><br>
+            　口座名義：<strong id="bank-holder-display">カ）ヒノカ</strong><br><br>
+            ⏰ お振込期限：ご注文日より <strong>3営業日以内</strong><br>
+            期限内にご入金が確認できない場合、ご注文をキャンセルとなります。<br>
+            振込手数料はお客様ご負担となります。
+            <div class="info-highlight">
+              ✉️ ご注文確定後の自動返信メールに振込先の詳細情報が記載されます。
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ コンビニ払い -->
+        <div class="pay-panel" id="panel-conbini">
+          <div class="info-box">
+            <strong>【コンビニ払いのご案内】</strong><br>
+            ご注文確定後、お支払い番号をメールにてお送りします。<br><br>
+            🏪 対応コンビニ：<strong>セブン‐イレブン・ファミリーマート・ローソン</strong><br><br>
+            📋 お支払い方法：<br>
+            　レジにて「コンビニ払い（Pay-easy）」とお伝えください<br>
+            　メールに記載の<strong>お支払い番号</strong>をご提示ください<br><br>
+            ⏰ お支払い期限：ご注文日より <strong>3日以内</strong><br>
+            期限を過ぎると番号が無効になり、ご注文がキャンセルとなります。
+            <div class="info-highlight">
+              ✉️ ご注文確定後の自動返信メールにお支払い番号と手順が記載されます。
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ PayPay -->
+        <div class="pay-panel" id="panel-paypay">
+          <div class="paypay-logo-area">
+            <div class="paypay-logo">PayPay</div>
+            <p class="paypay-sub">
+              「注文を確定する」をタップするとPayPayアプリへ移動します。<br>
+              <strong>スマートフォンでのご利用を推奨します。</strong>
+            </p>
+          </div>
+          <div class="info-box">
+            📱 PayPayアプリが端末にインストールされている必要があります。<br>
+            決済完了後、自動的にサイトへ戻ります。<br><br>
+            ⚠️ 現在PayPayは受注確認後に担当者よりお支払いリンクをメールにてご案内しております。
+          </div>
+        </div>
+
+        <!-- 確定ボタン -->
+        <button class="pay-btn" id="payBtn">注文を確定する</button>
+        <div id="pay-loading">処理中... しばらくお待ちください</div>
+      </div>
+    </div>
+
+    <!-- ══ 右：注文サマリー ══ -->
+    <div>
+      <div class="checkout-summary">
+        <h3>ご注文内容</h3>
+        <div class="method-badge" id="methodBadge">💳 クレジットカード</div>
+        <div id="summaryItems"></div>
+        <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
+        <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
+        <div class="summary-row"><span>消費税（10%含む）</span><span id="sumTax">¥0</span></div>
+        <div class="summary-row total"><span>合計（税込）</span><span id="sumTotal">¥0</span></div>
+        <div class="summary-shipping-note" id="shippingNote">
+          🚚 通常送料：550円（税込）<br>
+          ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。
+        </div>
+        <div class="stripe-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Stripe による安全な決済
+        </div>
       </div>
     </div>
   </div>
-
-  <section class="checkout-section">
-    <div class="checkout-grid">
-
-      <!-- ══ 左：フォーム ══ -->
-      <div class="checkout-form-block">
-        <a href="cart.html" class="back-link">← カートに戻る</a>
-
-        <!-- お届け先 -->
-        <h3>お届け先情報</h3>
-        <div class="contact-form" style="margin-bottom:40px;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-            <div class="form-group">
-              <label class="form-label">姓 <span class="required">*</span></label>
-              <input type="text" class="form-input" id="last-name" placeholder="山田" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">名 <span class="required">*</span></label>
-              <input type="text" class="form-input" id="first-name" placeholder="太郎" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">メールアドレス <span class="required">*</span></label>
-            <input type="email" class="form-input" id="email" placeholder="example@email.com" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">電話番号 <span class="required">*</span></label>
-            <input type="tel" class="form-input" id="phone" placeholder="090-0000-0000" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">郵便番号 <span class="required">*</span></label>
-            <input type="text" class="form-input" id="postal" placeholder="000-0000" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">都道府県 <span class="required">*</span></label>
-            <select class="form-select form-input" id="prefecture" required>
-              <option value="" disabled selected>選択してください</option>
-              <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
-              <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
-              <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
-              <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
-              <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
-              <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
-              <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
-              <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
-              <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
-              <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
-              <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
-              <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">市区町村・番地 <span class="required">*</span></label>
-            <input type="text" class="form-input" id="address" placeholder="大阪市浪速区〇番〇号" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">建物名・部屋番号</label>
-            <input type="text" class="form-input" id="address2" placeholder="〇〇マンション 101号室">
-          </div>
-        </div>
-
-        <!-- ══ お支払い方法 ══ -->
-        <h3>お支払い方法</h3>
-        <div class="contact-form">
-
-          <!-- タブ切替 -->
-          <div class="payment-tabs">
-            <button class="payment-tab active" data-tab="credit">
-              <span class="tab-icon">💳</span>クレジットカード
-            </button>
-            <button class="payment-tab" data-tab="bank">
-              <span class="tab-icon">🏦</span>銀行振込
-            </button>
-            <button class="payment-tab" data-tab="conbini">
-              <span class="tab-icon">🏪</span>コンビニ払い
-            </button>
-            <button class="payment-tab" data-tab="paypay">
-              <span class="tab-icon">📱</span>PayPay
-            </button>
-          </div>
-
-          <!-- ① クレジットカード -->
-          <div class="payment-panel active" id="panel-credit">
-            <div class="form-group">
-              <label class="form-label">カード情報 <span class="required">*</span></label>
-              <div id="card-element" style="background:#fcfaf8;border:1px solid #e5e9ec;padding:14px 16px;"></div>
-              <div id="card-errors" style="color:#e53e3e;font-size:12px;margin-top:6px;"></div>
-            </div>
-            <div class="info-box">
-              🔒 お支払い情報はStripeにより暗号化され、安全に処理されます。<br>
-              カード情報は当社サーバーには保存されません。
-            </div>
-          </div>
-
-          <!-- ② 銀行振込 -->
-          <div class="payment-panel" id="panel-bank">
-            <div class="info-box">
-              <strong>【銀行振込のご案内】</strong><br>
-              ご注文確定後、ご登録のメールアドレスへ振込先口座情報をお送りします。<br><br>
-              📌 振込先（仮）：<strong>〇〇銀行 〇〇支店</strong><br>
-              　　口座種別：普通　口座番号：<strong>1234567</strong><br>
-              　　口座名義：<strong>カ）ヒノカ</strong><br><br>
-              ⚠️ ご注文日より <strong>3営業日以内</strong>にお振込みください。<br>
-              期限内にご入金が確認できない場合、ご注文をキャンセルさせていただく場合がございます。<br>
-              振込手数料はお客様ご負担となります。
-              <div class="highlight">
-                ✉️ ご注文確定後、自動返信メールに<strong>振込先の詳細情報</strong>が記載されます。
-              </div>
-            </div>
-          </div>
-
-          <!-- ③ コンビニ払い -->
-          <div class="payment-panel" id="panel-conbini">
-            <div class="info-box">
-              <strong>【コンビニ払いのご案内】</strong><br>
-              ご注文確定後、お支払い番号をメールにてお送りします。<br>
-              以下のコンビニにてお支払いいただけます：<br><br>
-              🏪 対応コンビニ：<strong>セブン‐イレブン / ファミリーマート / ローソン</strong><br><br>
-              📌 お支払い方法：<br>
-              　・レジにて「コンビニ払い（Pay-easy）」とお伝えください<br>
-              　・メールに記載の<strong>お支払い番号</strong>をご提示ください<br><br>
-              ⚠️ お支払い期限：ご注文日より <strong>3日以内</strong><br>
-              期限を過ぎると番号が無効になりご注文がキャンセルとなります。
-              <div class="highlight">
-                ✉️ ご注文確定後、自動返信メールに<strong>お支払い番号と手順</strong>が記載されます。
-              </div>
-            </div>
-          </div>
-
-          <!-- ④ PayPay -->
-          <div class="payment-panel" id="panel-paypay">
-            <div class="paypay-area">
-              <div class="paypay-logo">PayPay</div>
-              <p class="paypay-note">
-                「注文を確定する」ボタンをタップすると<br>
-                PayPayアプリへ自動的にリダイレクトされます。<br><br>
-                <strong>※ スマートフォンでのご利用を推奨します</strong>
-              </p>
-            </div>
-            <div class="info-box">
-              📱 PayPayアプリが端末にインストールされている必要があります。<br>
-              決済完了後、自動的にHINOKAサイトへ戻ります。<br><br>
-              ⚠️ <strong>StripeダッシュボードでPayPayを有効化</strong>してから本番運用してください。<br>
-              （Stripe Dashboard → Settings → Payment Methods → PayPay）
-            </div>
-          </div>
-
-          <!-- 確定ボタン -->
-          <button type="button" id="pay-btn" class="btn-solid" style="width:100%;justify-content:center;font-size:13px;padding:18px;margin-top:8px;">
-            注文を確定する
-          </button>
-          <div id="pay-loading" style="display:none;text-align:center;padding:16px;font-size:13px;color:#606a74;letter-spacing:0.05em;">
-            処理中... しばらくお待ちください
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ 右：注文サマリー ══ -->
-      <div>
-        <div class="checkout-summary" style="position:sticky;top:120px;">
-          <h3>ご注文内容</h3>
-          <div id="summary-method-badge" class="summary-method-badge">💳 クレジットカード</div>
-          <div id="checkout-items"></div>
-
-          <div class="summary-total">
-            <span>商品小計</span>
-            <span id="checkout-subtotal">¥0</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:#707a84;padding:8px 0;">
-            <span>送料合計</span>
-            <span id="checkout-shipping" style="font-weight:600;color:#00875a;">送料無料</span>
-          </div>
-          <div id="island-notice" style="display:none;background:#fff7ed;border:1px solid #ffedd5;color:#ea580c;padding:12px;font-size:12px;line-height:1.6;margin-top:10px;"></div>
-          <div class="summary-total" style="border-top:1px solid #e5e9ec;padding-top:16px;margin-top:8px;">
-            <span>総合計（税込）</span>
-            <span id="checkout-total" style="color:#bf0000;font-size:18px;">¥0</span>
-          </div>
-
-          <div class="stripe-note" style="margin-top:20px;display:flex;align-items:center;gap:6px;font-size:12px;color:#808a94;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
-            Stripe による安全な決済
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <!-- 成功モーダル -->
-  <div id="success-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-    <div style="background:#fff;padding:48px;max-width:480px;width:90%;text-align:center;">
-      <div style="font-size:48px;margin-bottom:16px;" id="success-icon">✅</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#1a2530;margin-bottom:16px;">
-        ご注文ありがとうございます
-      </div>
-      <p id="success-message" style="font-size:14px;color:#606a74;line-height:1.9;margin-bottom:32px;"></p>
-      <a href="store.html" class="btn-solid" style="margin:0 auto;text-decoration:none;display:inline-block;">ショップに戻る</a>
+  <div class="success-modal" id="successModal">
+    <div class="success-box">
+      <div class="success-icon" id="successIcon">✅</div>
+      <div class="success-title">ご注文ありがとうございます</div>
+      <p class="success-msg" id="successMsg"></p>
+      <button class="success-btn" onclick="localStorage.removeItem('cartItems');localStorage.removeItem('hinoka_cart');sessionStorage.removeItem('hinoka_selected_region');location.href='store.html'">
+        ショッピングを続ける
+      </button>
     </div>
   </div>
 
-  <footer>
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="logo-text">HINOKA<span>株式会社 · HINOKA Co., Ltd.</span></div>
-        <div class="footer-tagline">暮らしに、<br>ときめきを。</div>
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">暮らしに、ときめきを。</div>
       </div>
-      <div class="footer-col"><h4>Shop</h4><a href="store.html">すべての商品</a></div>
       <div class="footer-col">
-        <h4>Company</h4>
-        <a href="../about.html">会社概要</a>
-        <a href="../contact.html">お問い合わせ</a>
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=fashion">ファッション</a>
+        <a href="product-list.html?category=daily">生活雑貨</a>
       </div>
-      <div class="footer-col"><h4>Contact</h4><a href="mailto:sun_hua@hinokaglobal.com">sun_hua@hinokaglobal.com</a></div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーノーティス</a>
+        <a href="legal.html#cookie">Cookieポリシー</a>
+        <a href="../index.html">← 会社サイトへ</a>
+      </div>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+      <span class="footer-shipping-badge">🚚 通常送料：550円（税込）※北海道・沖縄・離島は追加送料あり</span>
     </div>
   </footer>
 
+  <script src="js/nav.js"></script>
   <script>
-  // ════════════════════════════════════════════
-  //  HINOKA CHECKOUT — 統合決済スクリプト
-  // ════════════════════════════════════════════
+  (() => {
+    // ════════════════════════════════════════
+    //  設定（本番前に変更してください）
+    // ════════════════════════════════════════
+    const CONFIG = {
+      stripeKey:    'pk_test_51TabnLGIo4RcICnlbIwzNVaoyxnWwR7uPXKyz6dJpL9uWTVpIt7vDm2gLOO4TtdS1RDPOz1EPvM5MTm0C1APVxRE00eHEdthKw',
+      formspreeUrl: 'https://formspree.io/f/YOUR_FORMSPREE_ID', // ← ここを変更
+      bank: {
+        name:   '〇〇銀行',    // ← 実際の銀行名
+        branch: '〇〇支店',    // ← 支店名
+        number: '1234567',     // ← 口座番号
+        holder: 'カ）ヒノカ'  // ← 口座名義
+      }
+    };
 
-  // ── 設定（本番前に必ず変更） ──────────────────
-  const CONFIG = {
-    stripeKey:    'pk_test_51TabnLGIo4RcICnlbIwzNVaoyxnWwR7uPXKyz6dJpL9uWTVpIt7vDm2gLOO4TtdS1RDPOz1EPvM5MTm0C1APVxRE00eHEdthKw',
-    formspreeUrl: 'https://formspree.io/f/你的Formspree专属链接',
-    bankInfo: {
-      bank:    '〇〇銀行',
-      branch:  '〇〇支店',
-      type:    '普通',
-      number:  '1234567',
-      name:    'カ）ヒノカ'
+    // 銀行情報をHTMLに反映
+    document.getElementById('bank-name-display').textContent   = CONFIG.bank.name;
+    document.getElementById('bank-branch-display').textContent = CONFIG.bank.branch;
+    document.getElementById('bank-number-display').textContent = CONFIG.bank.number;
+    document.getElementById('bank-holder-display').textContent = CONFIG.bank.holder;
+
+    // ════════════════════════════════════════
+    //  Stripe初期化
+    // ════════════════════════════════════════
+    let stripe, cardElement;
+    try {
+      stripe = Stripe(CONFIG.stripeKey);
+      const elements = stripe.elements({
+        fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap' }]
+      });
+      cardElement = elements.create('card', {
+        style: {
+          base: {
+            fontFamily: "'Noto Sans JP', sans-serif",
+            fontSize: '14px', color: '#1a1a1a',
+            '::placeholder': { color: '#aaa' }
+          },
+          invalid: { color: '#cc0000' }
+        }
+      });
+      cardElement.mount('#card-element');
+      cardElement.on('focus',  () => document.getElementById('card-element').classList.add('focused'));
+      cardElement.on('blur',   () => document.getElementById('card-element').classList.remove('focused'));
+      cardElement.on('change', e => {
+        document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+      });
+    } catch(e) {
+      document.getElementById('card-element').innerHTML =
+        '<p style="font-size:12px;color:#aaa;padding:4px 0;">⚠️ Stripeキーを確認してください</p>';
     }
-  };
 
-  // ── 現在の支払い方法 ─────────────────────────
-  let currentMethod = 'credit';
+    // ════════════════════════════════════════
+    //  支払い方法タブ
+    // ════════════════════════════════════════
+    let currentMethod = 'credit';
+    const METHOD_LABELS = {
+      credit:  '💳 クレジットカード',
+      bank:    '🏦 銀行振込',
+      conbini: '🏪 コンビニ払い',
+      paypay:  '📱 PayPay'
+    };
 
-  // ── Stripe初期化 ─────────────────────────────
-  let stripe, cardElement;
-  try {
-    stripe = Stripe(CONFIG.stripeKey);
-    const elements = stripe.elements({
-      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap' }]
+    document.querySelectorAll('.pay-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        currentMethod = tab.dataset.tab;
+        document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`panel-${currentMethod}`).classList.add('active');
+        document.getElementById('methodBadge').textContent = METHOD_LABELS[currentMethod];
+      });
     });
-    cardElement = elements.create('card', {
-      style: {
-        base: {
-          fontFamily: "'Noto Sans JP', sans-serif",
-          fontSize: '14px',
-          color: '#2a2520',
-          '::placeholder': { color: '#9a9490' }
+
+    // ════════════════════════════════════════
+    //  カートデータ（両キー対応）
+    // ════════════════════════════════════════
+    function getCart() {
+      const a = JSON.parse(localStorage.getItem('cartItems')   || '[]');
+      const b = JSON.parse(localStorage.getItem('hinoka_cart') || '[]');
+      return a.length > 0 ? a : b;
+    }
+
+    // ════════════════════════════════════════
+    //  送料計算
+    // ════════════════════════════════════════
+    function calcShipping() {
+      const pref = document.getElementById('prefecture').value;
+      const addr = document.getElementById('address').value;
+      const isIsland = pref === '北海道' || pref === '沖縄県' ||
+                       addr.includes('離島') || addr.includes('利島') || addr.includes('小笠原');
+      return isIsland ? 1500 : 550; // 通常550円
+    }
+
+    // ════════════════════════════════════════
+    //  サマリー描画
+    // ════════════════════════════════════════
+    function renderSummary() {
+      const cart      = getCart();
+      const container = document.getElementById('summaryItems');
+      container.innerHTML = '';
+
+      let subtotal = 0;
+      cart.forEach(item => {
+        subtotal += item.price * item.qty;
+        const el = document.createElement('div');
+        el.className = 'summary-item';
+        el.innerHTML = `
+          <img src="${item.img || 'assets/images/placeholder.jpg'}" alt="${item.name}"
+               onerror="this.src='assets/images/placeholder.jpg'">
+          <div>
+            <p class="summary-item-name">${item.name}　×${item.qty}</p>
+            <p class="summary-item-price">¥${(item.price * item.qty).toLocaleString()}</p>
+            ${item.size  ? `<p class="summary-item-price">サイズ：${item.size}</p>` : ''}
+          </div>`;
+        container.appendChild(el);
+      });
+
+      const shipping = calcShipping();
+      const tax      = Math.round(subtotal * 0.1);
+      const total    = subtotal + shipping;
+
+      document.getElementById('sumSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
+      document.getElementById('sumShipping').textContent = `¥${shipping.toLocaleString()}`;
+      document.getElementById('sumTax').textContent      = `（税${tax.toLocaleString()}円含む）`;
+      document.getElementById('sumTotal').textContent    = `¥${total.toLocaleString()}`;
+
+      // 離島・北海道の場合は注意書き更新
+      const shippingNote = document.getElementById('shippingNote');
+      if (shipping > 550) {
+        shippingNote.innerHTML = `⚠️ <strong>追加送料が適用されています（¥${shipping.toLocaleString()}）</strong><br>北海道・沖縄・離島地域への配送のため追加送料が発生しています。`;
+        shippingNote.style.color = '#e65100';
+      } else {
+        shippingNote.innerHTML  = `🚚 通常送料：550円（税込）<br>※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。`;
+        shippingNote.style.color = '';
+      }
+
+      return { cart, subtotal, shipping, total };
+    }
+
+    // 都道府県・住所変更時に再計算
+    document.getElementById('prefecture').addEventListener('change', renderSummary);
+    document.getElementById('address').addEventListener('input',    renderSummary);
+    renderSummary();
+
+    // 郵便番号フォーマット
+    document.getElementById('postal').addEventListener('input', function() {
+      const v = this.value.replace(/\D/g,'');
+      this.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
+    });
+
+    // ════════════════════════════════════════
+    //  バリデーション
+    // ════════════════════════════════════════
+    function validate() {
+      const errEl  = document.getElementById('form-error');
+      const fields = [
+        { id:'last-name',  label:'姓' },
+        { id:'first-name', label:'名' },
+        { id:'email',      label:'メールアドレス' },
+        { id:'phone',      label:'電話番号' },
+        { id:'postal',     label:'郵便番号' },
+        { id:'address',    label:'市区町村・番地' },
+      ];
+      for (const f of fields) {
+        if (!document.getElementById(f.id).value.trim()) {
+          errEl.textContent = `「${f.label}」を入力してください。`;
+          errEl.style.display = 'block';
+          document.getElementById(f.id).focus();
+          return false;
         }
       }
-    });
-    cardElement.mount('#card-element');
-    cardElement.on('change', e => {
-      document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
-    });
-  } catch(e) {
-    document.getElementById('card-element').innerHTML =
-      '<div style="font-size:13px;color:#9a9490;padding:4px 0;">⚠️ Stripeキーを確認してください</div>';
-  }
-
-  // ── 支払い方法タブ切替 ─────────────────────────
-  const METHOD_LABELS = {
-    credit:  '💳 クレジットカード',
-    bank:    '🏦 銀行振込',
-    conbini: '🏪 コンビニ払い',
-    paypay:  '📱 PayPay'
-  };
-
-  document.querySelectorAll('.payment-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      currentMethod = tab.dataset.tab;
-
-      // タブ切替
-      document.querySelectorAll('.payment-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(`panel-${currentMethod}`).classList.add('active');
-
-      // サマリーのバッジ更新
-      document.getElementById('summary-method-badge').textContent = METHOD_LABELS[currentMethod];
-    });
-  });
-
-  // ── カートデータ読み込み（両キー対応） ──────────
-  function getCartItems() {
-    const n = JSON.parse(localStorage.getItem('cartItems')   || '[]');
-    const o = JSON.parse(localStorage.getItem('hinoka_cart') || '[]');
-    return n.length > 0 ? n : o;
-  }
-
-  // ── 注文サマリー描画 ──────────────────────────
-  function renderSummary() {
-    const cart = getCartItems();
-    const itemsEl = document.getElementById('checkout-items');
-
-    let region = sessionStorage.getItem('hinoka_selected_region') || 'mainland';
-    const pref = document.getElementById('prefecture')?.value || '';
-    const addr = document.getElementById('address')?.value    || '';
-    if (pref.includes('沖縄') || addr.includes('離島') || addr.includes('利島') || addr.includes('小笠原')) {
-      region = 'island';
-    }
-
-    if (cart.length === 0) {
-      itemsEl.innerHTML = '<div style="font-size:13px;color:#808a94;padding:12px 0;">カートが空です</div>';
-      ['checkout-subtotal','checkout-total'].forEach(id => document.getElementById(id).textContent = '¥0');
-      document.getElementById('checkout-shipping').innerHTML = '送料無料';
-      return;
-    }
-
-    let subtotal = 0;
-    itemsEl.innerHTML = cart.map(i => {
-      subtotal += i.price * i.qty;
-      return `<div style="display:flex;justify-content:space-between;font-size:13px;color:#1a2530;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed #e5e9ec;">
-        <span style="font-weight:600;">${i.name} <span style="color:#707a84;font-weight:normal;">(x${i.qty})</span></span>
-        <span>¥${(i.price * i.qty).toLocaleString()}</span>
-      </div>`;
-    }).join('');
-
-    const shipping   = region === 'island' ? 1500 : 0;
-    const grandTotal = subtotal + shipping;
-
-    document.getElementById('checkout-subtotal').textContent = `¥${subtotal.toLocaleString()}`;
-    document.getElementById('checkout-total').textContent    = `¥${grandTotal.toLocaleString()}`;
-
-    const shippingEl = document.getElementById('checkout-shipping');
-    const noticeEl   = document.getElementById('island-notice');
-    if (shipping > 0) {
-      shippingEl.innerHTML = `<span style="color:#ea580c;">¥${shipping.toLocaleString()}</span>`;
-      noticeEl.innerHTML   = `📍 <strong>離島・沖縄地域：</strong>離島中継料 ¥1,500 が追加されています。`;
-      noticeEl.style.display = 'block';
-    } else {
-      shippingEl.innerHTML   = `<span style="color:#00875a;">送料無料</span>`;
-      noticeEl.style.display = 'none';
-    }
-
-    return { cart, subtotal, shipping, grandTotal, region };
-  }
-
-  // ── フォームバリデーション ────────────────────
-  function validateForm() {
-    const fields = ['last-name','first-name','email','phone','postal','address'];
-    for (const id of fields) {
-      const el = document.getElementById(id);
-      if (!el.value.trim()) {
-        el.focus();
-        alert('必須項目をすべてご入力ください。');
+      if (!document.getElementById('prefecture').value) {
+        errEl.textContent = '「都道府県」を選択してください。';
+        errEl.style.display = 'block';
         return false;
       }
+      errEl.style.display = 'none';
+      return true;
     }
-    if (document.getElementById('prefecture').value === '') {
-      alert('都道府県を選択してください。');
-      return false;
+
+    // ════════════════════════════════════════
+    //  Formspree送信
+    // ════════════════════════════════════════
+    async function sendFormspree(data) {
+      const fd = new FormData();
+      Object.entries(data).forEach(([k,v]) => fd.append(k, v));
+      const res = await fetch(CONFIG.formspreeUrl, {
+        method: 'POST', body: fd,
+        headers: { 'Accept': 'application/json' }
+      });
+      return res.ok;
     }
-    return true;
-  }
 
-  // ── Formspreeへ注文データ送信 ─────────────────
-  async function sendToFormspree(payload) {
-    const fd = new FormData();
-    Object.entries(payload).forEach(([k, v]) => fd.append(k, v));
-    const res = await fetch(CONFIG.formspreeUrl, {
-      method: 'POST', body: fd,
-      headers: { 'Accept': 'application/json' }
-    });
-    return res.ok;
-  }
-
-  // ── 成功モーダル表示 ──────────────────────────
-  function showSuccess(method) {
-    const messages = {
-      credit:  'ご注文情報を正常に受け付けました。\n確認メールをお送りいたします。',
-      bank:    'ご注文ありがとうございます。\n\n振込先口座情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n' +
-               CONFIG.bankInfo.bank + ' ' + CONFIG.bankInfo.branch + '\n' +
-               CONFIG.bankInfo.type + '　' + CONFIG.bankInfo.number + '\n' +
-               CONFIG.bankInfo.name,
-      conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した確認メールをお送りしました。\nメールのご案内に従い3日以内にお支払いください。',
-      paypay:  'PayPay決済が完了しました。\nご注文確認メールをお送りいたします。'
+    // ════════════════════════════════════════
+    //  成功モーダル
+    // ════════════════════════════════════════
+    const SUCCESS_MESSAGES = {
+      credit:  'ご注文情報を受け付けました。\n確認メールをお送りいたします。',
+      bank:    `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name} ${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
+      conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した\n確認メールをお送りしました。\n3日以内にお支払いください。',
+      paypay:  'ご注文を受け付けました。\n\n担当者よりPayPayお支払いリンクを\nメールにてご案内いたします。\nしばらくお待ちください。'
     };
-    document.getElementById('success-message').textContent = messages[method];
-    document.getElementById('success-modal').style.display = 'flex';
-  }
 
-  // ── 注文確定ボタン ────────────────────────────
-  document.getElementById('pay-btn').addEventListener('click', async () => {
-    if (!validateForm()) return;
+    function showSuccess(method) {
+      document.getElementById('successMsg').textContent  = SUCCESS_MESSAGES[method];
+      document.getElementById('successModal').classList.add('open');
+    }
 
-    const btn     = document.getElementById('pay-btn');
-    const loading = document.getElementById('pay-loading');
-    const summary = renderSummary();
-    if (!summary) return;
+    // ════════════════════════════════════════
+    //  注文確定ボタン
+    // ════════════════════════════════════════
+    document.getElementById('payBtn').addEventListener('click', async () => {
+      if (!validate()) return;
 
-    const { cart, subtotal, shipping, grandTotal, region } = summary;
+      const { cart, subtotal, shipping, total } = renderSummary();
+      if (cart.length === 0) {
+        document.getElementById('form-error').textContent = 'カートに商品がありません。';
+        document.getElementById('form-error').style.display = 'block';
+        return;
+      }
 
-    // 共通フォームデータ
-    const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
-    const email = document.getElementById('email').value;
-    const addr  = [
-      document.getElementById('postal').value,
-      document.getElementById('prefecture').value,
-      document.getElementById('address').value,
-      document.getElementById('address2').value
-    ].filter(Boolean).join(' ');
+      const btn     = document.getElementById('payBtn');
+      const loading = document.getElementById('pay-loading');
+      btn.disabled  = true;
+      btn.style.display     = 'none';
+      loading.style.display = 'block';
 
-    // Formspree用明細テキスト
-    let invoice = '===== 注文商品明細 =====\n';
-    cart.forEach((item, i) => {
-      invoice += `${i+1}. ${item.name} × ${item.qty}  ¥${(item.price*item.qty).toLocaleString()}\n`;
-    });
-    invoice += `========================\n`;
-    invoice += `【配送地域】: ${region === 'island' ? '離島・沖縄（中継料対象）' : '一般地域'}\n`;
-    invoice += `【商品小計】: ¥${subtotal.toLocaleString()}\n`;
-    invoice += `【送料】: ¥${shipping.toLocaleString()}\n`;
-    invoice += `【総合計】: ¥${grandTotal.toLocaleString()}（税込）\n`;
-    invoice += `【支払方法】: ${METHOD_LABELS[currentMethod]}`;
+      // 共通データ
+      const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
+      const email = document.getElementById('email').value;
+      const addr  = [
+        document.getElementById('postal').value,
+        document.getElementById('prefecture').value,
+        document.getElementById('address').value,
+        document.getElementById('address2').value
+      ].filter(Boolean).join(' ');
 
-    btn.style.display     = 'none';
-    loading.style.display = 'block';
+      // 注文明細テキスト
+      let invoice = '===== 注文商品明細 =====\n';
+      cart.forEach((item, i) => {
+        invoice += `${i+1}. ${item.name}`;
+        if (item.size)  invoice += ` [${item.size}]`;
+        invoice += ` × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
+      });
+      invoice += `========================\n`;
+      invoice += `【配送地域】: ${shipping > 550 ? '北海道・沖縄・離島（追加送料対象）' : '一般地域'}\n`;
+      invoice += `【商品小計】: ¥${subtotal.toLocaleString()}\n`;
+      invoice += `【送料】: ¥${shipping.toLocaleString()}\n`;
+      invoice += `【総合計（税込）】: ¥${total.toLocaleString()}\n`;
+      invoice += `【支払方法】: ${METHOD_LABELS[currentMethod]}`;
 
-    try {
-      // ── ① クレジットカード（Stripe） ──────────
-      if (currentMethod === 'credit') {
-        if (!stripe || !cardElement) throw new Error('Stripe未初期化');
+      const commonData = {
+        customer_name:    name,
+        customer_email:   email,
+        customer_phone:   document.getElementById('phone').value,
+        shipping_address: addr,
+        total_amount:     `¥${total.toLocaleString()}`,
+        payment_type:     METHOD_LABELS[currentMethod],
+        cart_items_invoice: invoice
+      };
 
-        const { paymentMethod, error } = await stripe.createPaymentMethod({
-          type: 'card',
-          card: cardElement,
-          billing_details: { name, email }
-        });
-
-        if (error) {
-          document.getElementById('card-errors').textContent = error.message;
-          throw new Error(error.message);
+      try {
+        // ① クレジットカード
+        if (currentMethod === 'credit') {
+          if (!stripe || !cardElement) throw new Error('Stripe未初期化');
+          const { paymentMethod, error } = await stripe.createPaymentMethod({
+            type: 'card', card: cardElement,
+            billing_details: { name, email }
+          });
+          if (error) {
+            document.getElementById('card-errors').textContent = error.message;
+            throw new Error(error.message);
+          }
+          const ok = await sendFormspree({
+            _subject: `【HINOKA注文】${name}様 クレジットカード決済`,
+            payment_method_id: paymentMethod.id,
+            ...commonData
+          });
+          if (!ok) throw new Error('送信失敗');
         }
 
-        // Formspreeにカード決済記録を送信
-        const ok = await sendToFormspree({
-          _subject:          `【HINOKA注文】${name}様 クレジットカード決済`,
-          payment_method_id: paymentMethod.id,
-          payment_type:      'クレジットカード',
-          customer_name:     name,
-          customer_email:    email,
-          customer_phone:    document.getElementById('phone').value,
-          shipping_address:  addr,
-          total_amount:      `¥${grandTotal.toLocaleString()}`,
-          cart_items_invoice: invoice
-        });
-        if (!ok) throw new Error('Formspree送信失敗');
+        // ② 銀行振込
+        else if (currentMethod === 'bank') {
+          const ok = await sendFormspree({
+            _subject: `【HINOKA注文】${name}様 銀行振込`,
+            bank_info: `${CONFIG.bank.name} ${CONFIG.bank.branch} 普通 ${CONFIG.bank.number} ${CONFIG.bank.holder}`,
+            customer_notice: `振込先：${CONFIG.bank.name} ${CONFIG.bank.branch} / 普通 ${CONFIG.bank.number} / ${CONFIG.bank.holder} / 3営業日以内にお振込みください。`,
+            ...commonData
+          });
+          if (!ok) throw new Error('送信失敗');
+        }
+
+        // ③ コンビニ払い
+        else if (currentMethod === 'conbini') {
+          const payNum = 'HNK-' + Date.now().toString().slice(-8);
+          const ok = await sendFormspree({
+            _subject: `【HINOKA注文】${name}様 コンビニ払い`,
+            payment_number: payNum,
+            customer_notice: `お支払い番号：${payNum} / セブン・ファミマ・ローソン / 3日以内にお支払いください。`,
+            ...commonData
+          });
+          if (!ok) throw new Error('送信失敗');
+        }
+
+        // ④ PayPay
+        else if (currentMethod === 'paypay') {
+          const ok = await sendFormspree({
+            _subject: `【HINOKA注文】${name}様 PayPay決済`,
+            customer_notice: '担当者よりPayPayお支払いリンクをメールにてご案内いたします。',
+            ...commonData
+          });
+          if (!ok) throw new Error('送信失敗');
+        }
+
+        // 成功
+        localStorage.removeItem('cartItems');
+        localStorage.removeItem('hinoka_cart');
+        sessionStorage.removeItem('hinoka_selected_region');
+        loading.style.display = 'none';
+        showSuccess(currentMethod);
+
+      } catch(err) {
+        loading.style.display = 'none';
+        btn.disabled = false;
+        btn.style.display = 'block';
+        if (currentMethod !== 'credit') {
+          const errEl = document.getElementById('form-error');
+          errEl.textContent = '送信エラーが発生しました。お手数ですが再度お試しいただくか、メールにてご連絡ください。';
+          errEl.style.display = 'block';
+        }
       }
+    });
 
-      // ── ② 銀行振込 ────────────────────────────
-      else if (currentMethod === 'bank') {
-        const ok = await sendToFormspree({
-          _subject:         `【HINOKA注文】${name}様 銀行振込`,
-          payment_type:     '銀行振込',
-          customer_name:    name,
-          customer_email:   email,
-          customer_phone:   document.getElementById('phone').value,
-          shipping_address: addr,
-          total_amount:     `¥${grandTotal.toLocaleString()}`,
-          bank_info:        `${CONFIG.bankInfo.bank} ${CONFIG.bankInfo.branch} ${CONFIG.bankInfo.type} ${CONFIG.bankInfo.number} ${CONFIG.bankInfo.name}`,
-          cart_items_invoice: invoice,
-          // お客様へのメール案内文（Formspreeの自動返信に含まれます）
-          customer_notice:  `振込先：${CONFIG.bankInfo.bank} ${CONFIG.bankInfo.branch} / ${CONFIG.bankInfo.type} ${CONFIG.bankInfo.number} / ${CONFIG.bankInfo.name} / 3営業日以内にお振込みください。`
-        });
-        if (!ok) throw new Error('送信失敗');
-      }
-
-      // ── ③ コンビニ払い ────────────────────────
-      else if (currentMethod === 'conbini') {
-        // コンビニ払い番号（本番はStripe Konbini APIから取得）
-        const dummyPayNum = 'HINOKA-' + Date.now().toString().slice(-8);
-        const ok = await sendToFormspree({
-          _subject:         `【HINOKA注文】${name}様 コンビニ払い`,
-          payment_type:     'コンビニ払い',
-          customer_name:    name,
-          customer_email:   email,
-          customer_phone:   document.getElementById('phone').value,
-          shipping_address: addr,
-          total_amount:     `¥${grandTotal.toLocaleString()}`,
-          payment_number:   dummyPayNum,
-          cart_items_invoice: invoice,
-          customer_notice:  `お支払い番号：${dummyPayNum} / 対応コンビニ：セブン・ファミマ・ローソン / 3日以内にお支払いください。`
-        });
-        if (!ok) throw new Error('送信失敗');
-      }
-
-      // ── ④ PayPay（Stripe経由） ────────────────
-      else if (currentMethod === 'paypay') {
-        // ⚠️ 本番実装にはサーバーサイド（PaymentIntent生成）が必要です
-        // GitHub Pages（静的）では直接Stripe PayPayは動作しません
-        // → バックエンド（Netlify Functions / Vercel / Firebase Functions）が必要
-        // 以下はFormspreeで受注のみ行い、手動でPayPayリンクを案内する暫定実装です
-        const ok = await sendToFormspree({
-          _subject:         `【HINOKA注文】${name}様 PayPay決済`,
-          payment_type:     'PayPay',
-          customer_name:    name,
-          customer_email:   email,
-          customer_phone:   document.getElementById('phone').value,
-          shipping_address: addr,
-          total_amount:     `¥${grandTotal.toLocaleString()}`,
-          cart_items_invoice: invoice,
-          customer_notice:  '担当者よりPayPayお支払いリンクをメールにてご案内いたします。'
-        });
-        if (!ok) throw new Error('送信失敗');
-      }
-
-      // ── 成功処理 ──────────────────────────────
-      localStorage.removeItem('cartItems');
-      localStorage.removeItem('hinoka_cart');
-      sessionStorage.removeItem('hinoka_selected_region');
-      loading.style.display = 'none';
-      showSuccess(currentMethod);
-
-    } catch (err) {
-      loading.style.display = 'none';
-      btn.style.display     = 'block';
-      if (currentMethod !== 'credit') {
-        alert('送信エラーが発生しました。お手数ですが再度お試しいただくか、メールにてご連絡ください。');
-      }
-    }
-  });
-
-  // ── 初期化 ───────────────────────────────────
-  document.addEventListener('DOMContentLoaded', () => {
-    renderSummary();
-    document.getElementById('prefecture')?.addEventListener('change', renderSummary);
-    document.getElementById('address')?.addEventListener('input',  renderSummary);
-  });
+  })();
   </script>
 </body>
 </html>
