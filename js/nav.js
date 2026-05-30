@@ -89,7 +89,7 @@
   <span class="dior-footer-title">HINOKA</span>
   <span class="dior-footer-sub">Crafted for a calm and beautiful life.</span>
 </div>
-
+  </aside>
 
   <!-- 検索モーダル -->
   <div class="search-modal" id="searchModal">
