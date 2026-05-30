@@ -33,10 +33,10 @@
   <div class="menu-overlay" id="menuOverlay"></div>
 
   <aside class="side-menu" id="sideMenu">
-    <div class="side-menu-header">
-      <span class="side-menu-logo">HINOKA</span>
-      <button class="close-menu-btn" id="closeMenuBtn">×</button>
-    </div>
+<div class="side-menu-header">
+  <span class="side-menu-label">MENU</span>
+  <button class="close-menu-btn" id="closeMenuBtn">×</button>
+</div>
 
     <div class="side-menu-body">
       <!-- カテゴリー -->
