@@ -1,1 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | 法的情報</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { padding-top: var(--nav-height); }
 
+    /* サイドナビ */
+    .legal-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .legal-nav {
+      position: sticky;
+      top: calc(var(--nav-height) + 24px);
+      background: var(--gray-light);
+      padding: 24px;
+    }
+    .legal-nav h4 {
+      font-size: 10px; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gray-dark);
+      margin-bottom: 16px;
+    }
+    .legal-nav a {
+      display: block; font-size: 12px;
+      letter-spacing: 0.05em; color: var(--gray-dark);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      transition: color var(--transition);
+    }
+    .legal-nav a:hover { color: var(--black); }
+    .legal-nav a.active { color: var(--black); font-weight: 500; }
+
+    /* コンテンツ */
+    .legal-section {
+      padding-bottom: 64px;
+      border-bottom: 1px solid var(--gray-light);
+      margin-bottom: 64px;
+    }
+    .legal-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .legal-section h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400;
+      letter-spacing: 0.12em; margin-bottom: 8px;
+    }
+    .legal-updated {
+      font-size: 11px; color: var(--gray-dark);
+      margin-bottom: 32px; letter-spacing: 0.05em;
+    }
+    .legal-section h3 {
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.08em; margin: 28px 0 10px;
+    }
+    .legal-section p, .legal-section li {
+      font-size: 13px; color: #444;
+      line-height: 2; letter-spacing: 0.02em;
+    }
+    .legal-section ul, .legal-section ol {
+      padding-left: 20px; margin: 8px 0;
+    }
+    .legal-section li { margin-bottom: 4px; }
+
+    .company-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px; margin-top: 16px;
+    }
+    .company-table td {
+      padding: 12px 16px; border-bottom: 1px solid var(--gray-light);
+      line-height: 1.8;
+    }
+    .company-table td:first-child {
+      width: 140px; color: var(--gray-dark);
+      font-size: 12px; letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .legal-layout { grid-template-columns: 1fr; padding: 24px 16px; gap: 24px; }
+      .legal-nav { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="legal-layout">
+
+    <!-- サイドナビ -->
+    <nav class="legal-nav">
+      <h4>目次</h4>
+      <a href="#terms">利用規約</a>
+      <a href="#privacy">プライバシーノーティス</a>
+      <a href="#cookie">Cookieポリシー</a>
+      <a href="#shipping">配送・返品について</a>
+      <a href="#company">会社情報（特商法）</a>
+    </nav>
+
+    <!-- コンテンツ -->
+    <div>
+
+      <!-- ① 利用規約 -->
+      <div class="legal-section" id="terms">
+        <h2>利用規約</h2>
+        <p class="legal-updated">最終更新日：2026年1月1日</p>
+
+        <h3>第1条（適用）</h3>
+        <p>本規約は、株式会社HINOKA（以下「当社」）が運営するオンラインストア（以下「本サービス」）の利用に関する条件を定めるものです。お客様は本サービスをご利用いただくことで、本規約に同意したものとみなします。</p>
+
+        <h3>第2条（商品の購入）</h3>
+        <p>商品の購入申込みは、ご注文確定をもって成立します。在庫状況によりご注文をお断りする場合がございます。その際は速やかにご連絡いたします。</p>
+
+        <h3>第3条（価格・支払い）</h3>
+        <p>価格は全て税込表示です。支払い方法はクレジットカード・銀行振込・コンビニ払い・PayPayをご利用いただけます。</p>
+
+        <h3>第4条（禁止事項）</h3>
+        <ul>
+          <li>虚偽の情報を登録する行為</li>
+          <li>不正な方法による購入・転売目的の大量購入</li>
+          <li>本サービスの運営を妨害する行為</li>
+          <li>その他、当社が不適切と判断する行為</li>
+        </ul>
+
+        <h3>第5条（免責事項）</h3>
+        <p>当社は、天災・通信障害等の不可抗力によるサービス中断について責任を負いません。商品の色合いはお客様のモニター環境により実物と異なる場合があります。</p>
+
+        <h3>第6条（準拠法・管轄裁判所）</h3>
+        <p>本規約は日本法に準拠し、大阪地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+      </div>
+
+      <!-- ② プライバシーノーティス -->
+      <div class="legal-section" id="privacy">
+        <h2>プライバシーノーティス</h2>
+        <p class="legal-updated">最終更新日：2026年1月1日</p>
+
+        <h3>収集する個人情報</h3>
+        <ul>
+          <li>氏名・住所・電話番号・メールアドレス</li>
+          <li>購入履歴・閲覧履歴</li>
+          <li>Cookie情報（詳細はCookieポリシーをご参照ください）</li>
+        </ul>
+
+        <h3>利用目的</h3>
+        <ul>
+          <li>商品の発送・注文管理</li>
+          <li>お問い合わせへの対応</li>
+          <li>新商品・キャンペーン情報のご案内（同意された場合のみ）</li>
+          <li>サービスの改善・分析</li>
+        </ul>
+
+        <h3>第三者提供</h3>
+        <p>当社は、法令に基づく場合を除き、お客様の個人情報を第三者に提供しません。ただし、配送業者・決済事業者（Stripe・Formspree）への提供は、サービス提供に必要な範囲で行います。</p>
+
+        <h3>保存期間</h3>
+        <p>個人情報は、利用目的達成後または法令の定める期間、適切に管理・保存します。</p>
+
+        <h3>お客様の権利</h3>
+        <p>個人情報の開示・訂正・削除のご要望は、下記のお問い合わせ先までご連絡ください。</p>
+        <p>📧 <a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a></p>
+      </div>
+
+      <!-- ③ Cookieポリシー -->
+      <div class="legal-section" id="cookie">
+        <h2>Cookieポリシー</h2>
+        <p class="legal-updated">最終更新日：2026年1月1日</p>
+
+        <h3>Cookieとは</h3>
+        <p>Cookieとは、お客様のブラウザに保存される小さなテキストファイルです。本サービスの利便性向上のために使用しています。</p>
+
+        <h3>使用するCookieの種類</h3>
+        <ul>
+          <li><strong>必須Cookie：</strong>カート・セッション管理に必要なCookieです。無効にするとサービスが正常に動作しない場合があります。</li>
+          <li><strong>機能Cookie：</strong>ウィッシュリスト・ログイン状態の保持に使用します。</li>
+          <li><strong>分析Cookie：</strong>サービス改善のためのアクセス解析に使用します（Google Analytics等）。</li>
+        </ul>
+
+        <h3>Cookieの無効化</h3>
+        <p>ブラウザの設定からCookieを無効にすることができますが、一部機能が利用できなくなる場合があります。</p>
+      </div>
+
+      <!-- ④ 配送・返品 -->
+      <div class="legal-section" id="shipping">
+        <h2>配送・返品について</h2>
+        <p class="legal-updated">最終更新日：2026年1月1日</p>
+
+        <h3>配送について</h3>
+        <ul>
+          <li>通常送料：<strong>550円（税込）</strong></li>
+          <li>北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります</li>
+          <li>配送方法：標準配送のみ（月〜日 8:00〜21:00）</li>
+          <li>最短お届け：ご注文日の翌々日</li>
+          <li>配送エリア：日本国内のみ</li>
+        </ul>
+
+        <h3>返品・交換について</h3>
+        <p>お受け取りから<strong>30日以内</strong>にお申し込みください。</p>
+        <p>以下の商品は返品・交換不可となります：</p>
+        <ul>
+          <li>カスタマイズ・オーダーメイド商品</li>
+          <li>香水・フレグランス（ディフューザー含む）</li>
+          <li>衛生テープが取り外された水着・下着</li>
+          <li>開封済みマスク</li>
+          <li>セール品・「返品不可」と記載された商品</li>
+        </ul>
+        <p>返品・交換のご依頼は <a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a> までご連絡ください。</p>
+      </div>
+
+      <!-- ⑤ 会社情報（特商法） -->
+      <div class="legal-section" id="company">
+        <h2>会社情報（特定商取引法に基づく表記）</h2>
+        <p class="legal-updated">最終更新日：2026年1月1日</p>
+        <table class="company-table">
+          <tr><td>事業者名</td><td>株式会社HINOKA</td></tr>
+          <tr><td>代表者</td><td>—</td></tr>
+          <tr><td>所在地</td><td>大阪府大阪市（詳細はお問い合わせください）</td></tr>
+          <tr><td>電話番号</td><td>お問い合わせはメールにてお願いいたします</td></tr>
+          <tr><td>メール</td><td><a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a></td></tr>
+          <tr><td>販売価格</td><td>各商品ページに税込価格を表示</td></tr>
+          <tr><td>送料</td><td>通常550円（税込）／北海道・沖縄・離島は追加送料あり</td></tr>
+          <tr><td>支払方法</td><td>クレジットカード・銀行振込・コンビニ払い・PayPay</td></tr>
+          <tr><td>支払時期</td><td>注文確定時（クレカ・PayPay）／注文後3日以内（振込・コンビニ）</td></tr>
+          <tr><td>商品引渡時期</td><td>注文確定から最短翌々日</td></tr>
+          <tr><td>返品・交換</td><td>受取後30日以内。詳細は配送・返品ページをご参照ください。</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">暮らしに、ときめきを。</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=fashion">ファッション</a>
+        <a href="product-list.html?category=daily">生活雑貨</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="#terms">利用規約</a>
+        <a href="#privacy">プライバシーノーティス</a>
+        <a href="#cookie">Cookieポリシー</a>
+        <a href="../index.html">← 会社サイトへ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script>
+    // アクティブナビ
+    const sections = document.querySelectorAll('.legal-section');
+    const navLinks  = document.querySelectorAll('.legal-nav a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
+      });
+    });
+  </script>
+</body>
+</html>
