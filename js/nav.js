@@ -1,45 +1,73 @@
 /**
- * nav.js — HINOKA 共通ナビゲーション v2
+ * nav.js v3 — HINOKA ナビゲーション
+ * PC：左ハンバーガー（MENU表示）・右アイコン（ラベル付き）
+ * スマホ：左ハンバーガー・右は検索+カートのみ表示、他は格納
  */
 (function () {
 
   const NAV_HTML = `
-  <nav id="main-nav" role="navigation" aria-label="メインナビゲーション">
+  <nav id="main-nav">
+
+    <!-- 左：ハンバーガー -->
     <div class="nav-left">
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="メニューを開く">
-        <span></span><span></span><span></span>
+      <button class="hamburger-btn" id="hamburgerBtn" aria-label="メニュー">
+        <div class="hamburger-lines">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="hamburger-label">MENU</span>
       </button>
     </div>
+
+    <!-- 中央：ロゴ -->
     <div class="nav-center">
       <a href="store.html" class="nav-logo">HINOKA</a>
     </div>
-    <div class="nav-right">
+
+    <!-- 右：PC用アイコン（ラベル付き） -->
+    <div class="nav-right" id="navRight">
       <button class="nav-icon-btn" id="searchBtn" aria-label="検索">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+        <span class="nav-icon-label">SEARCH</span>
       </button>
       <a class="nav-icon-btn" href="wishlist.html" aria-label="ウィッシュリスト">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="nav-icon-label">WISH</span>
       </a>
-      <a class="nav-icon-btn" href="account.html" aria-label="マイアカウント">
+      <a class="nav-icon-btn" href="account.html" aria-label="アカウント">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-icon-label">ACCOUNT</span>
       </a>
-      <a class="nav-icon-btn" href="cart.html" aria-label="カート" id="cartNavBtn" style="position:relative;">
+      <a class="nav-icon-btn" href="cart.html" id="cartNavBtn" aria-label="カート" style="position:relative;">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="nav-icon-label">CART</span>
         <span class="cart-badge" id="cartBadge">0</span>
       </a>
     </div>
+
+    <!-- 右：スマホ用（検索＋カートのみ） -->
+    <div class="nav-right-mobile" id="navRightMobile">
+      <button class="nav-icon-btn" id="searchBtnMobile" aria-label="検索">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <a class="nav-icon-btn" href="cart.html" style="position:relative;">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge" id="cartBadgeMobile">0</span>
+      </a>
+    </div>
+
   </nav>
 
+  <!-- オーバーレイ -->
   <div class="menu-overlay" id="menuOverlay"></div>
 
+  <!-- サイドメニュー -->
   <aside class="side-menu" id="sideMenu">
-<div class="side-menu-header">
-  <span class="side-menu-label">MENU</span>
-  <button class="close-menu-btn" id="closeMenuBtn">×</button>
-</div>
-
+    <div class="side-menu-header">
+      <span class="side-menu-logo">HINOKA</span>
+      <button class="close-menu-btn" id="closeMenuBtn">×</button>
+    </div>
     <div class="side-menu-body">
-      <!-- カテゴリー -->
+
       <div class="menu-category" data-cat="pet">
         <div class="menu-category-header">
           <span>ペット用品</span><span class="menu-plus">+</span>
@@ -52,6 +80,7 @@
           <a href="product-list.html?category=pet-collar">首輪・リード</a>
         </div>
       </div>
+
       <div class="menu-category" data-cat="fashion">
         <div class="menu-category-header">
           <span>ファッション</span><span class="menu-plus">+</span>
@@ -64,6 +93,7 @@
           <a href="product-list.html?category=shoes">シューズ</a>
         </div>
       </div>
+
       <div class="menu-category" data-cat="daily">
         <div class="menu-category-header">
           <span>生活雑貨</span><span class="menu-plus">+</span>
@@ -77,18 +107,39 @@
         </div>
       </div>
 
-      <!-- メニュー下部コンテンツ -->
+      <!-- スマホ：アイコンをメニュー内に表示 -->
+      <div class="menu-mobile-icons">
+        <a href="wishlist.html">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          ウィッシュリスト
+        </a>
+        <a href="account.html">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          マイアカウント
+        </a>
+      </div>
+
       <div class="menu-footer-links">
         <a href="store.html">✦ 新着商品</a>
         <a href="product-list.html?category=sale">✦ セール</a>
-        <a href="wishlist.html">✦ ウィッシュリスト</a>
-        <a href="account.html">✦ マイアカウント</a>
       </div>
 
-<div class="menu-footer-info dior-footer">
-  <span class="dior-footer-title">HINOKA</span>
-  <span class="dior-footer-sub">Crafted for a calm and beautiful life</span>
-</div>
+      <div class="menu-footer-info">
+        <div class="menu-shipping-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          <span>通常送料：550円（税込）<br>
+          <small>※北海道・沖縄・離島は追加送料あり</small></span>
+        </div>
+        <div class="menu-contact">
+          <a href="mailto:sun_hua@hinokaglobal.com">sun_hua@hinokaglobal.com</a>
+        </div>
+        <div class="menu-back-company">
+          <a href="../index.html">← 会社サイトへ戻る</a>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <!-- 検索モーダル -->
@@ -105,7 +156,7 @@
 
   document.body.insertAdjacentHTML('afterbegin', NAV_HTML);
 
-  // ── スクロール連動 ──────────────────────────
+  // ── スクロール連動 ──────────────────────────────────────
   const nav = document.getElementById('main-nav');
   let lastY = 0, scrollTimer = null;
 
@@ -121,63 +172,64 @@
     lastY = y;
   }, { passive: true });
 
-  // ── メニュー開閉 ───────────────────────────
-  const sideMenu    = document.getElementById('sideMenu');
-  const overlay     = document.getElementById('menuOverlay');
-  const openBtn     = document.getElementById('hamburgerBtn');
-  const closeBtn    = document.getElementById('closeMenuBtn');
+  // ── メニュー ───────────────────────────────────────────
+  const sideMenu = document.getElementById('sideMenu');
+  const overlay  = document.getElementById('menuOverlay');
 
   function openMenu()  { sideMenu.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeMenu() { sideMenu.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; }
 
-  openBtn.addEventListener('click', openMenu);
-  closeBtn.addEventListener('click', closeMenu);
+  document.getElementById('hamburgerBtn').addEventListener('click', openMenu);
+  document.getElementById('closeMenuBtn').addEventListener('click', closeMenu);
   overlay.addEventListener('click', closeMenu);
 
   // アコーディオン
   document.querySelectorAll('.menu-category-header').forEach(h => {
     h.addEventListener('click', () => {
-      const cat = h.parentElement;
+      const cat    = h.parentElement;
       const isOpen = cat.classList.contains('open');
       document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('open'));
       if (!isOpen) cat.classList.add('open');
     });
   });
 
-  // ── 検索モーダル ──────────────────────────
+  // ── 検索 ──────────────────────────────────────────────
   const searchModal = document.getElementById('searchModal');
   const searchInput = document.getElementById('searchInput');
 
-  document.getElementById('searchBtn').addEventListener('click', () => {
-    searchModal.classList.add('open');
-    setTimeout(() => searchInput.focus(), 100);
-  });
-  document.getElementById('closeSearchBtn').addEventListener('click', () => searchModal.classList.remove('open'));
-  searchModal.addEventListener('click', e => { if (e.target === searchModal) searchModal.classList.remove('open'); });
+  function openSearch() { searchModal.classList.add('open'); setTimeout(() => searchInput.focus(), 100); }
+  function closeSearch() { searchModal.classList.remove('open'); }
+
+  document.getElementById('searchBtn')?.addEventListener('click', openSearch);
+  document.getElementById('searchBtnMobile')?.addEventListener('click', openSearch);
+  document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
+  searchModal.addEventListener('click', e => { if (e.target === searchModal) closeSearch(); });
   searchInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && searchInput.value.trim()) {
       location.href = `product-list.html?q=${encodeURIComponent(searchInput.value.trim())}`;
     }
-    if (e.key === 'Escape') searchModal.classList.remove('open');
+    if (e.key === 'Escape') closeSearch();
   });
 
-  // ── カートバッジ ──────────────────────────
+  // ── カートバッジ ───────────────────────────────────────
   function updateCartBadge() {
-    const badge = document.getElementById('cartBadge');
-    if (!badge) return;
     const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const total = items.reduce((s, i) => s + (i.qty || 1), 0);
-    badge.textContent = total;
-    badge.classList.toggle('visible', total > 0);
+    ['cartBadge', 'cartBadgeMobile'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = total;
+      el.classList.toggle('visible', total > 0);
+    });
   }
   updateCartBadge();
   window.addEventListener('cartUpdated', updateCartBadge);
 
-  // ── カートトースト ─────────────────────────
+  // ── カートトースト ─────────────────────────────────────
   window.showCartToast = function () {
     const t = document.getElementById('cartToast');
     t.innerHTML = `このクリエイションをショッピングバッグに追加しました。
-      <a href="cart.html">ショッピングバッグを表示</a>、または
+      <a href="cart.html">バッグを表示</a>、または
       <a href="checkout.html">お会計</a>に移動`;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 5000);
@@ -185,7 +237,7 @@
   };
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeMenu(); searchModal.classList.remove('open'); }
+    if (e.key === 'Escape') { closeMenu(); closeSearch(); }
   });
 
 })();
