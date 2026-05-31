@@ -8,14 +8,24 @@
 // Brevo Dashboard → SMTP & API → API Keys → Create a new API key
 // 権限：「Transactional emails」のみ選択（送信専用）
 const BREVO_CONFIG = {
-  apiKey:    'nnn',        // ← Brevo API Key に差し替え
-  fromEmail: 'noreply@hinokaglobal.com',  // ← Brevo で認証済みのメールアドレス
+  apiKey:    '',  // ← 後で設定（空白でもエラーにならない）
+  fromEmail: 'noreply@hinokaglobal.com',
   fromName:  'HINOKA',
   replyTo:   'sun_hua@hinokaglobal.com'
 };
 
+// APIキー未設定チェック（エラーを出さずにスキップ）
+function isConfigured() {
+  return BREVO_CONFIG.apiKey && BREVO_CONFIG.apiKey.length > 0;
+}
+
 // ── Brevo API でメール送信 ──────────────────────────────────
 async function sendBrevoMail({ to, toName, subject, html }) {
+  // APIキー未設定の場合はスキップ（エラーにしない）
+  if (!isConfigured()) {
+    console.log('Brevo APIキー未設定のためメール送信スキップ');
+    return { success: false, error: 'API key not configured' };
+  }
   try {
     const res = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
