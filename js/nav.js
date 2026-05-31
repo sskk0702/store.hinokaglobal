@@ -24,12 +24,9 @@
       <a href="store.html" class="nav-logo">HINOKA</a>
     </div>
 
-    <!-- 右：ハンバーガー + MENU（hover時のみ）、カートバッジのみ残す -->
+    <!-- 右：ハンバーガー + MENU（hover時のみ） -->
     <div class="nav-right">
-      <!-- ★ カートバッジ（数字のみ・アイコンなし）→ 右ドロワーから開く -->
-      <a href="cart.html" class="nav-cart-badge-only" id="cartNavBtn" aria-label="カート">
-        <span class="cart-badge" id="cartBadge">0</span>
-      </a>
+      <!-- ★ カート数字バッジ完全削除 -->
       <div class="nav-right-wrap">
         <button class="nav-more-btn" id="moreBtn" aria-label="メニューを開く">
           <span></span><span></span><span></span>
@@ -215,13 +212,11 @@
     if (e.key === 'Escape') closeSearch();
   });
 
-  // ── カートバッジ ────────────────────────────────────────
+  // ── カートバッジ（右ドロワー内のみ） ──────────────────
   function updateCartBadge() {
     const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const total = items.reduce((s, i) => s + (i.qty || 1), 0);
-    const b1 = document.getElementById('cartBadge');
     const b2 = document.getElementById('drawerCartBadge');
-    if (b1) { b1.textContent = total; b1.classList.toggle('visible', total > 0); }
     if (b2) { b2.textContent = total; b2.classList.toggle('visible', total > 0); }
   }
   updateCartBadge();
