@@ -20,13 +20,6 @@
       font-size: 13px; color: var(--gray-dark);
       letter-spacing: 0.1em;
     }
-    .footer-shipping-badge {
-  font-size: 8px;
-  color: #777;
-  display: block;
-  margin-top: 4px;
-  line-height: 1.5;
-}
     .spinner {
       width: 32px; height: 32px; margin: 0 auto 20px;
       border: 2px solid var(--gray-light);
@@ -480,12 +473,11 @@
         <a href="legal.html#terms">利用規約</a>
         <a href="legal.html#privacy">プライバシーノーティス</a>
         <a href="legal.html#cookie">Cookieポリシー</a>
-        <a href="https://hinokaglobal.com/index.html">運営会社</a>
+        <a href="../index.html">← 会社サイトへ</a>
       </div>
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
     </div>
   </footer>
 
@@ -493,8 +485,8 @@
 
   <!-- Firebase + account ロジック（ES Modules） -->
   <script type="module">
-    import { auth, db }             from './js/firebase-config.js';
-    import { subscribeToMailchimp } from './js/mailchimp.js';
+    import { auth, db }           from './js/firebase-config.js';
+    import { sendWelcomeEmail }   from './js/brevo-mail.js';
     import {
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
@@ -596,8 +588,7 @@
         const isNew  = result._tokenResponse?.isNewUser;
         await createUserDoc(user, { provider: 'google', marketingConsent: false });
         if (isNew) {
-          // 新規Googleユーザーはメールマガジン登録（同意なしのためfalsで）
-          await subscribeToMailchimp({
+          await sendWelcomeEmail({
             email:     user.email,
             firstName: user.displayName?.split(' ')[0] || '',
             lastName:  user.displayName?.split(' ')[1] || ''
@@ -660,9 +651,9 @@
         // 4. メール確認送信
         await sendEmailVerification(user);
 
-        // 5. Mailchimpに登録（同意した場合のみ）
+        // 5. 歓迎メール送信（同意した場合のみ）
         if (consMkt) {
-          await subscribeToMailchimp({ email, firstName: first, lastName: last });
+          await sendWelcomeEmail({ email, firstName: first, lastName: last });
         }
 
         showSuccess('reg-success', `✅ 登録が完了しました！確認メールを ${email} にお送りしました。`);
@@ -737,9 +728,15 @@
       label.textContent = this.checked ? '受信する' : '受信しない';
       try {
         await updateDoc(doc(db, 'users', user.uid), { marketingConsent: this.checked });
-        // Mailchimpの購読状態も更新（Netlify Function経由）
+        // マーケティング同意ONの場合、歓迎メールを再送
         if (this.checked) {
-          await subscribeToMailchimp({ email: user.email });
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          const data = snap.data();
+          await sendWelcomeEmail({
+            email:     user.email,
+            firstName: data.firstName || '',
+            lastName:  data.lastName  || ''
+          });
         }
       } catch(e) { console.warn('設定更新エラー:', e); }
     });
