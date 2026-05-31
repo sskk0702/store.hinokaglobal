@@ -96,12 +96,42 @@ img { display: block; max-width: 100%; }
 }
 .cart-badge.visible { opacity: 1; }
 
-/* ★ スマホ：ナビアイコン間隔を詰める */
-@media (max-width: 480px) {
-  #main-nav { padding: 0 12px; }
-  .nav-right { gap: 8px; }
-  .nav-icon-btn svg { width: 18px; height: 18px; }
+/* ★ スマホ：アイコンを非表示・ハンバーガーに統合 */
+@media (max-width: 768px) {
+  #main-nav { padding: 0 16px; }
   .nav-logo { font-size: 18px; letter-spacing: 0.18em; }
+
+  /* スマホでは右側アイコンを全部隠す */
+  .nav-right { display: none; }
+
+  /* スマホ用右ハンバーガー表示 */
+  .nav-right-mobile {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav-right-mobile { display: none; }
+
+  /* PC：ハンバーガーにMENUラベル */
+  .hamburger-btn {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  .hamburger-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .hamburger-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--black);
+    font-family: 'Cormorant Garamond', serif;
+  }
 }
 
 /* ═══════════════════════════════
