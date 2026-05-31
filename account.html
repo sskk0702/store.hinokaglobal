@@ -765,11 +765,15 @@
     // ── ログアウト ────────────────────────────────────────
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await signOut(auth);
+      // ログアウトイベント発火（cart-session.jsに通知）
+      window.dispatchEvent(new Event('hinoka_auth_logout'));
     });
 
     // ── 認証状態監視（メイン） ────────────────────────────
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        // ログインイベント発火（cart-session.jsに通知）
+        window.dispatchEvent(new Event('hinoka_auth_login'));
         showDashboard(user);
       } else {
         document.getElementById('loadingSection').style.display = 'none';
