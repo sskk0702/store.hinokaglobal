@@ -2,93 +2,276 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>...
-/**
- * cart-session.js
- * ・未ログイン：ブラウザを閉じるとカートをクリア（sessionStorageで管理）
- * ・ログイン中：カートをlocalStorageに保持（ページをまたいで維持）
- *
- * 全ページの nav.js より後に読み込む
- * <script src="js/cart-session.js"></script>
- */
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | Shopping Bag</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { padding-top: var(--nav-height); background: var(--white); }
 
-(function () {
-  // Firebaseのonfo AuthStateChangedを使ってログイン状態を確認
-  // firebase-config.jsが読み込まれている前提
+    .cart-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 64px;
+      align-items: start;
+    }
 
-  const CART_KEY = 'cartItems';
+    .cart-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400;
+      letter-spacing: 0.12em; margin-bottom: 32px;
+    }
 
-  // ── セッション管理ロジック ──────────────────────────────
-  // sessionStorageはタブ/ウィンドウを閉じると消える
-  // localStorageは永続
+    .cart-item {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--gray-light);
+    }
 
-  function getSessionFlag() {
-    return sessionStorage.getItem('hinoka_session_active');
-  }
+    .cart-item-img {
+      width: 90px; aspect-ratio: 3/4;
+      object-fit: cover; background: var(--gray-light);
+    }
 
-  function setSessionFlag() {
-    sessionStorage.setItem('hinoka_session_active', '1');
-  }
+    .cart-item-name  { font-size: 14px; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .cart-item-meta  { font-size: 11px; color: var(--gray-dark); letter-spacing: 0.05em; margin-bottom: 12px; }
 
-  function isLoggedIn() {
-    // sessionStorageにユーザー情報があるか確認
-    return !!sessionStorage.getItem('hinoka_session');
-  }
+    .cart-item-row {
+      display: flex; align-items: center; justify-content: space-between;
+    }
 
-  // ── 初回アクセス時：未ログインならカートをクリア ────────
-  function initCartSession() {
-    const sessionActive = getSessionFlag();
+    .qty-control {
+      display: flex; align-items: center;
+      border: 1px solid var(--gray-mid);
+    }
+    .qty-btn {
+      width: 32px; height: 32px; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      transition: background var(--transition);
+    }
+    .qty-btn:hover { background: var(--gray-light); }
+    .qty-num {
+      width: 36px; text-align: center; font-size: 13px;
+      border: none; outline: none; font-family: inherit;
+    }
 
-    if (!sessionActive) {
-      // 新しいブラウザセッション（タブを閉じて再度開いた）
-      if (!isLoggedIn()) {
-        // 未ログインならカートをクリア
-        localStorage.removeItem(CART_KEY);
-        localStorage.removeItem('hinoka_cart');
-        console.log('新規セッション：未ログインのためカートをクリアしました');
+    .cart-item-price { font-size: 14px; letter-spacing: 0.05em; }
+
+    .delete-btn {
+      font-size: 11px; letter-spacing: 0.1em;
+      text-decoration: underline; color: var(--gray-dark);
+      cursor: pointer; background: none; border: none;
+      font-family: inherit; margin-top: 8px; display: inline-block;
+    }
+
+    .cart-empty {
+      text-align: center; padding: 80px 0;
+      font-size: 14px; color: var(--gray-dark);
+    }
+    .cart-empty a {
+      display: inline-block; margin-top: 24px;
+      padding: 12px 40px; border: 1px solid var(--black);
+      font-size: 11px; letter-spacing: 0.2em;
+      transition: background var(--transition), color var(--transition);
+    }
+    .cart-empty a:hover { background: var(--black); color: var(--white); }
+
+    /* サマリー */
+    .cart-summary {
+      background: var(--gray-light); padding: 32px 24px;
+      position: sticky; top: calc(var(--nav-height) + 24px);
+    }
+    .summary-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; letter-spacing: 0.12em; margin-bottom: 24px;
+    }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; margin-bottom: 12px; letter-spacing: 0.05em;
+    }
+    .summary-divider { border: none; border-top: 1px solid var(--gray-mid); margin: 16px 0; }
+    .summary-total {
+      display: flex; justify-content: space-between;
+      font-size: 15px; font-weight: 500;
+      letter-spacing: 0.05em; margin-bottom: 24px;
+    }
+    .checkout-btn {
+      width: 100%; padding: 16px;
+      background: var(--black); color: var(--white);
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background var(--transition); margin-bottom: 16px;
+      font-family: inherit;
+    }
+    .checkout-btn:hover { background: #333; }
+    .summary-notes { font-size: 11px; color: var(--gray-dark); line-height: 1.8; letter-spacing: 0.03em; }
+    .summary-notes p { margin-bottom: 4px; }
+
+    @media (max-width: 768px) {
+      .cart-page { grid-template-columns: 1fr; gap: 40px; padding: 32px 16px; }
+      .cart-summary { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cart-page">
+    <div>
+      <h1 class="cart-title">Shopping Bag</h1>
+      <div id="cartItems"></div>
+    </div>
+    <div class="cart-summary">
+      <h2 class="summary-title">Order Summary</h2>
+      <div class="summary-row"><span>Subtotal</span><span id="subtotal">¥0</span></div>
+      <div class="summary-row"><span>Shipping</span><span id="shipping">¥550</span></div>
+      <div class="summary-row"><span>Tax (10%)</span><span id="tax">¥0</span></div>
+      <hr class="summary-divider">
+      <div class="summary-total">
+        <span>Total (incl. tax)</span>
+        <span id="total">¥550</span>
+      </div>
+      <button class="checkout-btn" onclick="location.href='checkout.html'">Checkout</button>
+      <div class="summary-notes">
+        <p>&#x1F4E6; Delivery: From the day after tomorrow</p>
+        <p>&#x26A0;&#xFE0F; Subject to stock availability</p>
+        <p>&#x1F69A; Shipping: &#xA5;550 (incl. tax)</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-tagline">Crafted for a calm and beautiful life.</div>
+        <div class="footer-brand-sub">HINOKA Co., Ltd.</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">Home</a>
+        <a href="product-list.html?category=pet">Pet</a>
+        <a href="product-list.html?category=fashion">Fashion</a>
+        <a href="product-list.html?category=daily">Living</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">My Account</a>
+        <a href="wishlist.html">Wishlist</a>
+        <a href="cart.html">Shopping Bag</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#terms">Terms</a>
+        <a href="legal.html#privacy">Privacy</a>
+        <a href="legal.html#cookie">Cookie Policy</a>
+        <a href="../index.html">&#8592; Company Site</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">&#169; 2026 HINOKA Co., Ltd. All Rights Reserved.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js" charset="utf-8"></script>
+  <script>
+  (function () {
+    const SHIPPING_FEE = 550;
+
+    function loadCart() {
+      return JSON.parse(localStorage.getItem('cartItems') || '[]');
+    }
+
+    function saveCart(items) {
+      localStorage.setItem('cartItems', JSON.stringify(items));
+      window.dispatchEvent(new Event('cartUpdated'));
+    }
+
+    function render() {
+      const items     = loadCart();
+      const container = document.getElementById('cartItems');
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="cart-empty">
+            <p>Your shopping bag is empty.</p>
+            <a href="store.html">Continue Shopping</a>
+          </div>`;
+        updateSummary(0);
+        return;
       }
-      // セッションフラグを立てる
-      setSessionFlag();
-    }
-  }
 
-  // ── Firebase Auth 状態変化を監視 ───────────────────────
-  // account.htmlでFirebaseが初期化された後に連携
-  function setupAuthListener() {
-    // Firebase Authが利用可能な場合のみ
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          // ログイン：カートを保持
-          console.log('ログイン中：カートを保持します');
-        } else {
-          // ログアウト時は次回アクセスでクリアされる
-          // （sessionStorageのフラグが消えるため）
-        }
+      container.innerHTML = '';
+      let subtotal = 0;
+
+      items.forEach((item, index) => {
+        subtotal += item.price * item.qty;
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `
+          <img class="cart-item-img"
+               src="${item.img || 'assets/images/placeholder.jpg'}"
+               alt="${item.name}"
+               onerror="this.src='assets/images/placeholder.jpg'">
+          <div>
+            <p class="cart-item-name">${item.name}</p>
+            <p class="cart-item-meta">
+              ${item.size ? 'Size: ' + item.size : ''}
+            </p>
+            <div class="cart-item-row">
+              <div class="qty-control">
+                <button class="qty-btn" data-action="dec" data-index="${index}">&#8722;</button>
+                <input class="qty-num" type="number" value="${item.qty}" min="1" readonly>
+                <button class="qty-btn" data-action="inc" data-index="${index}">+</button>
+              </div>
+              <span class="cart-item-price">&#xA5;${(item.price * item.qty).toLocaleString()}</span>
+            </div>
+            <button class="delete-btn" data-index="${index}">Remove</button>
+          </div>
+        `;
+        container.appendChild(el);
       });
+
+      container.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const items = loadCart();
+          const i     = parseInt(btn.dataset.index);
+          if (btn.dataset.action === 'inc') items[i].qty++;
+          else if (items[i].qty > 1) items[i].qty--;
+          saveCart(items);
+          render();
+        });
+      });
+
+      container.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const items = loadCart();
+          items.splice(parseInt(btn.dataset.index), 1);
+          saveCart(items);
+          render();
+        });
+      });
+
+      updateSummary(subtotal);
     }
-  }
 
-  // ── ES Module版Firebase対応 ────────────────────────────
-  // account.htmlのtype="module"からカスタムイベントで通知
-  window.addEventListener('hinoka_auth_login', () => {
-    console.log('ログインイベント受信：カート保持モードに切替');
-    // ログイン時はsessionフラグを更新
-    setSessionFlag();
-  });
+    function updateSummary(subtotal) {
+      const tax   = Math.round(subtotal * 0.1);
+      const total = subtotal + SHIPPING_FEE + tax;
+      document.getElementById('subtotal').textContent = '&#xA5;' + subtotal.toLocaleString();
+      document.getElementById('tax').textContent      = '&#xA5;' + tax.toLocaleString();
+      document.getElementById('total').textContent    = '&#xA5;' + total.toLocaleString();
+      document.getElementById('shipping').textContent =
+        subtotal === 0 ? '&#8212;' : '&#xA5;' + SHIPPING_FEE.toLocaleString();
+    }
 
-  window.addEventListener('hinoka_auth_logout', () => {
-    console.log('ログアウトイベント受信：次回起動時にカートをクリア');
-    // セッションフラグを削除（次回起動時にクリアされる）
-    sessionStorage.removeItem('hinoka_session_active');
-    sessionStorage.removeItem('hinoka_session');
-    // 即時クリア
-    localStorage.removeItem(CART_KEY);
-    localStorage.removeItem('hinoka_cart');
-    window.dispatchEvent(new Event('cartUpdated'));
-  });
-
-  // ── 初期化実行 ─────────────────────────────────────────
-  initCartSession();
-
-})();
+    render();
+  })();
+  </script>
+</body>
+</html>
