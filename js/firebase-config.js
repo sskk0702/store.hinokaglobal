@@ -11,7 +11,7 @@ import { getFirestore }  from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 // ★ ここをFirebaseコンソールの値に差し替えてください
 const firebaseConfig = {
   apiKey:            "AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA",
-  authDomain:        "hinoka-0304.firebaseapp.com",
+  authDomain:        "store.hinokaglobal.com",
   projectId:         "hinoka-0304",
   storageBucket:     "hinoka-0304.firebasestorage.app",
   messagingSenderId: "275098198657",
