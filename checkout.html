@@ -34,13 +34,6 @@
       padding: 32px;
       margin-bottom: 16px;
     }
-    .footer-shipping-badge {
-  font-size: 8px;
-  color: #777;
-  display: block;
-  margin-top: 4px;
-  line-height: 1.5;
-}
     .form-card h3 {
       font-family: 'Cormorant Garamond', serif;
       font-size: 18px; font-weight: 400;
@@ -152,7 +145,6 @@
       padding: 28px 24px;
       position: sticky;
       top: calc(var(--nav-height) + 24px);
-      margin-top: 44px;
     }
     .checkout-summary h3 {
       font-family: 'Cormorant Garamond', serif;
@@ -405,6 +397,7 @@
     <div>
       <div class="checkout-summary">
         <h3>ご注文内容</h3>
+        <div class="method-badge" id="methodBadge">💳 クレジットカード</div>
         <div id="summaryItems"></div>
         <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
         <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
@@ -412,7 +405,7 @@
         <div class="summary-row total"><span>合計（税込）</span><span id="sumTotal">¥0</span></div>
         <div class="summary-shipping-note" id="shippingNote">
           🚚 通常送料：550円（税込）<br>
-          ※北海道・沖縄・離島、および一部大型商品は追加送料が発生します。
+          ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。
         </div>
         <div class="stripe-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -461,16 +454,34 @@
         <a href="legal.html#terms">利用規約</a>
         <a href="legal.html#privacy">プライバシーノーティス</a>
         <a href="legal.html#cookie">Cookieポリシー</a>
-        <a href="https://hinokaglobal.com/index.html">運営会社</a>
+        <a href="../index.html">← 会社サイトへ</a>
       </div>
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+      <span class="footer-shipping-badge">🚚 通常送料：550円（税込）※北海道・沖縄・離島は追加送料あり</span>
     </div>
   </footer>
 
   <script src="js/nav.js"></script>
+
+  <!-- Brevoメール送信（ES Module） -->
+  <script type="module">
+    import {
+      sendOrderConfirmEmail,
+      sendBankTransferEmail,
+      sendConbiniPaymentEmail,
+      sendPayPayEmail
+    } from './js/brevo-mail.js';
+
+    // グローバルに公開（通常scriptから呼べるように）
+    window.BREVO_MAIL = {
+      sendOrderConfirmEmail,
+      sendBankTransferEmail,
+      sendConbiniPaymentEmail,
+      sendPayPayEmail
+    };
+  </script>
   <script>
   (() => {
     // ════════════════════════════════════════
@@ -751,6 +762,13 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
+          // Brevo注文確認メール
+          await window.BREVO_MAIL?.sendOrderConfirmEmail({
+            email, customerName: name, orderItems: invoice,
+            totalAmount: `¥${total.toLocaleString()}`,
+            paymentMethod: METHOD_LABELS[currentMethod],
+            shippingAddress: addr
+          });
         }
 
         // ② 銀行振込
@@ -758,10 +776,18 @@
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 銀行振込`,
             bank_info: `${CONFIG.bank.name} ${CONFIG.bank.branch} 普通 ${CONFIG.bank.number} ${CONFIG.bank.holder}`,
-            customer_notice: `振込先：${CONFIG.bank.name} ${CONFIG.bank.branch} / 普通 ${CONFIG.bank.number} / ${CONFIG.bank.holder} / 3営業日以内にお振込みください。`,
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
+          // Brevo銀行振込案内メール
+          await window.BREVO_MAIL?.sendBankTransferEmail({
+            email, customerName: name,
+            totalAmount: `¥${total.toLocaleString()}`,
+            bankName:   CONFIG.bank.name,
+            bankBranch: CONFIG.bank.branch,
+            bankNumber: CONFIG.bank.number,
+            bankHolder: CONFIG.bank.holder
+          });
         }
 
         // ③ コンビニ払い
@@ -770,20 +796,29 @@
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 コンビニ払い`,
             payment_number: payNum,
-            customer_notice: `お支払い番号：${payNum} / セブン・ファミマ・ローソン / 3日以内にお支払いください。`,
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
+          // Brevoコンビニ払い案内メール
+          await window.BREVO_MAIL?.sendConbiniPaymentEmail({
+            email, customerName: name,
+            paymentNumber: payNum,
+            totalAmount: `¥${total.toLocaleString()}`
+          });
         }
 
         // ④ PayPay
         else if (currentMethod === 'paypay') {
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 PayPay決済`,
-            customer_notice: '担当者よりPayPayお支払いリンクをメールにてご案内いたします。',
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
+          // BrevoPayPay案内メール
+          await window.BREVO_MAIL?.sendPayPayEmail({
+            email, customerName: name,
+            totalAmount: `¥${total.toLocaleString()}`
+          });
         }
 
         // 成功
