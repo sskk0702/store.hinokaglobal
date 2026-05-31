@@ -263,7 +263,6 @@
 </head>
 <body>
 
-  <!-- ローディング -->
   <div class="account-wrap" id="loadingSection">
     <div class="auth-loading">
       <div class="spinner"></div>
@@ -271,7 +270,6 @@
     </div>
   </div>
 
-  <!-- 未ログイン：認証フォーム -->
   <div class="account-wrap" id="authSection" style="display:none;">
     <h1 class="account-title">マイアカウント</h1>
     <p class="account-sub">ログインまたは新規登録してください</p>
@@ -281,12 +279,10 @@
       <button class="auth-tab" data-tab="register">新規登録</button>
     </div>
 
-    <!-- ログイン -->
     <div class="auth-panel active" id="panel-login">
       <div class="auth-card">
         <div class="msg-error" id="login-error"></div>
 
-        <!-- Googleログイン -->
         <button class="google-btn" id="googleLoginBtn">
           <svg width="18" height="18" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/>
@@ -315,13 +311,11 @@
       </div>
     </div>
 
-    <!-- 新規登録 -->
     <div class="auth-panel" id="panel-register">
       <div class="auth-card">
         <div class="msg-error"   id="reg-error"></div>
         <div class="msg-success" id="reg-success"></div>
 
-        <!-- Googleで登録 -->
         <button class="google-btn" id="googleRegisterBtn">
           <svg width="18" height="18" viewBox="0 0 48 48">
             <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/>
@@ -363,7 +357,6 @@
           <input type="password" class="form-input" id="reg-pass2" placeholder="パスワードを再入力" autocomplete="new-password">
         </div>
 
-        <!-- ★ 特定電子メール法・個人情報保護法対応：明示的同意 -->
         <div class="consent-box">
           <label>
             <input type="checkbox" id="consentMarketing">
@@ -384,10 +377,8 @@
     </div>
   </div>
 
-  <!-- ログイン済み：ダッシュボード -->
   <div class="account-wrap dashboard" id="dashSection">
 
-    <!-- メール未確認バナー -->
     <div class="verify-banner" id="verifyBanner">
       ⚠️ メールアドレスが未確認です。確認メールをご確認ください。
       <button id="resendVerifyBtn">再送信</button>
@@ -483,7 +474,6 @@
 
   <script src="js/nav.js"></script>
 
-  <!-- Firebase + account ロジック（ES Modules） -->
   <script type="module">
     import { auth, db }           from './js/firebase-config.js';
     import { sendWelcomeEmail }   from './js/brevo-mail.js';
@@ -524,6 +514,7 @@
     function showSuccess(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
     function setLoading(btnId, loading) {
       const btn = document.getElementById(btnId);
+      if (!btn) return;
       btn.disabled = loading;
       btn.textContent = loading ? '処理中...' : (btnId === 'loginBtn' ? 'ログイン' : 'アカウントを作成');
     }
@@ -559,24 +550,31 @@
       }
     });
 
-    // ── Firestoreユーザードキュメント作成 ────────────────
+    // ── Firestoreユーザードキュメント作成（セキュリティルール完全準拠版） ──
     async function createUserDoc(user, extra = {}) {
       const ref = doc(db, 'users', user.uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          uid:            user.uid,
-          email:          user.email,
-          displayName:    user.displayName || '',
-          lastName:       extra.lastName  || '',
-          firstName:      extra.firstName || '',
-          createdAt:      serverTimestamp(),
-          emailVerified:  user.emailVerified,
-          marketingConsent: extra.marketingConsent ?? false,
-          provider:       extra.provider || 'email'
-        });
+      try {
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          // ルールが要求する必須項目を不備なく厳密に組み立てて送信
+          await setDoc(ref, {
+            uid:              user.uid,
+            email:            user.email || '', 
+            displayName:      user.displayName || `${extra.lastName || ''} ${extra.firstName || ''}`.trim() || 'ゲスト',
+            lastName:         extra.lastName  || '',
+            firstName:        extra.firstName || '',
+            createdAt:        serverTimestamp(), // ★必須項目
+            emailVerified:    user.emailVerified ?? false, // ★確実なboolean型に修正
+            marketingConsent: extra.marketingConsent ?? false,
+            provider:         extra.provider || 'email'
+          });
+          console.log("Firestoreにユーザー情報を正常に作成しました。");
+        }
+        return snap;
+      } catch (error) {
+        console.error("Firestoreユーザー作成中にエラーが発生しました:", error);
+        throw error;
       }
-      return snap;
     }
 
     // ── Google認証 ────────────────────────────────────────
@@ -586,7 +584,9 @@
         const result = await signInWithPopup(auth, provider);
         const user   = result.user;
         const isNew  = result._tokenResponse?.isNewUser;
+        
         await createUserDoc(user, { provider: 'google', marketingConsent: false });
+        
         if (isNew) {
           await sendWelcomeEmail({
             email:     user.email,
@@ -697,6 +697,8 @@
       // メール未確認バナー
       if (!user.emailVerified) {
         document.getElementById('verifyBanner').classList.add('show');
+      } else {
+        document.getElementById('verifyBanner').classList.remove('show');
       }
 
       // 登録日・マーケティング設定（Firestore）
