@@ -28,10 +28,10 @@
     <div class="nav-right">
       <!-- ★ カート数字バッジ完全削除 -->
       <div class="nav-right-wrap">
+        <span class="nav-menu-label">Menu</span>
         <button class="nav-more-btn" id="moreBtn" aria-label="メニューを開く">
           <span></span><span></span><span></span>
         </button>
-        <span class="nav-menu-label">Menu</span>
       </div>
     </div>
   </nav>
