@@ -8,7 +8,7 @@
 // Brevo Dashboard → SMTP & API → API Keys → Create a new API key
 // 権限：「Transactional emails」のみ選択（送信専用）
 const BREVO_CONFIG = {
-  apiKey:    'eyJhcGlfa2V5IjoieGtleXNpYi0yYjgyOGI4NjM4MDUyNWNkMDVhM2U1NDg2MzNlMjRmZjQ2YjdiOGQ4Yzg2NjNkNGE2NDQ5MzQyN2IzYzk5NTUzLW1UWlp3aXludHJyMmlBM0IifQ==',        // ← Brevo API Key に差し替え
+  apiKey:    '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',        // ← Brevo API Key に差し替え
   fromEmail: 'noreply@hinokaglobal.com',  // ← Brevo で認証済みのメールアドレス
   fromName:  'HINOKA',
   replyTo:   'sun_hua@hinokaglobal.com'
