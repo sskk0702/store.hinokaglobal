@@ -1,14 +1,15 @@
 /**
  * nav.js — HINOKA ナビゲーション
- * 左右ともハンバーガー → 左：カテゴリーメニュー、右：アイコンメニュー
- * PC・スマホ共通デザイン
+ * 左右ともハンバーガー → MEMUはhover時のみ表示
+ * 右ドロワー：左と同じデザイン（HINOKA + tagline + フッター）
+ * カートは右ドロワー内のみ
  */
 (function () {
 
   const NAV_HTML = `
   <nav id="main-nav">
 
-    <!-- 左：ハンバーガー -->
+    <!-- 左：ハンバーガー + MENU（hover時のみ） -->
     <div class="nav-left">
       <div class="nav-left-wrap">
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="メニューを開く">
@@ -23,14 +24,10 @@
       <a href="store.html" class="nav-logo">HINOKA</a>
     </div>
 
-    <!-- 右：ハンバーガー（PC・スマホ共通） -->
+    <!-- 右：ハンバーガー + MENU（hover時のみ）、カートバッジのみ残す -->
     <div class="nav-right">
-      <a class="nav-icon-btn" href="cart.html" aria-label="カート" id="cartNavBtn">
-        <svg viewBox="0 0 24 24">
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
+      <!-- ★ カートバッジ（数字のみ・アイコンなし）→ 右ドロワーから開く -->
+      <a href="cart.html" class="nav-cart-badge-only" id="cartNavBtn" aria-label="カート">
         <span class="cart-badge" id="cartBadge">0</span>
       </a>
       <div class="nav-right-wrap">
@@ -49,7 +46,7 @@
   <aside class="side-menu" id="sideMenu">
     <div class="side-menu-header">
       <div>
-        <div class="side-menu-brand">HINOKA</div>
+        <a href="store.html" class="side-menu-brand">HINOKA</a>
         <div class="side-menu-tagline">Crafted for a calm<br>and beautiful life.</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn">×</button>
@@ -98,12 +95,17 @@
     </div>
   </aside>
 
-  <!-- 右：ドロワー（アイコンメニュー・PC・スマホ共通） -->
+  <!-- 右：ドロワー（左と同じデザイン） -->
   <aside class="right-drawer" id="rightDrawer">
-    <div class="right-drawer-header">
-      <span class="right-drawer-logo">HINOKA</span>
-      <button class="right-drawer-close" id="closeDrawerBtn">×</button>
+    <!-- ★ 左と同じヘッダーデザイン -->
+    <div class="side-menu-header" style="position:relative;">
+      <div>
+        <a href="store.html" class="side-menu-brand">HINOKA</a>
+        <div class="side-menu-tagline">Crafted for a calm<br>and beautiful life.</div>
+      </div>
+      <button class="close-menu-btn" id="closeDrawerBtn">×</button>
     </div>
+
     <div class="right-drawer-body">
       <button class="right-drawer-item" id="drawerSearchBtn">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
@@ -123,6 +125,12 @@
         <span class="drawer-badge" id="drawerCartBadge">0</span>
       </a>
     </div>
+
+    <!-- ★ 左と同じフッターデザイン -->
+    <div class="menu-footer-deco">
+      <div class="menu-footer-deco-line"></div>
+      <p>© 2026 株式会社HINOKA<br>sun_hua@hinokaglobal.com</p>
+    </div>
   </aside>
 
   <!-- 検索モーダル -->
@@ -139,7 +147,7 @@
 
   document.body.insertAdjacentHTML('afterbegin', NAV_HTML);
 
-  // ══ スクロール連動 ══════════════════════════════════════
+  // ── スクロール連動 ──────────────────────────────────────
   const nav = document.getElementById('main-nav');
   let lastY = 0, scrollTimer = null;
   window.addEventListener('scroll', () => {
@@ -151,7 +159,7 @@
     lastY = y;
   }, { passive: true });
 
-  // ══ オーバーレイ ════════════════════════════════════════
+  // ── オーバーレイ ────────────────────────────────────────
   const overlay = document.getElementById('menuOverlay');
   function closeAll() {
     document.getElementById('sideMenu').classList.remove('open');
@@ -161,7 +169,7 @@
   }
   overlay.addEventListener('click', closeAll);
 
-  // ══ 左：サイドメニュー ══════════════════════════════════
+  // ── 左：サイドメニュー ──────────────────────────────────
   document.getElementById('hamburgerBtn').addEventListener('click', () => {
     document.getElementById('sideMenu').classList.add('open');
     overlay.classList.add('open');
@@ -171,14 +179,14 @@
 
   document.querySelectorAll('.menu-category-header').forEach(h => {
     h.addEventListener('click', () => {
-      const cat = h.parentElement;
+      const cat    = h.parentElement;
       const isOpen = cat.classList.contains('open');
       document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('open'));
       if (!isOpen) cat.classList.add('open');
     });
   });
 
-  // ══ 右：ドロワー ════════════════════════════════════════
+  // ── 右：ドロワー ────────────────────────────────────────
   document.getElementById('moreBtn').addEventListener('click', () => {
     document.getElementById('rightDrawer').classList.add('open');
     overlay.classList.add('open');
@@ -191,10 +199,13 @@
     setTimeout(openSearch, 200);
   });
 
-  // ══ 検索 ════════════════════════════════════════════════
+  // ── 検索 ────────────────────────────────────────────────
   const searchModal = document.getElementById('searchModal');
   const searchInput = document.getElementById('searchInput');
-  function openSearch() { searchModal.classList.add('open'); setTimeout(() => searchInput.focus(), 100); }
+  function openSearch() {
+    searchModal.classList.add('open');
+    setTimeout(() => searchInput.focus(), 100);
+  }
   function closeSearch() { searchModal.classList.remove('open'); }
   document.getElementById('closeSearchBtn').addEventListener('click', closeSearch);
   searchModal.addEventListener('click', e => { if (e.target === searchModal) closeSearch(); });
@@ -204,7 +215,7 @@
     if (e.key === 'Escape') closeSearch();
   });
 
-  // ══ カートバッジ ════════════════════════════════════════
+  // ── カートバッジ ────────────────────────────────────────
   function updateCartBadge() {
     const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const total = items.reduce((s, i) => s + (i.qty || 1), 0);
@@ -216,7 +227,7 @@
   updateCartBadge();
   window.addEventListener('cartUpdated', updateCartBadge);
 
-  // ══ カートトースト ══════════════════════════════════════
+  // ── カートトースト ──────────────────────────────────────
   window.showCartToast = function () {
     const t = document.getElementById('cartToast');
     t.innerHTML = `ショッピングバッグに追加しました。
