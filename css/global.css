@@ -283,11 +283,11 @@ img { display: block; max-width: 100%; }
 }
 
 /* ══════════════════════════════════════
-   RIGHT DRAWER（PC・スマホ共通）
+   RIGHT DRAWER（左と同じデザイン）
 ══════════════════════════════════════ */
 .right-drawer {
   position: fixed; top: 0; right: 0;
-  width: 240px; height: 100vh;
+  width: 300px; height: 100vh;
   background: var(--menu-bg);
   z-index: 1200;
   transform: translateX(100%);
@@ -297,28 +297,17 @@ img { display: block; max-width: 100%; }
 }
 .right-drawer.open { transform: translateX(0); }
 
-.right-drawer-header {
-  padding: 24px 24px 20px;
-  border-bottom: 1px solid var(--menu-border);
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.right-drawer-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 13px; font-weight: 300;
-  letter-spacing: 0.3em; color: var(--cream);
-}
-.right-drawer-close {
-  color: var(--menu-text); font-size: 18px; cursor: pointer;
-  font-weight: 300; transition: color var(--transition);
-}
-.right-drawer-close:hover { color: var(--cream); }
+/* ヘッダーは .side-menu-header と共通スタイルを使用 */
 
-.right-drawer-body { flex: 1; overflow-y: auto; }
+.right-drawer-body {
+  flex: 1; overflow-y: auto;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.right-drawer-body::-webkit-scrollbar { display: none; }
 
 .right-drawer-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 18px 24px;
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 28px;
   border-bottom: 1px solid var(--menu-border);
   color: var(--menu-text);
   font-family: 'Montserrat', sans-serif;
@@ -339,6 +328,24 @@ img { display: block; max-width: 100%; }
   display: none; align-items: center; justify-content: center;
 }
 .drawer-badge.visible { display: flex; }
+
+/* ★ カートバッジのみ表示（アイコンなし） */
+.nav-cart-badge-only {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 4px;
+}
+/* カートバッジが0の時は完全非表示 */
+.nav-cart-badge-only .cart-badge:not(.visible) {
+  display: none;
+}
+/* バッジが表示の時はアイコンなしで数字のみ */
+.nav-cart-badge-only .cart-badge.visible {
+  position: static;
+  opacity: 1;
+  font-size: 10px;
+  width: 18px; height: 18px;
+}
 
 /* ══════════════════════════════════════
    SEARCH MODAL
