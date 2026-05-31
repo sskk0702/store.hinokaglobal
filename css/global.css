@@ -34,14 +34,15 @@ img { display: block; max-width: 100%; }
   padding: 0 24px;
   background: rgba(255,255,255,0.96);
   backdrop-filter: blur(8px);
-  /* ★ border-bottomを削除、box-shadowに変更（黒い線の原因） */
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  /* ★ border・box-shadow完全削除 */
+  border: none;
+  outline: none;
+  box-shadow: none;
   transform: translateY(0);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
 #main-nav.hidden {
-  transform: translateY(-100%);
-  box-shadow: none;
+  transform: translateY(-110%); /* ★ -100%より少し多めに隠す */
 }
 
 .nav-left { display: flex; align-items: center; }
