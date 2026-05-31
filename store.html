@@ -12,6 +12,7 @@
     .hero-slider {
       position: relative;
       width: 100vw;
+      /* PC：画面いっぱい、スマホ：56vwの高さ */
       height: 100vh;
       overflow: hidden;
       background: #111;
@@ -21,80 +22,65 @@
       position: absolute;
       inset: 0;
       background-size: cover;
-      background-position: center;
+      background-position: center top;
       opacity: 0;
       transition: opacity 1.2s ease-in-out;
     }
-
     .slide.active { opacity: 1; }
 
-    /*
-      ★ 実際の画像は assets/images/hero-1.jpg ～ hero-5.jpg を配置してください。
-         ここでは placeholder として unsplash の画像URLを使用しています。
-         本番では自社画像に差し替えてください。
-    */
-    .slide:nth-child(1) { background-image: url('photos/pet/pet2.jpg'); }
-    .slide:nth-child(2) { background-image: url('photos/daily/daily２.jpg'); }
-    .slide:nth-child(3) { background-image: url('photos/apparel/apparel1.jpg'); }
-    .slide:nth-child(4) { background-image: url('photos/daily/daily4.jpg'); }
-    .slide:nth-child(5) { background-image: url('photos/apparel/appreal2.jpg'); }
+    .slide:nth-child(1) { background-image: url('assets/images/hero-1.jpg'); }
+    .slide:nth-child(2) { background-image: url('assets/images/hero-2.jpg'); }
+    .slide:nth-child(3) { background-image: url('assets/images/hero-3.jpg'); }
+    .slide:nth-child(4) { background-image: url('assets/images/hero-4.jpg'); }
+    .slide:nth-child(5) { background-image: url('assets/images/hero-5.jpg'); }
 
-    /* オーバーレイ（テキスト可読性確保） */
     .slide::after {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.18);
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.15);
     }
 
-    /* スライダードット */
     .slider-dots {
       position: absolute;
-      bottom: 32px;
-      left: 50%;
+      bottom: 24px; left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      gap: 10px;
-      z-index: 10;
+      display: flex; gap: 8px; z-index: 10;
     }
-
     .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.45);
-      cursor: pointer;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255,255,255,0.4); cursor: pointer;
       transition: background 0.3s, transform 0.3s;
     }
+    .dot.active { background: #fff; transform: scale(1.4); }
 
-    .dot.active {
-      background: #fff;
-      transform: scale(1.3);
-    }
-
-    /* スライダーキャプション */
     .slide-caption {
       position: absolute;
-      bottom: 80px;
-      left: 64px;
-      z-index: 10;
-      color: #fff;
+      bottom: 60px; left: 40px;
+      z-index: 10; color: #fff;
     }
-
     .slide-caption h2 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(28px, 4vw, 52px);
-      font-weight: 300;
-      letter-spacing: 0.15em;
-      line-height: 1.3;
+      font-size: clamp(24px, 4vw, 52px);
+      font-weight: 300; letter-spacing: 0.15em; line-height: 1.3;
+    }
+    .slide-caption p {
+      margin-top: 10px; font-size: 10px;
+      letter-spacing: 0.25em; text-transform: uppercase; opacity: 0.75;
     }
 
-    .slide-caption p {
-      margin-top: 12px;
-      font-size: 11px;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      opacity: 0.8;
+    /* ★ スマホ：スライダーの高さを調整 */
+    @media (max-width: 768px) {
+      .hero-slider {
+        height: 75vh; /* スマホは75%高さ */
+      }
+      .slide-caption {
+        bottom: 48px; left: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero-slider {
+        height: 65vh; /* 小さいスマホはさらに小さく */
+      }
     }
 
     /* ── Section: Featured Categories ── */
@@ -180,7 +166,7 @@
 
     <!-- キャプション（スライドごとに切り替え可） -->
     <div class="slide-caption">
-      <h2>New Collection<br>2026</h2>
+      <h2>New Collection<br>2025</h2>
       <p>Shop Now</p>
     </div>
 
@@ -193,21 +179,21 @@
     <h2 class="section-title">Collections</h2>
     <div class="category-grid">
       <div class="category-card" onclick="location.href='product-list.html?category=pet'">
-        <img src="photos/pet/pet1.jpg" alt="ペット用品">
+        <img src="assets/images/cat-pet.jpg" alt="ペット用品">
         <div class="category-card-label">
           <span>Category</span>
           <h3>ペット用品</h3>
         </div>
       </div>
       <div class="category-card" onclick="location.href='product-list.html?category=fashion'">
-        <img src="photos/apparel/appreal2.jpg" alt="ファッション">
+        <img src="assets/images/cat-fashion.jpg" alt="ファッション">
         <div class="category-card-label">
           <span>Category</span>
           <h3>ファッション</h3>
         </div>
       </div>
       <div class="category-card" onclick="location.href='product-list.html?category=daily'">
-        <img src="photos/daily/daily3.jpg" alt="生活雑貨">
+        <img src="assets/images/cat-daily.jpg" alt="生活雑貨">
         <div class="category-card-label">
           <span>Category</span>
           <h3>生活雑貨</h3>
