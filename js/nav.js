@@ -92,17 +92,15 @@
     </div>
   </aside>
 
-  <!-- 右：ドロワー（左と同じデザイン） -->
+  <!-- 右：ドロワー（アイコンメニュー） -->
   <aside class="right-drawer" id="rightDrawer">
-    <!-- ★ 左と同じヘッダーデザイン -->
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
         <div class="side-menu-tagline">Crafted for a calm<br>and beautiful life.</div>
       </div>
-      <button class="close-menu-btn" id="closeDrawerBtn">×</button>
+      <button class="close-menu-btn" id="closeDrawerBtn">&times;</button>
     </div>
-
     <div class="right-drawer-body">
       <button class="right-drawer-item" id="drawerSearchBtn">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
@@ -122,11 +120,9 @@
         <span class="drawer-badge" id="drawerCartBadge">0</span>
       </a>
     </div>
-
-    <!-- ★ 左と同じフッターデザイン -->
     <div class="menu-footer-deco">
       <div class="menu-footer-deco-line"></div>
-      <p>&#169; 2026 &#26666;&#24335;&#20250;&#31038;HINOKA<br>sun_hua@hinokaglobal.com</p>
+      <p>&copy; 2026 HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p>
     </div>
   </aside>
 
