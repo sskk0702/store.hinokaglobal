@@ -34,11 +34,15 @@ img { display: block; max-width: 100%; }
   padding: 0 24px;
   background: rgba(255,255,255,0.96);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  /* ★ border-bottomを削除、box-shadowに変更（黒い線の原因） */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
   transform: translateY(0);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-#main-nav.hidden { transform: translateY(-100%); }
+#main-nav.hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
+}
 
 .nav-left { display: flex; align-items: center; }
 
@@ -360,83 +364,3 @@ img { display: block; max-width: 100%; }
    UTILITY
 ═══════════════════════════════ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-.dior-footer {
-  text-align: center;
-  padding: 60px 0 80px; /* ← 增加上下间距 */
-  letter-spacing: 0.04em;
-  margin-top: auto; /* ← 让它自动贴到底部 */
-}
-.dior-footer {
-  background: #f7f7f7; /* 高级淡灰白，奢侈品牌常用 */
-  padding: 60px 0 80px;
-  text-align: center;
-  margin-top: auto;
-  border-top: 1px solid rgba(0,0,0,0.08); /* 超细分隔线，优雅 */
-}
-
-.dior-footer-title {
-  display: block;
-  font-size: 20px;
-  font-family: "Cormorant Garamond", serif; /* 高级 serif 字体 */
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: #111; /* 深灰，不刺眼 */
-  margin-bottom: 8px;
-}
-
-.dior-footer-sub {
-  display: block;
-  font-size: 12px;
-  font-family: "Helvetica Neue", Arial, sans-serif; /* 极简 sans-serif */
-  font-weight: 300;
-  letter-spacing: 0.12em;
-  color: #666; /* 柔和灰色，奢侈品牌风 */
-}
-/* Dior 风淡入动画 */
-@keyframes diorFadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dior-footer {
-  animation: diorFadeIn 0.8s ease-out 0.2s both;
-}
-@keyframes diorLuxuryFade {
-  0% {
-    opacity: 0;
-    transform: translateY(14px);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-.dior-footer {
-  animation: diorLuxuryFade 1s ease-out 0.25s both;
-}
-.side-menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 22px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  background: #f3f1ec; /* 柔和奶油灰：高奢感 */
-}
-
-.side-menu-label {
-  font-size: 11px;
-  letter-spacing: 0.26em;
-  font-weight: 300;
-  color: #5a5144; /* 暖调深咖：比黑色更有质感 */
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  text-transform: uppercase;
-}
