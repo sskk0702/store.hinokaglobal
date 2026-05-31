@@ -329,15 +329,15 @@ img { display: block; max-width: 100%; }
 }
 .drawer-badge.visible { display: flex; }
 
-/* ★ カートバッジ完全削除 */
-.nav-cart-badge-only { display: none !important; }
-
-/* ══ ハンバーガー左右統一 ══ */
+/* ══ ハンバーガー左右完全統一 ══ */
 .hamburger-btn,
 .nav-more-btn {
   display: flex; flex-direction: column;
   gap: 6px; padding: 10px 8px; cursor: pointer;
   background: none; border: none;
+  /* ★ 同じサイズに固定 */
+  width: 38px; height: 38px;
+  align-items: center; justify-content: center;
 }
 .hamburger-btn span,
 .nav-more-btn span {
@@ -347,32 +347,18 @@ img { display: block; max-width: 100%; }
   transition: var(--transition);
 }
 
-/* ══ cart-toast：グレー線を完全非表示 ══ */
-.cart-toast {
-  position: fixed; top: var(--nav-height); left: 0; width: 100%;
-  background: var(--menu-bg);
-  color: var(--menu-text);
-  text-align: center; padding: 13px 20px;
-  font-size: 11px; letter-spacing: 0.07em;
-  z-index: 999;
-  /* ★ 非表示時は完全に消す */
-  opacity: 0;
+/* MENU ラベル共通 */
+.nav-menu-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px; letter-spacing: 0.22em;
+  color: var(--black); opacity: 0;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
   pointer-events: none;
-  transform: translateY(-100%);
-  transition: transform 0.4s ease, opacity 0.4s ease;
-  border: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
+  white-space: nowrap;
 }
-.cart-toast.show {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-.cart-toast a {
-  color: var(--gold-light); text-decoration: none;
-  margin: 0 10px; border-bottom: 1px solid rgba(184,169,138,0.3);
-}
+.nav-left-wrap:hover .nav-menu-label,
+.nav-right-wrap:hover .nav-menu-label { opacity: 0.55; }
 
 /* ══════════════════════════════════════
    SEARCH MODAL
@@ -417,18 +403,26 @@ img { display: block; max-width: 100%; }
 .cart-toast {
   position: fixed; top: var(--nav-height); left: 0; width: 100%;
   background: var(--menu-bg);
-  border-bottom: 1px solid var(--menu-border);
   color: var(--menu-text);
   text-align: center; padding: 13px 20px;
   font-size: 11px; letter-spacing: 0.07em;
   z-index: 999;
+  opacity: 0;
+  pointer-events: none;
   transform: translateY(-100%);
-  transition: transform 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  border: none !important;
+  box-shadow: none !important;
 }
-.cart-toast.show { transform: translateY(0); }
+.cart-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
 .cart-toast a {
   color: var(--gold-light); text-decoration: none;
-  margin: 0 10px; border-bottom: 1px solid rgba(184,169,138,0.3);
+  margin: 0 10px;
+  border-bottom: 1px solid rgba(184,169,138,0.3);
 }
 
 /* ══════════════════════════════════════
