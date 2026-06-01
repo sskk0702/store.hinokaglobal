@@ -423,9 +423,7 @@
       <div class="success-icon" id="successIcon">✅</div>
       <div class="success-title">ご注文ありがとうございます</div>
       <p class="success-msg" id="successMsg"></p>
-      <button class="success-btn" onclick="localStorage.removeItem('cartItems');localStorage.removeItem('hinoka_cart');sessionStorage.removeItem('hinoka_selected_region');location.href='store.html'">
-        ショッピングを続ける
-      </button>
+      <button class="success-btn" id="successBtn">ショッピングを続ける</button>
     </div>
   </div>
 
@@ -474,7 +472,6 @@
       sendPayPayEmail
     } from './js/brevo-mail.js';
 
-    // グローバルに公開（通常scriptから呼べるように）
     window.BREVO_MAIL = {
       sendOrderConfirmEmail,
       sendBankTransferEmail,
@@ -573,7 +570,7 @@
       const addr = document.getElementById('address').value;
       const isIsland = pref === '北海道' || pref === '沖縄県' ||
                        addr.includes('離島') || addr.includes('利島') || addr.includes('小笠原');
-      return isIsland ? 1500 : 550; // 通常550円
+      return isIsland ? 1500 : 550;
     }
 
     // ════════════════════════════════════════
@@ -595,13 +592,13 @@
           <div>
             <p class="summary-item-name">${item.name}　×${item.qty}</p>
             <p class="summary-item-price">¥${(item.price * item.qty).toLocaleString()}</p>
-            ${item.size  ? `<p class="summary-item-price">サイズ：${item.size}</p>` : ''}
+            ${item.size ? `<p class="summary-item-price">サイズ：${item.size}</p>` : ''}
           </div>`;
         container.appendChild(el);
       });
 
       const shipping = calcShipping();
-      const tax      = Math.round(subtotal * 0.1);
+      const tax      = Math.round(subtotal / 11); // 税込価格から消費税を逆算
       const total    = subtotal + shipping;
 
       document.getElementById('sumSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
@@ -609,7 +606,6 @@
       document.getElementById('sumTax').textContent      = `（税${tax.toLocaleString()}円含む）`;
       document.getElementById('sumTotal').textContent    = `¥${total.toLocaleString()}`;
 
-      // 離島・北海道の場合は注意書き更新
       const shippingNote = document.getElementById('shippingNote');
       if (shipping > 550) {
         shippingNote.innerHTML = `⚠️ <strong>追加送料が適用されています（¥${shipping.toLocaleString()}）</strong><br>北海道・沖縄・離島地域への配送のため追加送料が発生しています。`;
@@ -622,7 +618,6 @@
       return { cart, subtotal, shipping, total };
     }
 
-    // 都道府県・住所変更時に再計算
     document.getElementById('prefecture').addEventListener('change', renderSummary);
     document.getElementById('address').addEventListener('input',    renderSummary);
     renderSummary();
@@ -667,6 +662,10 @@
     //  Formspree送信
     // ════════════════════════════════════════
     async function sendFormspree(data) {
+      if (CONFIG.formspreeUrl.includes('YOUR_FORMSPREE_ID')) {
+        console.warn('Formspree未設定のためスキップ（開発環境）');
+        return true; // 開発中はブロックしない
+      }
       const fd = new FormData();
       Object.entries(data).forEach(([k,v]) => fd.append(k, v));
       const res = await fetch(CONFIG.formspreeUrl, {
@@ -687,9 +686,16 @@
     };
 
     function showSuccess(method) {
-      document.getElementById('successMsg').textContent  = SUCCESS_MESSAGES[method];
+      document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[method];
       document.getElementById('successModal').classList.add('open');
     }
+
+    document.getElementById('successBtn').addEventListener('click', () => {
+      localStorage.removeItem('cartItems');
+      localStorage.removeItem('hinoka_cart');
+      sessionStorage.removeItem('hinoka_selected_region');
+      location.href = 'store.html';
+    });
 
     // ════════════════════════════════════════
     //  注文確定ボタン
@@ -710,7 +716,6 @@
       btn.style.display     = 'none';
       loading.style.display = 'block';
 
-      // 共通データ
       const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
       const email = document.getElementById('email').value;
       const addr  = [
@@ -720,11 +725,10 @@
         document.getElementById('address2').value
       ].filter(Boolean).join(' ');
 
-      // 注文明細テキスト
       let invoice = '===== 注文商品明細 =====\n';
       cart.forEach((item, i) => {
         invoice += `${i+1}. ${item.name}`;
-        if (item.size)  invoice += ` [${item.size}]`;
+        if (item.size) invoice += ` [${item.size}]`;
         invoice += ` × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
       });
       invoice += `========================\n`;
@@ -735,12 +739,12 @@
       invoice += `【支払方法】: ${METHOD_LABELS[currentMethod]}`;
 
       const commonData = {
-        customer_name:    name,
-        customer_email:   email,
-        customer_phone:   document.getElementById('phone').value,
-        shipping_address: addr,
-        total_amount:     `¥${total.toLocaleString()}`,
-        payment_type:     METHOD_LABELS[currentMethod],
+        customer_name:      name,
+        customer_email:     email,
+        customer_phone:     document.getElementById('phone').value,
+        shipping_address:   addr,
+        total_amount:       `¥${total.toLocaleString()}`,
+        payment_type:       METHOD_LABELS[currentMethod],
         cart_items_invoice: invoice
       };
 
@@ -762,7 +766,6 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // Brevo注文確認メール
           await window.BREVO_MAIL?.sendOrderConfirmEmail({
             email, customerName: name, orderItems: invoice,
             totalAmount: `¥${total.toLocaleString()}`,
@@ -779,7 +782,6 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // Brevo銀行振込案内メール
           await window.BREVO_MAIL?.sendBankTransferEmail({
             email, customerName: name,
             totalAmount: `¥${total.toLocaleString()}`,
@@ -799,7 +801,6 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // Brevoコンビニ払い案内メール
           await window.BREVO_MAIL?.sendConbiniPaymentEmail({
             email, customerName: name,
             paymentNumber: payNum,
@@ -814,7 +815,6 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // BrevoPayPay案内メール
           await window.BREVO_MAIL?.sendPayPayEmail({
             email, customerName: name,
             totalAmount: `¥${total.toLocaleString()}`
