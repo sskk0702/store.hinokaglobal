@@ -1,8 +1,7 @@
 /**
  * nav.js — HINOKA ナビゲーション
- * 左右ともハンバーガー → MEMUはhover時のみ表示
- * 右ドロワー：左と同じデザイン（HINOKA + tagline + フッター）
- * カートは右ドロワー内のみ
+ * 左：PRODUCTS 4大カテゴリー（For Business / For Life / Pet Supplies / Featured）
+ * 右ドロワー：アイコンメニュー
  */
 (function () {
 
@@ -26,7 +25,6 @@
 
     <!-- 右：ハンバーガー + MENU（hover時のみ） -->
     <div class="nav-right">
-      <!-- ★ カート数字バッジ完全削除 -->
       <div class="nav-right-wrap">
         <span class="nav-menu-label">Menu</span>
         <button class="nav-more-btn" id="moreBtn" aria-label="メニューを開く">
@@ -44,50 +42,78 @@
     <div class="side-menu-header">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Crafted for a calm<br>and beautiful life.</div>
+        <div class="side-menu-tagline">Quality Beyond Borders.</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn">&times;</button>
     </div>
     <div class="side-menu-body">
+
+      <div class="menu-section-label">PRODUCTS</div>
+
+      <!-- For Business -->
       <div class="menu-category">
-        <div class="menu-category-header"><span>&#12506;&#12483;&#12488;&#29992;&#21697;</span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header">
+          <span>For Business<em>ビジネスソリューション</em></span>
+          <span class="menu-plus">+</span>
+        </div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=dog-food">&#12489;&#12483;&#12464;&#12501;&#12540;&#12489;</a>
-          <a href="product-list.html?category=cat-food">&#12461;&#12515;&#12483;&#12488;&#12501;&#12540;&#12489;</a>
-          <a href="product-list.html?category=pet-toys">&#12362;&#12418;&#12385;&#12419;</a>
-          <a href="product-list.html?category=pet-bed">&#12505;&#12483;&#12489;&#12539;&#12495;&#12454;&#12473;</a>
-          <a href="product-list.html?category=pet-collar">&#39318;&#36�;&#12539;&#12522;&#12540;&#12489;</a>
+          <a href="product-list.html?category=office-supplies">Office Supplies　オフィス用品</a>
+          <a href="product-list.html?category=packaging">Packaging Materials　梱包資材</a>
+          <a href="product-list.html?category=industrial">Industrial Products　工業用品</a>
+          <a href="product-list.html?category=safety-workwear">Safety &amp; Workwear　作業用品</a>
         </div>
       </div>
+
+      <!-- For Life -->
       <div class="menu-category">
-        <div class="menu-category-header"><span>&#12501;&#12449;&#12483;&#12471;&#12519;&#12531;</span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header">
+          <span>For Life<em>暮らしを豊かにする商品</em></span>
+          <span class="menu-plus">+</span>
+        </div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=tops">&#12488;&#12483;&#12503;&#12473;</a>
-          <a href="product-list.html?category=bottoms">&#12508;&#12488;&#12512;&#12473;</a>
-          <a href="product-list.html?category=outer">&#12450;&#12454;&#12479;&#12540;</a>
-          <a href="product-list.html?category=accessories">&#12450;&#12463;&#12475;&#12469;&#12522;&#12540;</a>
-          <a href="product-list.html?category=shoes">&#12471;&#12517;&#12540;&#12474;</a>
+          <a href="product-list.html?category=home-living">Home &amp; Living　生活雑貨</a>
+          <a href="product-list.html?category=kitchen">Kitchen　キッチン用品</a>
+          <a href="product-list.html?category=travel-outdoor">Travel &amp; Outdoor　トラベル</a>
         </div>
       </div>
+
+      <!-- Pet Supplies -->
       <div class="menu-category">
-        <div class="menu-category-header"><span>&#29983;&#27963;&#38613;&#36027;</span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header">
+          <span>Pet Supplies<em>ペット用品</em></span>
+          <span class="menu-plus">+</span>
+        </div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=kitchen">&#12461;&#12483;&#12481;&#12531;&#29992;&#21697;</a>
-          <a href="product-list.html?category=interior">&#12452;&#12531;&#12486;&#12522;&#12450;</a>
-          <a href="product-list.html?category=bath">&#12496;&#12473;&#12539;&#12488;&#12452;&#12524;</a>
-          <a href="product-list.html?category=storage">&#25536;&#32013;&#12539;&#25972;&#29702;</a>
-          <a href="product-list.html?category=aroma">&#12450;&#12525;&#12510;&#12539;&#12461;&#12515;&#12531;&#12489;&#12523;</a>
+          <a href="product-list.html?category=dog">Dog　犬用品</a>
+          <a href="product-list.html?category=cat">Cat　猫用品</a>
+          <a href="product-list.html?category=pet-care">Care　ケア用品</a>
+          <a href="product-list.html?category=pet-toys">Toys　おもちゃ</a>
         </div>
       </div>
+
+      <!-- Featured Collection -->
+      <div class="menu-category">
+        <div class="menu-category-header">
+          <span>Featured Collection<em>特集商品</em></span>
+          <span class="menu-plus">+</span>
+        </div>
+        <div class="menu-subcategory">
+          <a href="product-list.html?category=new-arrival">New Arrival　新商品</a>
+          <a href="product-list.html?category=best-sellers">Best Sellers　人気商品</a>
+          <a href="product-list.html?category=seasonal">Seasonal Picks　季節特集</a>
+          <a href="product-list.html?category=recommended">Recommended by Us　スタッフ厳選</a>
+        </div>
+      </div>
+
       <div class="menu-footer-links">
-        <a href="store.html">New Arrivals</a>
+        <a href="store.html">Home</a>
         <a href="wishlist.html">Wishlist</a>
         <a href="account.html">My Account</a>
         <a href="cart.html">Shopping Bag</a>
       </div>
       <div class="menu-footer-deco">
         <div class="menu-footer-deco-line"></div>
-        <p>&#169; 2026 &#26666;&#24335;&#20250;&#31038;HINOKA<br>sun_hua@hinokaglobal.com</p>
+        <p>COPYRIGHT &copy; HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p>
       </div>
     </div>
   </aside>
@@ -97,7 +123,7 @@
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Crafted for a calm<br>and beautiful life.</div>
+        <div class="side-menu-tagline">Quality Beyond Borders.</div>
       </div>
       <button class="close-menu-btn" id="closeDrawerBtn">&times;</button>
     </div>
@@ -122,7 +148,7 @@
     </div>
     <div class="menu-footer-deco">
       <div class="menu-footer-deco-line"></div>
-      <p>&copy; 2026 HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p>
+      <p>COPYRIGHT &copy; HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p>
     </div>
   </aside>
 
