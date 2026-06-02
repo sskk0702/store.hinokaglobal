@@ -1011,8 +1011,16 @@
       }
     });
 
-    // LINE コールバックの処理（ページロード時）
-    handleLINECallback();
-  </script>
+<script>
+// LINE コールバックの処理（ページロード時）
+handleLINECallback();
+
+// ★ 在这里加入 LINE 登录跳转代码
+document.getElementById("loginBtn").onclick = function () {
+  window.location.href = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2010269245&redirect_uri=https%3A%2F%2Fus-central1-hinoka-0304.cloudfunctions.net%2FlineLoginCallback&state=hinoka123&scope=openid%20profile";
+};
+</script>
+
 </body>
 </html>
+
