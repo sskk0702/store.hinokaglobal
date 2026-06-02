@@ -3,196 +3,319 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ご注文手続き - 株式会社HINOKA</title>
+  <title>HINOKA | Checkout</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
-    body { padding-top: var(--nav-height); background: #f8f8f6; }
+    body {
+      padding-top: var(--nav-height);
+      background: #f8f7f4;
+      min-height: 100vh;
+    }
 
-    /* ── レイアウト ── */
+    /* ═══════════════════════════
+       チェックアウト専用ヘッダー
+    ═══════════════════════════ */
+    .co-header {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1100px; margin: 0 auto;
+      padding: 18px 24px 0;
+    }
+
+    .co-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; letter-spacing: 0.12em; color: var(--gray-dark);
+      transition: color var(--transition);
+      text-decoration: none;
+    }
+    .co-back svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+    .co-back:hover { color: var(--black); }
+
+    .co-header-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; letter-spacing: 0.2em; font-weight: 400;
+      color: var(--black);
+      text-decoration: none;
+    }
+    .co-header-step {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 10px; letter-spacing: 0.18em; color: var(--gray-dark);
+      text-transform: uppercase; margin-left: 8px; font-weight: 300;
+    }
+
+    /* breadcrumb steps */
+    .co-steps {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; letter-spacing: 0.1em; color: var(--gray-dark);
+    }
+    .co-steps .step { display: flex; align-items: center; gap: 4px; }
+    .co-steps .step.active { color: var(--black); font-weight: 500; }
+    .co-steps .sep { color: var(--gray-mid); font-size: 8px; }
+
+    /* ═══════════════════════════
+       メインレイアウト
+    ═══════════════════════════ */
     .checkout-wrap {
       max-width: 1100px; margin: 0 auto;
-      padding: 40px 24px 80px;
+      padding: 24px 24px 80px;
       display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 32px;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
       align-items: start;
     }
 
-    .back-link {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--gray-dark); margin-bottom: 28px; padding: 10px 20px;
-      border: 1px solid var(--gray-mid);
-      transition: color var(--transition), border-color var(--transition), background var(--transition);
-    }
-    .back-link:hover { color: var(--black); border-color: var(--black); background: #f9f6f1; }
-
-    /* ── カード ── */
+    /* ═══════════════════════════
+       カード共通
+    ═══════════════════════════ */
     .form-card {
       background: var(--white);
-      padding: 32px;
-      margin-bottom: 16px;
+      padding: 28px 32px;
+      margin-bottom: 14px;
+      border: 1px solid #ede9e3;
     }
-    .form-card h3 {
+    .form-card:last-child { margin-bottom: 0; }
+    .card-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 18px; font-weight: 400;
-      letter-spacing: 0.12em; margin-bottom: 24px;
+      font-size: 16px; font-weight: 400;
+      letter-spacing: 0.15em; margin-bottom: 22px;
       padding-bottom: 12px;
       border-bottom: 1px solid var(--gray-light);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--black); color: var(--white);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 10px; font-weight: 400; letter-spacing: 0; flex-shrink: 0;
     }
 
-    /* ── フォーム ── */
+    /* ═══════════════════════════
+       フォーム
+    ═══════════════════════════ */
     .form-row {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 16px; margin-bottom: 0;
+      gap: 14px;
     }
-    .form-group { margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group:last-child { margin-bottom: 0; }
     .form-label {
-      display: block; font-size: 11px;
-      letter-spacing: 0.12em; color: var(--gray-dark); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; letter-spacing: 0.14em; color: var(--gray-dark);
+      margin-bottom: 6px; text-transform: uppercase;
     }
-    .required { color: #cc0000; margin-left: 2px; }
+    .required {
+      color: #bf0000; font-size: 9px; letter-spacing: 0;
+      margin-left: 1px;
+    }
     .form-input {
-      width: 100%; border: 1px solid var(--gray-mid);
-      padding: 11px 14px; font-size: 13px;
+      width: 100%; border: 1px solid #ddd;
+      padding: 10px 13px; font-size: 13px;
       font-family: inherit; outline: none;
-      transition: border-color 0.2s; background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--white); border-radius: 0;
+      color: var(--black);
     }
-    .form-input:focus { border-color: var(--black); }
-    select.form-input { cursor: pointer; }
+    .form-input:focus {
+      border-color: var(--black);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+    }
+    .form-input.filled { border-color: #a8c5a0; background: #fafff9; }
+    select.form-input { cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 32px;
+    }
 
-    /* ── 支払い方法タブ ── */
+    /* 郵便番号 + 自動入力 */
+    .postal-wrap { display: flex; gap: 10px; align-items: flex-end; }
+    .postal-wrap .form-input { max-width: 160px; }
+    .postal-lookup-btn {
+      height: 40px; padding: 0 16px;
+      border: 1px solid var(--black); background: none;
+      font-size: 10px; letter-spacing: 0.1em; font-family: inherit;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: background var(--transition), color var(--transition);
+    }
+    .postal-lookup-btn:hover { background: var(--black); color: var(--white); }
+    .postal-lookup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .postal-hint {
+      font-size: 10px; color: var(--gray-dark);
+      margin-top: 5px; letter-spacing: 0.04em; min-height: 14px;
+    }
+    .postal-hint.ok   { color: #2e7d32; }
+    .postal-hint.err  { color: #bf0000; }
+    .postal-hint.loading { color: #888; }
+
+    /* ═══════════════════════════
+       支払い方法タブ
+    ═══════════════════════════ */
     .pay-tabs {
       display: grid; grid-template-columns: repeat(3,1fr);
-      border: 1px solid var(--gray-mid);
-      margin-bottom: 24px; overflow: hidden;
+      border: 1px solid #ddd;
+      margin-bottom: 20px; overflow: hidden;
     }
     .pay-tab {
-      padding: 14px 6px; text-align: center;
+      padding: 13px 6px; text-align: center;
       cursor: pointer; font-size: 11px; letter-spacing: 0.04em;
-      background: #fafaf8; border: none; border-right: 1px solid var(--gray-mid);
+      background: #fafaf8; border: none; border-right: 1px solid #ddd;
       font-family: inherit; color: var(--gray-dark);
       transition: background 0.2s, color 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
     .pay-tab:last-child { border-right: none; }
-    .pay-tab .tab-icon { font-size: 20px; }
+    .pay-tab .tab-icon { font-size: 18px; }
     .pay-tab.active { background: var(--black); color: var(--white); }
 
-    /* 支払いパネル */
     .pay-panel { display: none; }
     .pay-panel.active { display: block; }
 
-    /* Stripe card element */
-    #card-element {
-      background: #fcfaf8; border: 1px solid var(--gray-mid);
-      padding: 14px 16px; transition: border-color 0.2s;
+    /* Stripe redirect box */
+    .stripe-redirect-box {
+      border: 1px solid #e0ddf5; background: #fafafe;
+      padding: 18px 20px; margin-bottom: 18px; border-radius: 0;
     }
-    #card-element.focused { border-color: var(--black); }
-    #card-errors { color: #cc0000; font-size: 12px; margin-top: 6px; min-height: 18px; }
+    .stripe-redirect-logo {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px; font-size: 12px; font-weight: 500;
+      color: #5469d4; letter-spacing: 0.04em;
+    }
+    .stripe-redirect-desc {
+      font-size: 11px; color: #666;
+      line-height: 1.9; margin-bottom: 12px;
+    }
 
-    /* セキュリティバッジ */
+    /* セキュリティ */
     .security-note {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: #f8fafb; border: 1px solid #e8edf0;
-      padding: 14px 16px; font-size: 11px;
-      color: var(--gray-dark); line-height: 1.8; margin-bottom: 20px;
+      display: flex; align-items: flex-start; gap: 8px;
+      background: #f4f8ff; border: 1px solid #d0dff5;
+      padding: 10px 14px; font-size: 10px;
+      color: #555; line-height: 1.8;
     }
-    .security-note svg { flex-shrink: 0; margin-top: 2px; }
+    .security-note svg { flex-shrink: 0; margin-top: 1px; color: #5469d4; }
 
-    /* 情報ボックス（銀行・コンビニ・PayPay） */
+    /* 情報ボックス */
     .info-box {
       background: #fafaf8; border: 1px solid #e8e4df;
-      padding: 20px; font-size: 12px;
-      color: #444; line-height: 2; margin-bottom: 20px;
+      padding: 18px 20px; font-size: 12px;
+      color: #444; line-height: 2; margin-bottom: 18px;
     }
     .info-box strong { color: var(--black); }
     .info-highlight {
       background: #fff8f0; border: 1px solid #ffe0b2;
-      color: #e65100; padding: 12px 16px;
-      margin-top: 12px; font-size: 12px; line-height: 1.8;
+      color: #e65100; padding: 10px 14px;
+      margin-top: 10px; font-size: 11px; line-height: 1.8;
     }
 
-    /* PayPay */
-    .paypay-logo-area {
-      text-align: center; padding: 24px 20px;
-      border: 1px solid #ffcdd2; background: #fff;
-      margin-bottom: 16px;
-    }
-    .paypay-logo { font-size: 32px; font-weight: 800; color: #e00; letter-spacing: -1px; margin-bottom: 6px; }
-    .paypay-sub  { font-size: 11px; color: var(--gray-dark); line-height: 1.8; }
-
-    /* 確定ボタン */
+    /* ═══════════════════════════
+       確定ボタン
+    ═══════════════════════════ */
     .pay-btn {
-      width: 100%; padding: 17px;
+      width: 100%; padding: 16px;
       background: var(--black); color: var(--white);
-      font-size: 12px; letter-spacing: 0.2em;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
       border: none; cursor: pointer; font-family: inherit;
       transition: background var(--transition); margin-top: 8px;
     }
     .pay-btn:hover { background: #222; }
-    .pay-btn:disabled { background: #999; cursor: not-allowed; }
+    .pay-btn:disabled { background: #aaa; cursor: not-allowed; }
 
     #pay-loading {
-      display: none; text-align: center; padding: 16px;
-      font-size: 12px; color: var(--gray-dark); letter-spacing: 0.08em;
+      display: none; text-align: center; padding: 14px;
+      font-size: 11px; color: var(--gray-dark); letter-spacing: 0.08em;
     }
 
-    /* ── 右：サマリー ── */
+    .form-error {
+      background: #fff0f0; border: 1px solid #ffd0d0;
+      color: #bf0000; font-size: 11px;
+      padding: 10px 14px; margin-bottom: 14px; display: none;
+      letter-spacing: 0.03em;
+    }
+
+    /* ═══════════════════════════
+       右：注文サマリー
+    ═══════════════════════════ */
     .checkout-summary {
       background: var(--white);
-      padding: 28px 24px;
+      border: 1px solid #ede9e3;
       position: sticky;
-      top: calc(var(--nav-height) + 24px);
+      top: calc(var(--nav-height) + 16px);
     }
-    .checkout-summary h3 {
+
+    .summary-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--gray-light);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .summary-header h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 18px; font-weight: 400;
-      letter-spacing: 0.12em; margin-bottom: 6px;
+      font-size: 16px; font-weight: 400; letter-spacing: 0.15em;
+      display: flex; align-items: center; gap: 8px;
     }
-    .method-badge {
-      display: inline-block; background: var(--black); color: var(--white);
-      font-size: 10px; letter-spacing: 0.1em;
-      padding: 3px 10px; margin-bottom: 20px;
+
+    .summary-toggle-btn {
+      font-size: 10px; color: var(--gray-dark);
+      letter-spacing: 0.08em; cursor: pointer; background: none; border: none;
+      font-family: inherit; transition: color var(--transition);
+      display: flex; align-items: center; gap: 4px;
     }
+    .summary-toggle-btn:hover { color: var(--black); }
+
+    .summary-items-wrap {
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      max-height: 0;
+    }
+    .summary-items-wrap.open { max-height: 600px; }
 
     .summary-item {
       display: flex; gap: 12px;
-      padding: 12px 0; border-bottom: 1px solid var(--gray-light);
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--gray-light);
     }
     .summary-item img {
-      width: 52px; aspect-ratio: 3/4;
+      width: 48px; aspect-ratio: 3/4;
       object-fit: cover; background: var(--gray-light); flex-shrink: 0;
     }
-    .summary-item-name  { font-size: 12px; margin-bottom: 3px; line-height: 1.5; }
-    .summary-item-price { font-size: 12px; color: var(--gray-dark); }
+    .summary-item-info { flex: 1; min-width: 0; }
+    .summary-item-name  { font-size: 11px; margin-bottom: 2px; line-height: 1.5; letter-spacing: 0.04em; }
+    .summary-item-meta  { font-size: 10px; color: var(--gray-dark); margin-bottom: 3px; }
+    .summary-item-price { font-size: 12px; font-weight: 500; }
 
+    .summary-totals { padding: 16px 24px 0; }
     .summary-row {
       display: flex; justify-content: space-between;
-      font-size: 13px; padding: 8px 0;
-      letter-spacing: 0.03em;
+      font-size: 12px; padding: 6px 0;
+      letter-spacing: 0.03em; color: #555;
+      border-bottom: 1px solid #f0ece6;
     }
-    .summary-row.total {
+    .summary-row:last-of-type { border-bottom: none; }
+    .summary-total-row {
+      display: flex; justify-content: space-between;
       font-size: 15px; font-weight: 500;
-      border-top: 1px solid var(--gray-mid);
-      padding-top: 14px; margin-top: 6px;
+      padding: 14px 24px;
+      border-top: 2px solid var(--black);
+      letter-spacing: 0.05em;
     }
-    .summary-row.total span:last-child { color: #bf0000; }
+    .summary-total-row span:last-child { color: #bf0000; }
 
     .summary-shipping-note {
       font-size: 10px; color: var(--gray-dark);
-      line-height: 1.8; margin-top: 12px;
-      padding-top: 12px; border-top: 1px solid var(--gray-light);
+      line-height: 1.8; padding: 12px 24px 16px;
+      border-top: 1px solid var(--gray-light);
+      letter-spacing: 0.03em;
     }
 
     .stripe-badge {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; color: #aaa; margin-top: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      font-size: 10px; color: #aaa; padding: 12px 24px;
+      border-top: 1px solid var(--gray-light);
+      letter-spacing: 0.06em;
     }
 
-    /* ── 成功モーダル ── */
+    /* ═══════════════════════════
+       成功モーダル
+    ═══════════════════════════ */
     .success-modal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.55); z-index: 9999;
@@ -201,55 +324,73 @@
     .success-modal.open { display: flex; }
     .success-box {
       background: var(--white); padding: 48px 40px;
-      max-width: 460px; width: 90%; text-align: center;
+      max-width: 440px; width: 90%; text-align: center;
     }
-    .success-icon  { font-size: 48px; margin-bottom: 16px; }
+    .success-icon  { font-size: 44px; margin-bottom: 16px; }
     .success-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 300;
-      letter-spacing: 0.1em; margin-bottom: 16px;
+      font-size: 24px; font-weight: 300;
+      letter-spacing: 0.12em; margin-bottom: 14px;
     }
     .success-msg {
-      font-size: 13px; color: var(--gray-dark);
-      line-height: 2; margin-bottom: 28px;
-      white-space: pre-line;
+      font-size: 12px; color: var(--gray-dark);
+      line-height: 2; margin-bottom: 24px; white-space: pre-line;
     }
     .success-btn {
-      display: inline-block; padding: 14px 40px;
+      display: inline-block; padding: 13px 36px;
       background: var(--black); color: var(--white);
       font-size: 11px; letter-spacing: 0.2em;
       cursor: pointer; border: none; font-family: inherit;
     }
 
-    /* ── エラーメッセージ ── */
-    .form-error {
-      background: #fff0f0; border: 1px solid #ffcccc;
-      color: #cc0000; font-size: 12px;
-      padding: 12px 16px; margin-bottom: 16px; display: none;
-    }
-
-    @media (max-width: 768px) {
-      .checkout-wrap { grid-template-columns: 1fr; gap: 20px; padding: 24px 16px 60px; }
+    /* ═══════════════════════════
+       レスポンシブ
+    ═══════════════════════════ */
+    @media (max-width: 820px) {
+      .checkout-wrap { grid-template-columns: 1fr; gap: 16px; padding: 20px 16px 60px; }
       .checkout-summary { position: static; }
-      .form-row { grid-template-columns: 1fr; }
-      .pay-tabs { grid-template-columns: 1fr 1fr 1fr; }
-      .pay-tab:nth-child(3) { border-right: none; }
-      .form-card { padding: 24px 20px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .form-card { padding: 22px 20px; }
+      .co-steps { display: none; }
+    }
+    @media (max-width: 480px) {
+      .postal-wrap { flex-direction: column; align-items: stretch; }
+      .postal-wrap .form-input { max-width: 100%; }
     }
   </style>
 </head>
 <body>
 
+  <!-- ── チェックアウト専用ヘッダー ── -->
+  <div class="co-header">
+    <a class="co-back" href="cart.html">
+      <svg viewBox="0 0 14 14"><polyline points="9,2 4,7 9,12"/></svg>
+      カートに戻る
+    </a>
+    <a href="store.html" class="co-header-brand">HINOKA<span class="co-header-step">/ Checkout</span></a>
+    <div class="co-steps">
+      <span class="step">Cart</span>
+      <span class="sep">›</span>
+      <span class="step active">Checkout</span>
+      <span class="sep">›</span>
+      <span class="step">Complete</span>
+    </div>
+  </div>
+
+  <!-- ── メインコンテンツ ── -->
   <div class="checkout-wrap">
 
     <!-- ══ 左：フォーム ══ -->
     <div>
-      <a class="back-link" href="cart.html">← カートに戻る</a>
 
-      <!-- お届け先 -->
+      <!-- お届け先情報 -->
       <div class="form-card">
-        <h3>お届け先情報</h3>
+        <div class="card-title">
+          <span class="card-title-num">1</span>
+          お届け先情報
+        </div>
         <div class="form-error" id="form-error"></div>
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">姓 <span class="required">*</span></label>
@@ -260,39 +401,54 @@
             <input type="text" class="form-input" id="first-name" placeholder="花子" autocomplete="given-name">
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">メールアドレス <span class="required">*</span></label>
           <input type="email" class="form-input" id="email" placeholder="example@email.com" autocomplete="email">
         </div>
+
         <div class="form-group">
           <label class="form-label">電話番号 <span class="required">*</span></label>
           <input type="tel" class="form-input" id="phone" placeholder="090-0000-0000" autocomplete="tel">
         </div>
+
         <div class="form-group">
           <label class="form-label">郵便番号 <span class="required">*</span></label>
-          <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8" autocomplete="postal-code">
+          <div class="postal-wrap">
+            <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8" autocomplete="postal-code">
+            <button class="postal-lookup-btn" id="postalLookupBtn" type="button">住所を自動入力</button>
+          </div>
+          <p class="postal-hint" id="postalHint">7桁の郵便番号を入力すると住所が自動で入力されます</p>
         </div>
-        <div class="form-group">
-          <label class="form-label">都道府県 <span class="required">*</span></label>
-          <select class="form-input" id="prefecture" autocomplete="address-level1">
-            <option value="" disabled selected>選択してください</option>
-            <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
-            <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
-            <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
-            <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
-            <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
-            <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
-            <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
-            <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
-            <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
-            <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
-            <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
-            <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
-          </select>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">都道府県 <span class="required">*</span></label>
+            <select class="form-input" id="prefecture" autocomplete="address-level1">
+              <option value="" disabled selected>選択してください</option>
+              <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+              <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+              <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+              <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+              <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+              <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+              <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+              <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+              <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+              <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+              <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+              <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">市区町村 <span class="required">*</span></label>
+            <input type="text" class="form-input" id="city" placeholder="大阪市浪速区" autocomplete="address-level2">
+          </div>
         </div>
+
         <div class="form-group">
-          <label class="form-label">市区町村・番地 <span class="required">*</span></label>
-          <input type="text" class="form-input" id="address" placeholder="大阪市浪速区〇番〇号" autocomplete="address-line1">
+          <label class="form-label">番地 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="address" placeholder="〇番〇号" autocomplete="address-line1">
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label class="form-label">建物名・部屋番号</label>
@@ -302,7 +458,10 @@
 
       <!-- お支払い方法 -->
       <div class="form-card">
-        <h3>お支払い方法</h3>
+        <div class="card-title">
+          <span class="card-title-num">2</span>
+          お支払い方法
+        </div>
 
         <div class="pay-tabs">
           <button class="pay-tab active" data-tab="credit">
@@ -318,16 +477,21 @@
 
         <!-- ① クレジットカード -->
         <div class="pay-panel active" id="panel-credit">
-          <div class="form-group">
-            <label class="form-label">カード情報 <span class="required">*</span></label>
-            <div id="card-element"></div>
-            <div id="card-errors"></div>
-          </div>
-          <div class="security-note">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
-            <span>お支払い情報はStripeにより暗号化・安全に処理されます。カード情報は当社サーバーに保存されません。</span>
+          <div class="stripe-redirect-box">
+            <div class="stripe-redirect-logo">
+              <svg width="48" height="20" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg"><path d="M59.64 14.28h-8.06c.19 1.93 1.86 2.76 3.73 2.76 1.86 0 3.14-.47 4.29-1.23l1.51 2.71c-1.47 1.05-3.47 1.71-5.9 1.71-4.77 0-7.87-3.14-7.87-7.11 0-3.94 3.07-7.11 7.38-7.11 4.24 0 6.87 3.07 6.87 7.05.01.41-.03.82-.12 1.22zm-8.14-2.46h5.18c-.09-1.61-1.09-2.71-2.59-2.71-1.51 0-2.51 1.1-2.59 2.71zm-5.39-6.33H50v12.41h-3.88V5.49zm-8.26 0h3.88V17.9h-3.88V5.49zm-3.69 5.69h-1.23v3.74h1.23c1.42 0 2.28-.76 2.28-1.87s-.86-1.87-2.28-1.87zm0-5.69h-1.23v3.65h1.23c1.33 0 2.09-.76 2.09-1.83s-.76-1.82-2.09-1.82zm-5.97-1.23h6.26c3.31 0 5.5 1.99 5.5 4.66 0 1.33-.66 2.66-1.9 3.41v.09c1.52.66 2.56 2.18 2.56 3.79 0 3.03-2.28 5.02-5.78 5.02h-6.64V4.26zm-8.42 8.49V17.9H16.7V5.49h4.07v7.12l3.5-7.12h4.26l-3.79 7.22 4.07 5.19H24.4l-3.24-4.65v4.65h-3.07v-1.16l-2.09-3.94-.28.57v4.53H12.5V5.49h3.69v7.26l-1.23-2.47c-.28.57-.56 1.14-.85 1.7l1.27 2.4v3.52H12.5zM4.95 11.23c.57.09 1.23.19 1.8.19 1.33 0 2-.57 2-1.71s-.66-1.71-1.99-1.71H4.95v3.23zM.77 5.49h4.46c3.21 0 5.59 1.9 5.59 4.75 0 2.56-1.85 4.75-5.59 4.75H4.95V17.9H.77V5.49z" fill="#5469d4"/></svg>
+              <span>Stripe 安全決済</span>
+            </div>
+            <p class="stripe-redirect-desc">
+              ボタンをクリックするとStripeの安全な決済ページに移動します。<br>
+              Visa · Mastercard · JCB · American Express 対応
+            </p>
+            <div class="security-note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+              <span>SSL 暗号化により安全に処理されます。カード情報は当社サーバーに一切保存されません。</span>
+            </div>
           </div>
         </div>
 
@@ -337,12 +501,11 @@
             <strong>【銀行振込のご案内】</strong><br>
             ご注文確定後、登録のメールアドレスへ振込先口座情報をお送りします。<br><br>
             🏦 振込先口座：<br>
-            　銀行名：<strong id="bank-name-display">〇〇銀行</strong><br>
-            　支店名：<strong id="bank-branch-display">〇〇支店</strong><br>
-            　口座種別：普通　口座番号：<strong id="bank-number-display">1234567</strong><br>
-            　口座名義：<strong id="bank-holder-display">カ）ヒノカ</strong><br><br>
+            　銀行名：<strong id="bank-name-display"></strong><br>
+            　支店名：<strong id="bank-branch-display"></strong><br>
+            　口座種別：普通　口座番号：<strong id="bank-number-display"></strong><br>
+            　口座名義：<strong id="bank-holder-display"></strong><br><br>
             ⏰ お振込期限：ご注文日より <strong>3営業日以内</strong><br>
-            期限内にご入金が確認できない場合、ご注文をキャンセルとなります。<br>
             振込手数料はお客様ご負担となります。
             <div class="info-highlight">
               ✉️ ご注文確定後の自動返信メールに振込先の詳細情報が記載されます。
@@ -355,20 +518,15 @@
           <div class="info-box">
             <strong>【コンビニ払いのご案内】</strong><br>
             ご注文確定後、お支払い番号をメールにてお送りします。<br><br>
-            🏪 対応コンビニ：<strong>セブン‐イレブン・ファミリーマート・ローソン</strong><br><br>
-            📋 お支払い方法：<br>
-            　レジにて「コンビニ払い（Pay-easy）」とお伝えください<br>
-            　メールに記載の<strong>お支払い番号</strong>をご提示ください<br><br>
-            ⏰ お支払い期限：ご注文日より <strong>3日以内</strong><br>
-            期限を過ぎると番号が無効になり、ご注文がキャンセルとなります。
+            🏪 対応：<strong>セブン‐イレブン · ファミリーマート · ローソン</strong><br><br>
+            ⏰ お支払い期限：ご注文日より <strong>3日以内</strong>
             <div class="info-highlight">
               ✉️ ご注文確定後の自動返信メールにお支払い番号と手順が記載されます。
             </div>
           </div>
         </div>
 
-        <!-- 確定ボタン -->
-        <button class="pay-btn" id="payBtn">注文を確定する</button>
+        <button class="pay-btn" id="payBtn">💳 Stripeで安全に決済する</button>
         <div id="pay-loading">処理中... しばらくお待ちください</div>
       </div>
     </div>
@@ -376,21 +534,44 @@
     <!-- ══ 右：注文サマリー ══ -->
     <div>
       <div class="checkout-summary">
-        <h3 style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;" id="summaryToggle">
-          ご注文内容
-          <span style="font-size:12px;color:var(--gray-dark);letter-spacing:0;font-weight:400;" id="summaryToggleIcon">▼ 詳細を見る</span>
-        </h3>
-        <div id="summaryItems" style="display:none;"></div>
-        <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
-        <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
-        <div class="summary-row"><span>消費税（10%含む）</span><span id="sumTax">¥0</span></div>
-        <div class="summary-row total"><span>合計（税込）</span><span id="sumTotal">¥0</span></div>
+        <!-- ヘッダー -->
+        <div class="summary-header">
+          <h3>
+            <span class="card-title-num" style="background:#f0ece6;color:var(--black);">3</span>
+            ご注文内容
+          </h3>
+          <button class="summary-toggle-btn" id="summaryToggleBtn">
+            <span id="summaryToggleIcon">▼</span> 商品を見る
+          </button>
+        </div>
+
+        <!-- 商品リスト（折りたたみ） -->
+        <div class="summary-items-wrap" id="summaryItemsWrap">
+          <div id="summaryItems"></div>
+        </div>
+
+        <!-- 小計・送料・税 -->
+        <div class="summary-totals">
+          <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
+          <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
+          <div class="summary-row"><span>消費税（10% 内税）</span><span id="sumTax">¥0</span></div>
+        </div>
+
+        <!-- 合計 -->
+        <div class="summary-total-row">
+          <span>合計（税込）</span>
+          <span id="sumTotal">¥0</span>
+        </div>
+
+        <!-- 送料注記 -->
         <div class="summary-shipping-note" id="shippingNote">
           🚚 通常送料：550円（税込）<br>
-          ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。
+          ※北海道・沖縄・離島は追加送料が発生する場合があります。
         </div>
+
+        <!-- Stripe badge -->
         <div class="stripe-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
           </svg>
           Stripe による安全な決済
@@ -399,10 +580,10 @@
     </div>
   </div>
 
-  <!-- 成功モーダル -->
+  <!-- 成功モーダル（銀行・コンビニ用） -->
   <div class="success-modal" id="successModal">
     <div class="success-box">
-      <div class="success-icon" id="successIcon">✅</div>
+      <div class="success-icon">✅</div>
       <div class="success-title">ご注文ありがとうございます</div>
       <p class="success-msg" id="successMsg"></p>
       <button class="success-btn" id="successBtn">ショッピングを続ける</button>
@@ -464,12 +645,12 @@
   </script>
   <script>
   (() => {
-    // ════════════════════════════════════════
-    //  設定（本番前に変更してください）
-    // ════════════════════════════════════════
+    // ════════════════════════════════
+    //  設定
+    // ════════════════════════════════
     const CONFIG = {
-      stripeKey:    'pk_test_51TabnLGIo4RcICnlbIwzNVaoyxnWwR7uPXKyz6dJpL9uWTVpIt7vDm2gLOO4TtdS1RDPOz1EPvM5MTm0C1APVxRE00eHEdthKw',
-      formspreeUrl: 'https://formspree.io/f/YOUR_FORMSPREE_ID', // ← ここを変更
+      stripePaymentLinkUrl: 'https://buy.stripe.com/YOUR_PAYMENT_LINK', // ← Stripe Payment Link URLに変更
+      formspreeUrl: 'https://formspree.io/f/YOUR_FORMSPREE_ID',         // ← Formspree URLに変更
       bank: {
         name:   'GMOあおぞらネット銀行（金融機関コード0310）',
         branch: '法人営業部（支店コード101）',
@@ -478,59 +659,82 @@
       }
     };
 
-    // 銀行情報をHTMLに反映
     document.getElementById('bank-name-display').textContent   = CONFIG.bank.name;
     document.getElementById('bank-branch-display').textContent = CONFIG.bank.branch;
     document.getElementById('bank-number-display').textContent = CONFIG.bank.number;
     document.getElementById('bank-holder-display').textContent = CONFIG.bank.holder;
 
-    // ════════════════════════════════════════
-    //  Stripe初期化
-    // ════════════════════════════════════════
-    let stripe, cardElement;
-    try {
-      stripe = Stripe(CONFIG.stripeKey);
-      const elements = stripe.elements({
-        fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&display=swap' }]
-      });
-      cardElement = elements.create('card', {
-        style: {
-          base: {
-            fontFamily: "'Noto Sans JP', sans-serif",
-            fontSize: '14px', color: '#1a1a1a',
-            '::placeholder': { color: '#aaa' }
-          },
-          invalid: { color: '#cc0000' }
+    // ════════════════════════════════
+    //  郵便番号 → 住所自動入力
+    // ════════════════════════════════
+    const postalInput   = document.getElementById('postal');
+    const lookupBtn     = document.getElementById('postalLookupBtn');
+    const postalHint    = document.getElementById('postalHint');
+
+    async function lookupPostal() {
+      const raw = postalInput.value.replace(/\D/g, '');
+      if (raw.length !== 7) {
+        postalHint.textContent = '7桁の郵便番号を入力してください';
+        postalHint.className = 'postal-hint err';
+        return;
+      }
+      postalHint.textContent = '検索中...';
+      postalHint.className = 'postal-hint loading';
+      lookupBtn.disabled = true;
+
+      try {
+        const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${raw}`);
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          const r = data.results[0];
+          // 都道府県を自動選択
+          const prefSelect = document.getElementById('prefecture');
+          for (const opt of prefSelect.options) {
+            if (opt.value === r.address1) { opt.selected = true; break; }
+          }
+          // 市区町村と番地を自動入力
+          document.getElementById('city').value    = r.address2 + r.address3;
+          document.getElementById('city').classList.add('filled');
+          prefSelect.classList.add('filled');
+          postalHint.textContent = `✓ ${r.address1}${r.address2}${r.address3}`;
+          postalHint.className = 'postal-hint ok';
+          // 送料再計算
+          renderSummary();
+          document.getElementById('address').focus();
+        } else {
+          postalHint.textContent = '該当する住所が見つかりませんでした';
+          postalHint.className = 'postal-hint err';
         }
-      });
-      cardElement.mount('#card-element');
-      cardElement.on('focus',  () => document.getElementById('card-element').classList.add('focused'));
-      cardElement.on('blur',   () => document.getElementById('card-element').classList.remove('focused'));
-      cardElement.on('change', e => {
-        document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
-      });
-    } catch(e) {
-      document.getElementById('card-element').innerHTML =
-        '<p style="font-size:12px;color:#aaa;padding:4px 0;">⚠️ Stripeキーを確認してください</p>';
+      } catch(e) {
+        postalHint.textContent = '住所の検索に失敗しました。手動で入力してください。';
+        postalHint.className = 'postal-hint err';
+      } finally {
+        lookupBtn.disabled = false;
+      }
     }
 
-    // ════════════════════════════════════════
+    // 郵便番号フォーマット + 7桁で自動検索
+    postalInput.addEventListener('input', function() {
+      const v = this.value.replace(/\D/g, '');
+      this.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
+      if (v.length === 7) lookupPostal();
+    });
+    lookupBtn.addEventListener('click', lookupPostal);
+
+    // ════════════════════════════════
     //  支払い方法タブ
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     let currentMethod = 'credit';
     const METHOD_LABELS = {
       credit:  '💳 クレジットカード',
       bank:    '🏦 銀行振込',
       conbini: '🏪 コンビニ払い'
     };
-
-    // Summary collapsible toggle
-    let summaryOpen = false;
-    document.getElementById('summaryToggle').addEventListener('click', () => {
-      summaryOpen = !summaryOpen;
-      document.getElementById('summaryItems').style.display = summaryOpen ? '' : 'none';
-      document.getElementById('summaryToggleIcon').textContent = summaryOpen ? '▲ 閉じる' : '▼ 詳細を見る';
-    });
+    const PAY_BTN_LABELS = {
+      credit:  '💳 Stripeで安全に決済する',
+      bank:    '🏦 注文を確定する（銀行振込）',
+      conbini: '🏪 注文を確定する（コンビニ払い）'
+    };
 
     document.querySelectorAll('.pay-tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -539,39 +743,50 @@
         document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(`panel-${currentMethod}`).classList.add('active');
-        // method updated
+        document.getElementById('payBtn').textContent = PAY_BTN_LABELS[currentMethod];
       });
     });
 
-    // ════════════════════════════════════════
-    //  カートデータ（両キー対応）
-    // ════════════════════════════════════════
+    // ════════════════════════════════
+    //  サマリー折りたたみ
+    // ════════════════════════════════
+    let summaryOpen = false;
+    document.getElementById('summaryToggleBtn').addEventListener('click', () => {
+      summaryOpen = !summaryOpen;
+      document.getElementById('summaryItemsWrap').classList.toggle('open', summaryOpen);
+      document.getElementById('summaryToggleIcon').textContent = summaryOpen ? '▲' : '▼';
+      document.getElementById('summaryToggleBtn').lastChild.textContent = summaryOpen ? ' 閉じる' : ' 商品を見る';
+    });
+
+    // ════════════════════════════════
+    //  カートデータ
+    // ════════════════════════════════
     function getCart() {
       const a = JSON.parse(localStorage.getItem('cartItems')   || '[]');
       const b = JSON.parse(localStorage.getItem('hinoka_cart') || '[]');
       return a.length > 0 ? a : b;
     }
 
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     //  送料計算
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     function calcShipping() {
       const pref = document.getElementById('prefecture').value;
-      const addr = document.getElementById('address').value;
-      const isIsland = pref === '北海道' || pref === '沖縄県' ||
-                       addr.includes('離島') || addr.includes('利島') || addr.includes('小笠原');
-      return isIsland ? 1500 : 550; // 通常550円
+      const city = document.getElementById('city').value;
+      const isRemote = pref === '北海道' || pref === '沖縄県' ||
+                       city.includes('離島') || city.includes('小笠原');
+      return isRemote ? 1500 : 550;
     }
 
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     //  サマリー描画
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     function renderSummary() {
       const cart      = getCart();
       const container = document.getElementById('summaryItems');
       container.innerHTML = '';
-
       let subtotal = 0;
+
       cart.forEach(item => {
         subtotal += item.price * item.qty;
         const el = document.createElement('div');
@@ -579,50 +794,41 @@
         el.innerHTML = `
           <img src="${item.img || 'assets/images/placeholder.jpg'}" alt="${item.name}"
                onerror="this.src='assets/images/placeholder.jpg'">
-          <div>
-            <p class="summary-item-name">${item.name}　×${item.qty}</p>
+          <div class="summary-item-info">
+            <p class="summary-item-name">${item.name}</p>
+            <p class="summary-item-meta">${item.size ? `サイズ：${item.size} / ` : ''}×${item.qty}</p>
             <p class="summary-item-price">¥${(item.price * item.qty).toLocaleString()}</p>
-            ${item.size  ? `<p class="summary-item-price">サイズ：${item.size}</p>` : ''}
           </div>`;
         container.appendChild(el);
       });
 
       const shipping = calcShipping();
-      const tax      = Math.round(subtotal / 11); // 税込価格から消費税を逆算
+      const tax      = Math.round(subtotal / 11);
       const total    = subtotal + shipping;
 
       document.getElementById('sumSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
-      document.getElementById('sumShipping').textContent = `¥${shipping.toLocaleString()}`;
-      document.getElementById('sumTax').textContent      = `（税${tax.toLocaleString()}円含む）`;
+      document.getElementById('sumShipping').textContent = subtotal === 0 ? '−' : `¥${shipping.toLocaleString()}`;
+      document.getElementById('sumTax').textContent      = `¥${tax.toLocaleString()}`;
       document.getElementById('sumTotal').textContent    = `¥${total.toLocaleString()}`;
 
-      // 離島・北海道の場合は注意書き更新
       const shippingNote = document.getElementById('shippingNote');
       if (shipping > 550) {
-        shippingNote.innerHTML = `⚠️ <strong>追加送料が適用されています（¥${shipping.toLocaleString()}）</strong><br>北海道・沖縄・離島地域への配送のため追加送料が発生しています。`;
+        shippingNote.innerHTML = `⚠️ <strong>追加送料適用：¥${shipping.toLocaleString()}</strong><br>北海道・沖縄・離島への配送のため追加送料が発生しています。`;
         shippingNote.style.color = '#e65100';
       } else {
-        shippingNote.innerHTML  = `🚚 通常送料：550円（税込）<br>※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。`;
+        shippingNote.innerHTML  = `🚚 通常送料：550円（税込）<br>※北海道・沖縄・離島は追加送料が発生する場合があります。`;
         shippingNote.style.color = '';
       }
-
       return { cart, subtotal, shipping, total };
     }
 
-    // 都道府県・住所変更時に再計算
     document.getElementById('prefecture').addEventListener('change', renderSummary);
-    document.getElementById('address').addEventListener('input',    renderSummary);
+    document.getElementById('city').addEventListener('input', renderSummary);
     renderSummary();
 
-    // 郵便番号フォーマット
-    document.getElementById('postal').addEventListener('input', function() {
-      const v = this.value.replace(/\D/g,'');
-      this.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
-    });
-
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     //  バリデーション
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     function validate() {
       const errEl  = document.getElementById('form-error');
       const fields = [
@@ -631,13 +837,15 @@
         { id:'email',      label:'メールアドレス' },
         { id:'phone',      label:'電話番号' },
         { id:'postal',     label:'郵便番号' },
-        { id:'address',    label:'市区町村・番地' },
+        { id:'city',       label:'市区町村' },
+        { id:'address',    label:'番地' },
       ];
       for (const f of fields) {
         if (!document.getElementById(f.id).value.trim()) {
           errEl.textContent = `「${f.label}」を入力してください。`;
           errEl.style.display = 'block';
           document.getElementById(f.id).focus();
+          document.getElementById(f.id).scrollIntoView({ behavior:'smooth', block:'center' });
           return false;
         }
       }
@@ -650,13 +858,13 @@
       return true;
     }
 
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     //  Formspree送信
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     async function sendFormspree(data) {
       if (CONFIG.formspreeUrl.includes('YOUR_FORMSPREE_ID')) {
-        console.warn('Formspree未設定のためスキップ（開発環境）');
-        return true; // 開発中はブロックしない
+        console.warn('Formspree未設定 — スキップ');
+        return true;
       }
       const fd = new FormData();
       Object.entries(data).forEach(([k,v]) => fd.append(k, v));
@@ -667,37 +875,31 @@
       return res.ok;
     }
 
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     //  成功モーダル
-    // ════════════════════════════════════════
+    // ════════════════════════════════
     const SUCCESS_MESSAGES = {
-      credit:  'ご注文情報を受け付けました。\n確認メールをお送りいたします。',
-      bank:    `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name} ${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
+      bank:    `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name}\n${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
       conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した\n確認メールをお送りしました。\n3日以内にお支払いください。'
     };
-
-    function showSuccess(method) {
-      document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[method];
-      document.getElementById('successModal').classList.add('open');
-    }
 
     document.getElementById('successBtn').addEventListener('click', () => {
       localStorage.removeItem('cartItems');
       localStorage.removeItem('hinoka_cart');
-      sessionStorage.removeItem('hinoka_selected_region');
       location.href = 'store.html';
     });
 
-    // ════════════════════════════════════════
-    //  注文確定ボタン
-    // ════════════════════════════════════════
+    // ════════════════════════════════
+    //  注文確定
+    // ════════════════════════════════
     document.getElementById('payBtn').addEventListener('click', async () => {
       if (!validate()) return;
 
       const { cart, subtotal, shipping, total } = renderSummary();
       if (cart.length === 0) {
-        document.getElementById('form-error').textContent = 'カートに商品がありません。';
-        document.getElementById('form-error').style.display = 'block';
+        const e = document.getElementById('form-error');
+        e.textContent = 'カートに商品がありません。';
+        e.style.display = 'block';
         return;
       }
 
@@ -707,65 +909,51 @@
       btn.style.display     = 'none';
       loading.style.display = 'block';
 
-      // 共通データ
       const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
       const email = document.getElementById('email').value;
       const addr  = [
         document.getElementById('postal').value,
         document.getElementById('prefecture').value,
+        document.getElementById('city').value,
         document.getElementById('address').value,
         document.getElementById('address2').value
       ].filter(Boolean).join(' ');
 
-      // 注文明細テキスト
-      let invoice = '===== 注文商品明細 =====\n';
+      let invoice = '===== 注文明細 =====\n';
       cart.forEach((item, i) => {
-        invoice += `${i+1}. ${item.name}`;
-        if (item.size)  invoice += ` [${item.size}]`;
-        invoice += ` × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
+        invoice += `${i+1}. ${item.name}${item.size ? ` [${item.size}]` : ''} × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
       });
-      invoice += `========================\n`;
-      invoice += `【配送地域】: ${shipping > 550 ? '北海道・沖縄・離島（追加送料対象）' : '一般地域'}\n`;
-      invoice += `【商品小計】: ¥${subtotal.toLocaleString()}\n`;
-      invoice += `【送料】: ¥${shipping.toLocaleString()}\n`;
-      invoice += `【総合計（税込）】: ¥${total.toLocaleString()}\n`;
-      invoice += `【支払方法】: ${METHOD_LABELS[currentMethod]}`;
+      invoice += `====================\n`;
+      invoice += `小計: ¥${subtotal.toLocaleString()} / 送料: ¥${shipping.toLocaleString()} / 合計: ¥${total.toLocaleString()}\n`;
+      invoice += `支払方法: ${METHOD_LABELS[currentMethod]}`;
 
       const commonData = {
-        customer_name:    name,
-        customer_email:   email,
-        customer_phone:   document.getElementById('phone').value,
+        customer_name: name, customer_email: email,
+        customer_phone: document.getElementById('phone').value,
         shipping_address: addr,
-        total_amount:     `¥${total.toLocaleString()}`,
-        payment_type:     METHOD_LABELS[currentMethod],
+        total_amount: `¥${total.toLocaleString()}`,
+        payment_type: METHOD_LABELS[currentMethod],
         cart_items_invoice: invoice
       };
 
       try {
-        // ① クレジットカード
+        // ① Stripe Payment Link リダイレクト
         if (currentMethod === 'credit') {
-          if (!stripe || !cardElement) throw new Error('Stripe未初期化');
-          const { paymentMethod, error } = await stripe.createPaymentMethod({
-            type: 'card', card: cardElement,
-            billing_details: { name, email }
-          });
-          if (error) {
-            document.getElementById('card-errors').textContent = error.message;
-            throw new Error(error.message);
+          if (CONFIG.stripePaymentLinkUrl.includes('YOUR_PAYMENT_LINK')) {
+            alert('Stripe Payment Link が未設定です。\ncheckout.html の CONFIG.stripePaymentLinkUrl を設定してください。');
+            throw new Error('未設定');
           }
-          const ok = await sendFormspree({
-            _subject: `【HINOKA注文】${name}様 クレジットカード決済`,
-            payment_method_id: paymentMethod.id,
-            ...commonData
-          });
-          if (!ok) throw new Error('送信失敗');
-          // Brevo注文確認メール
-          await window.BREVO_MAIL?.sendOrderConfirmEmail({
-            email, customerName: name, orderItems: invoice,
-            totalAmount: `¥${total.toLocaleString()}`,
-            paymentMethod: METHOD_LABELS[currentMethod],
-            shippingAddress: addr
-          });
+          const orderRef = 'HNK-' + Date.now().toString().slice(-8);
+          localStorage.setItem('hinoka_pending_order', JSON.stringify({
+            ref: orderRef, name, email, addr, invoice,
+            subtotal, shipping, total,
+            paymentMethod: METHOD_LABELS[currentMethod], items: cart
+          }));
+          const linkUrl = new URL(CONFIG.stripePaymentLinkUrl);
+          linkUrl.searchParams.set('prefilled_email', email);
+          linkUrl.searchParams.set('client_reference_id', orderRef);
+          location.href = linkUrl.toString();
+          return;
         }
 
         // ② 銀行振込
@@ -776,14 +964,10 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // Brevo銀行振込案内メール
           await window.BREVO_MAIL?.sendBankTransferEmail({
-            email, customerName: name,
-            totalAmount: `¥${total.toLocaleString()}`,
-            bankName:   CONFIG.bank.name,
-            bankBranch: CONFIG.bank.branch,
-            bankNumber: CONFIG.bank.number,
-            bankHolder: CONFIG.bank.holder
+            email, customerName: name, totalAmount: `¥${total.toLocaleString()}`,
+            bankName: CONFIG.bank.name, bankBranch: CONFIG.bank.branch,
+            bankNumber: CONFIG.bank.number, bankHolder: CONFIG.bank.holder
           });
         }
 
@@ -792,33 +976,29 @@
           const payNum = 'HNK-' + Date.now().toString().slice(-8);
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 コンビニ払い`,
-            payment_number: payNum,
-            ...commonData
+            payment_number: payNum, ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          // Brevoコンビニ払い案内メール
           await window.BREVO_MAIL?.sendConbiniPaymentEmail({
-            email, customerName: name,
-            paymentNumber: payNum,
+            email, customerName: name, paymentNumber: payNum,
             totalAmount: `¥${total.toLocaleString()}`
           });
         }
 
-        // 成功
         localStorage.removeItem('cartItems');
         localStorage.removeItem('hinoka_cart');
-        sessionStorage.removeItem('hinoka_selected_region');
         loading.style.display = 'none';
-        showSuccess(currentMethod);
+        document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[currentMethod] || '';
+        document.getElementById('successModal').classList.add('open');
 
       } catch(err) {
         loading.style.display = 'none';
         btn.disabled = false;
         btn.style.display = 'block';
         if (currentMethod !== 'credit') {
-          const errEl = document.getElementById('form-error');
-          errEl.textContent = '送信エラーが発生しました。お手数ですが再度お試しいただくか、メールにてご連絡ください。';
-          errEl.style.display = 'block';
+          const e = document.getElementById('form-error');
+          e.textContent = '送信エラーが発生しました。再度お試しいただくか、メールにてご連絡ください。';
+          e.style.display = 'block';
         }
       }
     });
