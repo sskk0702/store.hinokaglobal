@@ -744,8 +744,7 @@
     //
     // Cloud Function未設定の間は「準備中」として案内します。
     const LINE_CHANNEL_ID       = '2010269245';           // ← LINE ChannelID を入力
-    const LINE_CLOUD_FUNCTION_URL = 'const LINE_CLOUD_FUNCTION_URL = "https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback";
-';         // ← Cloud Function URL を入力
+    const LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         // ← Cloud Function URL を入力
 
     async function handleLINEAuth(errorDivId) {
       if (!LINE_CHANNEL_ID || !LINE_CLOUD_FUNCTION_URL) {
