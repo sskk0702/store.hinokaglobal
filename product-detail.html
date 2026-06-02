@@ -170,6 +170,16 @@
       color: var(--gray-dark); margin-bottom: 24px;
     }
 
+    .stock-info {
+      font-size: 11px; letter-spacing: 0.08em;
+      padding: 4px 10px; border-radius: 2px; margin-bottom: 16px; display: inline-block;
+    }
+    .stock-ok       { background: #e8f5e9; color: #2e7d32; }
+    .stock-low      { background: #fff8e1; color: #f57f17; }
+    .stock-critical { background: #fbe9e7; color: #bf360c; }
+    .stock-none     { background: #f5f5f5; color: #9e9e9e; }
+    .moq-note { font-size: 11px; color: var(--gray-dark); margin-bottom: 16px; letter-spacing: 0.05em; }
+
     .info-accordion { border-top: 1px solid var(--gray-light); }
     .accordion-item { border-bottom: 1px solid var(--gray-light); }
     .accordion-header {
@@ -179,6 +189,35 @@
     }
     .accordion-icon { font-size: 18px; font-weight: 300; transition: transform 0.3s; }
     .accordion-item.open .accordion-icon { transform: rotate(45deg); }
+    .accordion-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.2s ease;
+      font-size: 12px; color: var(--gray-dark); line-height: 2; letter-spacing: 0.03em;
+    }
+    .accordion-item.open .accordion-body { max-height: 500px; padding-bottom: 16px; }
+
+    /* Sidebar qty controls */
+    .sidebar-item-qty {
+      display: flex; align-items: center; gap: 0; margin-top: 6px;
+    }
+    .sidebar-qty-btn {
+      width: 26px; height: 26px; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--gray-light); border: 1px solid var(--gray-mid);
+      cursor: pointer; transition: background var(--transition);
+    }
+    .sidebar-qty-btn:hover { background: var(--black); color: var(--white); }
+    .sidebar-qty-num {
+      width: 32px; height: 26px; text-align: center; font-size: 12px;
+      border: 1px solid var(--gray-mid); border-left: none; border-right: none;
+      font-family: inherit; outline: none;
+    }
+    .sidebar-delete-btn {
+      font-size: 10px; letter-spacing: 0.08em; color: var(--gray-dark);
+      text-decoration: underline; cursor: pointer;
+      background: none; border: none; font-family: inherit;
+      padding: 0; margin-left: 8px;
+    }
 
     @media (max-width: 768px) {
       .product-layout { grid-template-columns: 1fr; }
@@ -232,24 +271,39 @@
       <p class="option-label">サイズ</p>
       <div class="size-options" id="sizeOptions"></div>
 
+      <div id="stockInfo"></div>
+      <div id="moqInfo"></div>
+
       <button class="add-to-cart-btn" id="addToCartBtn">カートに追加する</button>
 
       <p class="product-desc" id="productDesc"></p>
 
       <div class="info-accordion">
         <div class="accordion-item">
-          <div class="accordion-header" data-modal="detail">
+          <div class="accordion-header">
             <span>商品詳細</span><span class="accordion-icon">+</span>
           </div>
+          <div class="accordion-body" id="accordionDetail"></div>
         </div>
         <div class="accordion-item">
-          <div class="accordion-header" data-modal="shipping">
+          <div class="accordion-header">
             <span>配送について</span><span class="accordion-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            通常送料：<strong>550円（税込）</strong><br>
+            ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。<br><br>
+            配送方法：標準配送のみ（月〜日 8:00〜21:00）<br>
+            最短お届け：ご注文日の翌々日<br>
+            配送エリア：日本国内のみ
           </div>
         </div>
         <div class="accordion-item">
-          <div class="accordion-header" data-modal="return">
+          <div class="accordion-header">
             <span>返品について</span><span class="accordion-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            お受け取りから30日以内にお申し込みください。<br><br>
+            以下の商品は返品・交換不可：カスタマイズ商品 / 香水・フレグランス（ディフューザー含む）/ 開封済み衛生用品 / セール品・返品不可と記載された商品
           </div>
         </div>
       </div>
@@ -279,7 +333,7 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">ある変化を、ともに。</div>
+        <div class="footer-tagline">Bridging Insight and Action. / 知見を、成果へ</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
@@ -307,7 +361,7 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
@@ -354,10 +408,11 @@
   </div>
 
   <script src="js/nav.js"></script>
+  <script src="js/products.js"></script>
   <script>
   (function () {
-    // ★ 全商品データ（product-list.htmlと同じ）
-    const PRODUCTS = {
+    // Legacy fallback products (used if products.js fails to load)
+    const PRODUCTS_LEGACY = {
       '001':{ name:'プレミアム ドッグフード',   price:3850,  category:'dog-food',    parentCat:'pet',
               images:['assets/images/p001-main.jpg','assets/images/p001-sub.jpg'],
               colors:['#8B6914','#D4B896','#333'], sizes:['S','M','L'],
@@ -432,38 +487,59 @@
               desc:'超音波式アロマディフューザーです。' },
     };
 
-    // ★ 親カテゴリー表示名
-    const CAT_NAMES = {
-      pet:'ペット用品', fashion:'ファッション', daily:'生活雑貨',
-      'dog-food':'ドッグフード','cat-food':'キャットフード',
-      'pet-toys':'おもちゃ','pet-bed':'ベッド・ハウス','pet-collar':'首輪・リード',
-      tops:'トップス',bottoms:'ボトムス',outer:'アウター',
-      accessories:'アクセサリー',shoes:'シューズ',
-      kitchen:'キッチン用品',interior:'インテリア',bath:'バス・トイレ',
-      storage:'収納・整理',aroma:'アロマ・キャンドル',
-    };
+    // Use products.js data if available, otherwise fall back to legacy
+    const ALL_PRODUCTS = window.HINOKA_PRODUCTS || [];
+    const CAT_NAMES    = window.HINOKA_CAT_NAMES || {};
+    const PARENT_CAT   = window.HINOKA_PARENT_CAT || {};
 
     const params  = new URLSearchParams(location.search);
-    const id      = params.get('id') || '001';
-    const product = PRODUCTS[id] || PRODUCTS['001'];
+    const id      = params.get('id') || '';
+    let product   = ALL_PRODUCTS.find(p => p.id === id);
+    if (!product && PRODUCTS_LEGACY[id]) {
+      const l = PRODUCTS_LEGACY[id];
+      product = { id, ...l, images: l.images || [], colors: l.colors || ['#000'], sizes: l.sizes || ['FREE'], stock: null, moq: 1 };
+    }
+    if (!product) { document.location.href = 'store.html'; return; }
 
     // ── ページ情報セット ──
     document.getElementById('productName').textContent  = product.name;
     document.getElementById('productPrice').textContent = `¥${product.price.toLocaleString()}（税込）`;
-    document.getElementById('productDesc').textContent  = product.desc;
+    document.getElementById('productDesc').textContent  = product.desc || '';
     document.getElementById('breadName').textContent    = product.name;
     document.title = `HINOKA | ${product.name}`;
 
-    // ★ カテゴリーリンク（クリックで一覧に戻る）
-    const catLink     = document.getElementById('productCategoryLink');
+    // Stock display
+    if (product.stock !== undefined && product.stock !== null) {
+      const s = product.stock;
+      let cls, label;
+      if (s === 0)    { cls = 'stock-none';     label = '在庫なし'; }
+      else if (s <= 5) { cls = 'stock-critical'; label = `在庫わずか（残${s}点）`; }
+      else if (s <= 10){ cls = 'stock-low';      label = `在庫少（残${s}点）`; }
+      else             { cls = 'stock-ok';       label = '在庫あり'; }
+      document.getElementById('stockInfo').innerHTML = `<span class="stock-info ${cls}">${label}</span>`;
+      if (s === 0) document.getElementById('addToCartBtn').disabled = true;
+    }
+    if (product.moq && product.moq > 1) {
+      document.getElementById('moqInfo').innerHTML = `<p class="moq-note">最低注文数量（MOQ）：${product.moq}点</p>`;
+    }
+
+    // Accordion detail content
+    if (product.specs) {
+      document.getElementById('accordionDetail').innerHTML = product.specs.split('/').map(s => s.trim()).join('<br>');
+    }
+
+    // ★ カテゴリーリンク
+    const catLink      = document.getElementById('productCategoryLink');
     const breadCatLink = document.getElementById('breadCatLink');
-    const catName     = CAT_NAMES[product.category] || CAT_NAMES[product.parentCat] || 'カテゴリー';
-    const catUrl      = `product-list.html?category=${product.category}`;
-    const parentUrl   = `product-list.html?category=${product.parentCat}`;
+    const parentKey    = product.parentCat || PARENT_CAT[product.category] || product.category;
+    const catName      = CAT_NAMES[product.category] || product.category;
+    const parentName   = CAT_NAMES[parentKey] || parentKey;
+    const catUrl       = `product-list.html?category=${product.category}`;
+    const parentUrl    = `product-list.html?category=${parentKey}`;
 
     catLink.textContent = `← ${catName}`;
     catLink.href        = catUrl;
-    breadCatLink.textContent = CAT_NAMES[product.parentCat] || 'カテゴリー';
+    breadCatLink.textContent = parentName;
     breadCatLink.href        = parentUrl;
 
     // ── ギャラリー ──
@@ -556,7 +632,7 @@
     });
 
     // ── カートサイドバー ──
-    function openCartSidebar() {
+    function renderSidebar() {
       const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
       const container = document.getElementById('cartSidebarItems');
       container.innerHTML = '';
@@ -565,7 +641,7 @@
       if (items.length === 0) {
         container.innerHTML = '<p style="text-align:center;color:var(--gray-dark);padding:40px 0;font-size:12px;">カートは空です</p>';
       } else {
-        items.forEach(item => {
+        items.forEach((item, idx) => {
           const lineTotal = item.price * (item.qty || 1);
           subtotal += lineTotal;
           const el = document.createElement('div');
@@ -575,14 +651,45 @@
                  onerror="this.src='assets/images/placeholder.jpg'">
             <div class="cart-sidebar-item-info">
               <div class="cart-sidebar-item-name">${item.name}</div>
-              <div class="cart-sidebar-item-opts">${item.color ? 'カラー指定あり' : ''}${item.size ? ' / ' + item.size : ''} × ${item.qty || 1}</div>
+              <div class="cart-sidebar-item-opts">${item.size ? `サイズ：${item.size}` : ''}</div>
+              <div class="sidebar-item-qty">
+                <button class="sidebar-qty-btn" data-action="dec" data-idx="${idx}">−</button>
+                <input class="sidebar-qty-num" type="text" value="${item.qty || 1}" readonly>
+                <button class="sidebar-qty-btn" data-action="inc" data-idx="${idx}">+</button>
+                <button class="sidebar-delete-btn" data-idx="${idx}">削除</button>
+              </div>
               <div class="cart-sidebar-item-price">¥${lineTotal.toLocaleString()}</div>
             </div>`;
           container.appendChild(el);
         });
+
+        container.querySelectorAll('.sidebar-qty-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            const i = parseInt(btn.dataset.idx);
+            if (btn.dataset.action === 'inc') cart[i].qty++;
+            else if (cart[i].qty > 1) cart[i].qty--;
+            localStorage.setItem('cartItems', JSON.stringify(cart));
+            window.dispatchEvent(new Event('cartUpdated'));
+            renderSidebar();
+          });
+        });
+        container.querySelectorAll('.sidebar-delete-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            cart.splice(parseInt(btn.dataset.idx), 1);
+            localStorage.setItem('cartItems', JSON.stringify(cart));
+            window.dispatchEvent(new Event('cartUpdated'));
+            renderSidebar();
+          });
+        });
       }
 
       document.getElementById('cartSidebarSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
+    }
+
+    function openCartSidebar() {
+      renderSidebar();
       document.getElementById('cartSidebar').classList.add('open');
       document.getElementById('cartSidebarOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -598,19 +705,11 @@
     document.getElementById('cartSidebarContinue').addEventListener('click', closeCartSidebar);
     document.getElementById('cartSidebarOverlay').addEventListener('click', closeCartSidebar);
 
-    // ── モーダル ──
-    document.querySelectorAll('.accordion-header[data-modal]').forEach(h => {
+    // ── インライン アコーディオン ──
+    document.querySelectorAll('.accordion-header').forEach(h => {
       h.addEventListener('click', () => {
-        const map = { detail:'modalDetail', shipping:'modalShipping', return:'modalReturn' };
-        document.getElementById(map[h.dataset.modal]).classList.add('open');
         h.parentElement.classList.toggle('open');
       });
-    });
-    document.querySelectorAll('.modal-close').forEach(btn => {
-      btn.addEventListener('click', () => document.getElementById(btn.dataset.close).classList.remove('open'));
-    });
-    document.querySelectorAll('.modal-overlay').forEach(o => {
-      o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
     });
   })();
   </script>
