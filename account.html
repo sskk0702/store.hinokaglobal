@@ -523,7 +523,18 @@
   </footer>
 
   <script src="js/nav.js"></script>
+import { getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+getRedirectResult(auth)
+  .then(result => {
+    if (result && result.user) {
+      console.log("Logged in:", result.user);
+      // 必要なら createUserDoc や sendWelcomeEmail をここで呼ぶ
+    }
+  })
+  .catch(error => {
+    console.error(error);
+  });
   <script type="module">
     import { auth, db }         from './js/firebase-config.js';
     import { sendWelcomeEmail } from './js/brevo-mail.js';
@@ -654,9 +665,10 @@
 
     // ── Google認証 ───────────────────────────────────────────
     async function handleGoogleAuth(errorDivId) {
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
+const provider = new GoogleAuthProvider();
+try {
+  await signInWithRedirect(auth, provider);
+
         const user   = result.user;
         const isNew  = result._tokenResponse?.isNewUser;
         await createUserDoc(user, { provider: 'google', marketingConsent: false });
