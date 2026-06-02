@@ -142,12 +142,25 @@
     }
     .google-btn:hover { background: #f5f5f5; border-color: #aaa; }
 
-    /* LINE */
+    /* LINE（準備中） */
     .line-btn {
-      background: #06c755; color: var(--white);
-      border-color: #06c755;
+      background: #f0f0f0; color: #999;
+      border-color: #e0e0e0; cursor: not-allowed; opacity: 0.6;
+      position: relative;
     }
-    .line-btn:hover { background: #05b34c; border-color: #05b34c; }
+    .line-btn .coming-badge {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 9px; letter-spacing: 0.08em;
+      background: #ccc; color: #666;
+      padding: 2px 6px; border-radius: 2px;
+    }
+
+    /* ソーシャルログイン説明 */
+    .social-note {
+      font-size: 10px; color: var(--gray-dark);
+      text-align: center; margin-bottom: 14px;
+      letter-spacing: 0.04em; line-height: 1.7;
+    }
 
     /* パスワード強度 */
     .pw-strength {
@@ -324,6 +337,7 @@
         <div class="msg-success" id="login-success"></div>
 
         <!-- ソーシャルログイン -->
+        <p class="social-note">Googleアカウントでかんたんログイン</p>
         <div class="social-btns">
           <button class="social-btn google-btn" id="googleLoginBtn">
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -334,11 +348,12 @@
             </svg>
             Googleでログイン
           </button>
-          <button class="social-btn line-btn" id="lineLoginBtn">
+          <button class="social-btn line-btn" id="lineLoginBtn" disabled>
             <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
               <path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/>
             </svg>
             LINEでログイン
+            <span class="coming-badge">準備中</span>
           </button>
         </div>
 
@@ -372,6 +387,7 @@
         <div class="msg-success" id="reg-success"></div>
 
         <!-- ソーシャル登録 -->
+        <p class="social-note">Googleアカウントでかんたん登録</p>
         <div class="social-btns">
           <button class="social-btn google-btn" id="googleRegisterBtn">
             <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -382,11 +398,12 @@
             </svg>
             Googleで登録
           </button>
-          <button class="social-btn line-btn" id="lineRegisterBtn">
+          <button class="social-btn line-btn" id="lineRegisterBtn" disabled>
             <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
               <path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/>
             </svg>
             LINEで登録
+            <span class="coming-badge">準備中</span>
           </button>
         </div>
 
@@ -525,14 +542,15 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">暮らしに、ときめきを。</div>
+        <div class="footer-tagline">ある変化を、ともに。</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
         <a href="store.html">ホーム</a>
-        <a href="product-list.html?category=pet">ペット用品</a>
-        <a href="product-list.html?category=fashion">ファッション</a>
-        <a href="product-list.html?category=daily">生活雑貨</a>
+        <a href="product-list.html?category=for-business">For Business</a>
+        <a href="product-list.html?category=for-life">For Life</a>
+        <a href="product-list.html?category=pet">Pet Supplies</a>
+        <a href="product-list.html?category=featured">Featured</a>
       </div>
       <div class="footer-col">
         <h4>Account</h4>
@@ -542,14 +560,17 @@
       </div>
       <div class="footer-col">
         <h4>Info</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
         <a href="legal.html#terms">利用規約</a>
-        <a href="legal.html#privacy">プライバシーノーティス</a>
-        <a href="legal.html#cookie">Cookieポリシー</a>
-        <a href="../index.html">← 会社サイトへ</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="legal.html#shipping">配送ポリシー</a>
+        <a href="legal.html#shipping">返品・返金ポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
       </div>
     </div>
     <div class="store-footer-bottom">
-      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
     </div>
   </footer>
 
@@ -1011,16 +1032,8 @@
       }
     });
 
-<script>
-// LINE コールバックの処理（ページロード時）
-handleLINECallback();
-
-// ★ 在这里加入 LINE 登录跳转代码
-document.getElementById("loginBtn").onclick = function () {
-  window.location.href = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2010269245&redirect_uri=https%3A%2F%2Fus-central1-hinoka-0304.cloudfunctions.net%2FlineLoginCallback&state=hinoka123&scope=openid%20profile";
-};
-</script>
-
+    // LINE コールバックの処理（ページロード時）
+    handleLINECallback();
+  </script>
 </body>
 </html>
-
