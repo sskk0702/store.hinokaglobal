@@ -538,6 +538,48 @@ getRedirectResult(auth)
   <script type="module">
     import { auth, db }         from './js/firebase-config.js';
     import { sendWelcomeEmail } from './js/brevo-mail.js';
+    // 处理 Google 重定向返回
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (!result || !result.user) return; // 没有登录结果则跳过
+
+    const user = result.user;
+    // 判断是否为新用户（两种方式兼容）
+    const isNewFromToken = result._tokenResponse?.isNewUser;
+    const isNewFromMeta  = user.metadata && user.metadata.creationTime === user.metadata.lastSignInTime;
+    const isNew = isNewFromToken || isNewFromMeta;
+
+    // 读取之前标记的意图（可选）
+    const action = sessionStorage.getItem('googleAuthAction') || 'login';
+    sessionStorage.removeItem('googleAuthAction');
+
+    try {
+      // 创建用户档案（你原来的逻辑）
+      await createUserDoc(user, { provider: 'google', marketingConsent: false });
+    } catch (e) {
+      console.error('createUserDoc error:', e);
+    }
+
+    if (isNew) {
+      try {
+        await sendWelcomeEmail({
+          email:     user.email,
+          firstName: user.displayName?.split(' ')[0] || '',
+          lastName:  user.displayName?.split(' ')[1] || ''
+        });
+      } catch (e) {
+        console.error('sendWelcomeEmail error:', e);
+      }
+    }
+
+    // 登录后跳转逻辑（保留你原来的 doPostLoginRedirect 或 redirectAfterLogin）
+    doPostLoginRedirect?.() || (redirectAfterLogin ? location.href = redirectAfterLogin : location.reload());
+  })
+  .catch((error) => {
+    console.error('getRedirectResult error:', error);
+    // 如果你有错误显示函数，显示到页面上（可选）
+    // showError('login-error', toJpError(error.code || error.message));
+  });
     import {
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
@@ -546,7 +588,9 @@ getRedirectResult(auth)
       sendPasswordResetEmail,
       GoogleAuthProvider,
       OAuthProvider,
-      signInWithPopup,        // ★ 修正: 以前は未importのためGoogle認証が完全に動かなかった
+      signInWithPopup,// ★ 修正: 以前は未importのためGoogle認証が完全に動かなかった
+      signInWithRedirect,
+      getRedirectResult,
       onAuthStateChanged,
       updateProfile
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -664,29 +708,20 @@ getRedirectResult(auth)
     }
 
     // ── Google認証 ───────────────────────────────────────────
-    async function handleGoogleAuth(errorDivId) {
-const provider = new GoogleAuthProvider();
-try {
-  await signInWithRedirect(auth, provider);
-
-        const user   = result.user;
-        const isNew  = result._tokenResponse?.isNewUser;
-        await createUserDoc(user, { provider: 'google', marketingConsent: false });
-        if (isNew) {
-          await sendWelcomeEmail({
-            email:     user.email,
-            firstName: user.displayName?.split(' ')[0] || '',
-            lastName:  user.displayName?.split(' ')[1] || ''
-          });
-        }
-        doPostLoginRedirect();
-      } catch (err) {
-        if (err.code !== 'auth/popup-closed-by-user' &&
-            err.code !== 'auth/cancelled-popup-request') {
-          showError(errorDivId, toJpError(err.code));
-        }
-      }
-    }
+// action 可选：'login' 或 'register'，用于重定向回来后区分意图（可选）
+async function handleGoogleAuth(errorDivId, action = 'login') {
+  const provider = new GoogleAuthProvider();
+  try {
+    // 标记意图，重定向回来时可读取（可选）
+    sessionStorage.setItem('googleAuthAction', action);
+    // 发起重定向（不会在此处返回 result）
+    await signInWithRedirect(auth, provider);
+  } catch (err) {
+    // signInWithRedirect 很少抛错，但仍然处理
+    console.error('signInWithRedirect error:', err);
+    showError(errorDivId, toJpError(err.code || err.message));
+  }
+}
 
     // ── Apple認証 ────────────────────────────────────────────
     // 有効化手順: Firebase Console → Authentication → Sign-in method → Apple をONにする
