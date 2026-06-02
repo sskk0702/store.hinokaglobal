@@ -42,7 +42,7 @@
     <div class="side-menu-header">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Quality Beyond Borders.</div>
+        <div class="side-menu-tagline">Bridging Insight and Action.</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn">&times;</button>
     </div>
@@ -123,7 +123,7 @@
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Quality Beyond Borders.</div>
+        <div class="side-menu-tagline">Bridging Insight and Action.</div>
       </div>
       <button class="close-menu-btn" id="closeDrawerBtn">&times;</button>
     </div>
