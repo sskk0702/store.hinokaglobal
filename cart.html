@@ -7,7 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
   <style>
-    body { padding-top: var(--nav-height); background: var(--white); }
+    body {
+      padding-top: var(--nav-height);
+      background-color: #f9f6f1;
+      background-image: radial-gradient(circle, rgba(184,169,138,0.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
 
     .cart-page {
       max-width: 1200px;
@@ -126,6 +131,7 @@
   <div class="cart-page">
     <!-- 左：商品リスト -->
     <div>
+      <a href="store.html" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0.1em;color:var(--gray-dark);margin-bottom:16px;transition:color 0.2s;" onmouseover="this.style.color='var(--black)'" onmouseout="this.style.color='var(--gray-dark)'">← ショッピングを続ける</a>
       <h1 class="cart-title">ショッピングバッグ</h1>
       <div id="cartItems"></div>
     </div>
@@ -169,7 +175,7 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">ある変化を、ともに。</div>
+        <div class="footer-tagline">Bridging Insight and Action. / 知見を、成果へ</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
@@ -197,7 +203,7 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
@@ -238,10 +244,12 @@
         const el = document.createElement('div');
         el.className = 'cart-item';
         el.innerHTML = `
-          <img class="cart-item-img"
-               src="${item.img || 'assets/images/placeholder.jpg'}"
-               alt="${item.name}"
-               onerror="this.src='assets/images/placeholder.jpg'">
+          <a href="product-detail.html?id=${item.id}" style="display:block;">
+            <img class="cart-item-img"
+                 src="${item.img || 'assets/images/placeholder.jpg'}"
+                 alt="${item.name}"
+                 onerror="this.src='assets/images/placeholder.jpg'">
+          </a>
           <div>
             <p class="cart-item-name">${item.name}</p>
             <p class="cart-item-meta">
@@ -251,7 +259,7 @@
             <div class="cart-item-row">
               <div class="qty-control">
                 <button class="qty-btn" data-action="dec" data-index="${index}">−</button>
-                <input class="qty-num" type="number" value="${item.qty}" min="1" readonly>
+                <input class="qty-num" type="text" value="${item.qty}" readonly>
                 <button class="qty-btn" data-action="inc" data-index="${index}">+</button>
               </div>
               <span class="cart-item-price">¥${(item.price * item.qty).toLocaleString()}</span>
