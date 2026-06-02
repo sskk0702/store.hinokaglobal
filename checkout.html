@@ -21,12 +21,13 @@
     }
 
     .back-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; letter-spacing: 0.1em;
-      color: var(--gray-dark); margin-bottom: 24px;
-      transition: color var(--transition);
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gray-dark); margin-bottom: 28px; padding: 10px 20px;
+      border: 1px solid var(--gray-mid);
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
     }
-    .back-link:hover { color: var(--black); }
+    .back-link:hover { color: var(--black); border-color: var(--black); background: #f9f6f1; }
 
     /* ── カード ── */
     .form-card {
@@ -64,7 +65,7 @@
 
     /* ── 支払い方法タブ ── */
     .pay-tabs {
-      display: grid; grid-template-columns: repeat(4,1fr);
+      display: grid; grid-template-columns: repeat(3,1fr);
       border: 1px solid var(--gray-mid);
       margin-bottom: 24px; overflow: hidden;
     }
@@ -231,10 +232,8 @@
       .checkout-wrap { grid-template-columns: 1fr; gap: 20px; padding: 24px 16px 60px; }
       .checkout-summary { position: static; }
       .form-row { grid-template-columns: 1fr; }
-      .pay-tabs { grid-template-columns: repeat(2,1fr); }
-      .pay-tab:nth-child(2) { border-right: none; }
-      .pay-tab:nth-child(3) { border-top: 1px solid var(--gray-mid); }
-      .pay-tab:nth-child(4) { border-top: 1px solid var(--gray-mid); border-right: none; }
+      .pay-tabs { grid-template-columns: 1fr 1fr 1fr; }
+      .pay-tab:nth-child(3) { border-right: none; }
       .form-card { padding: 24px 20px; }
     }
   </style>
@@ -315,9 +314,6 @@
           <button class="pay-tab" data-tab="conbini">
             <span class="tab-icon">🏪</span>コンビニ
           </button>
-          <button class="pay-tab" data-tab="paypay">
-            <span class="tab-icon">📱</span>PayPay
-          </button>
         </div>
 
         <!-- ① クレジットカード -->
@@ -371,22 +367,6 @@
           </div>
         </div>
 
-        <!-- ④ PayPay -->
-        <div class="pay-panel" id="panel-paypay">
-          <div class="paypay-logo-area">
-            <div class="paypay-logo">PayPay</div>
-            <p class="paypay-sub">
-              「注文を確定する」をタップするとPayPayアプリへ移動します。<br>
-              <strong>スマートフォンでのご利用を推奨します。</strong>
-            </p>
-          </div>
-          <div class="info-box">
-            📱 PayPayアプリが端末にインストールされている必要があります。<br>
-            決済完了後、自動的にサイトへ戻ります。<br><br>
-            ⚠️ 現在PayPayは受注確認後に担当者よりお支払いリンクをメールにてご案内しております。
-          </div>
-        </div>
-
         <!-- 確定ボタン -->
         <button class="pay-btn" id="payBtn">注文を確定する</button>
         <div id="pay-loading">処理中... しばらくお待ちください</div>
@@ -396,9 +376,11 @@
     <!-- ══ 右：注文サマリー ══ -->
     <div>
       <div class="checkout-summary">
-        <h3>ご注文内容</h3>
-        <div class="method-badge" id="methodBadge">💳 クレジットカード</div>
-        <div id="summaryItems"></div>
+        <h3 style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;" id="summaryToggle">
+          ご注文内容
+          <span style="font-size:12px;color:var(--gray-dark);letter-spacing:0;font-weight:400;" id="summaryToggleIcon">▼ 詳細を見る</span>
+        </h3>
+        <div id="summaryItems" style="display:none;"></div>
         <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
         <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
         <div class="summary-row"><span>消費税（10%含む）</span><span id="sumTax">¥0</span></div>
@@ -432,7 +414,7 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">ある変化を、ともに。</div>
+        <div class="footer-tagline">Bridging Insight and Action. / 知見を、成果へ</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
@@ -460,7 +442,7 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
@@ -471,16 +453,13 @@
     import {
       sendOrderConfirmEmail,
       sendBankTransferEmail,
-      sendConbiniPaymentEmail,
-      sendPayPayEmail
+      sendConbiniPaymentEmail
     } from './js/brevo-mail.js';
 
-    // グローバルに公開（通常scriptから呼べるように）
     window.BREVO_MAIL = {
       sendOrderConfirmEmail,
       sendBankTransferEmail,
-      sendConbiniPaymentEmail,
-      sendPayPayEmail
+      sendConbiniPaymentEmail
     };
   </script>
   <script>
@@ -492,10 +471,10 @@
       stripeKey:    'pk_test_51TabnLGIo4RcICnlbIwzNVaoyxnWwR7uPXKyz6dJpL9uWTVpIt7vDm2gLOO4TtdS1RDPOz1EPvM5MTm0C1APVxRE00eHEdthKw',
       formspreeUrl: 'https://formspree.io/f/YOUR_FORMSPREE_ID', // ← ここを変更
       bank: {
-        name:   '〇〇銀行',    // ← 実際の銀行名
-        branch: '〇〇支店',    // ← 支店名
-        number: '1234567',     // ← 口座番号
-        holder: 'カ）ヒノカ'  // ← 口座名義
+        name:   'GMOあおぞらネット銀行（金融機関コード0310）',
+        branch: '法人営業部（支店コード101）',
+        number: '2569980',
+        holder: 'カ）ヒノカ'
       }
     };
 
@@ -542,9 +521,16 @@
     const METHOD_LABELS = {
       credit:  '💳 クレジットカード',
       bank:    '🏦 銀行振込',
-      conbini: '🏪 コンビニ払い',
-      paypay:  '📱 PayPay'
+      conbini: '🏪 コンビニ払い'
     };
+
+    // Summary collapsible toggle
+    let summaryOpen = false;
+    document.getElementById('summaryToggle').addEventListener('click', () => {
+      summaryOpen = !summaryOpen;
+      document.getElementById('summaryItems').style.display = summaryOpen ? '' : 'none';
+      document.getElementById('summaryToggleIcon').textContent = summaryOpen ? '▲ 閉じる' : '▼ 詳細を見る';
+    });
 
     document.querySelectorAll('.pay-tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -553,7 +539,7 @@
         document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(`panel-${currentMethod}`).classList.add('active');
-        document.getElementById('methodBadge').textContent = METHOD_LABELS[currentMethod];
+        // method updated
       });
     });
 
@@ -687,8 +673,7 @@
     const SUCCESS_MESSAGES = {
       credit:  'ご注文情報を受け付けました。\n確認メールをお送りいたします。',
       bank:    `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name} ${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
-      conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した\n確認メールをお送りしました。\n3日以内にお支払いください。',
-      paypay:  'ご注文を受け付けました。\n\n担当者よりPayPayお支払いリンクを\nメールにてご案内いたします。\nしばらくお待ちください。'
+      conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した\n確認メールをお送りしました。\n3日以内にお支払いください。'
     };
 
     function showSuccess(method) {
@@ -815,20 +800,6 @@
           await window.BREVO_MAIL?.sendConbiniPaymentEmail({
             email, customerName: name,
             paymentNumber: payNum,
-            totalAmount: `¥${total.toLocaleString()}`
-          });
-        }
-
-        // ④ PayPay
-        else if (currentMethod === 'paypay') {
-          const ok = await sendFormspree({
-            _subject: `【HINOKA注文】${name}様 PayPay決済`,
-            ...commonData
-          });
-          if (!ok) throw new Error('送信失敗');
-          // BrevoPayPay案内メール
-          await window.BREVO_MAIL?.sendPayPayEmail({
-            email, customerName: name,
             totalAmount: `¥${total.toLocaleString()}`
           });
         }
