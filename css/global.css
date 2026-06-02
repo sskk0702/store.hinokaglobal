@@ -505,6 +505,128 @@ img { display: block; max-width: 100%; }
 }
 
 /* ══════════════════════════════════════
+   MENU SECTION LABEL
+══════════════════════════════════════ */
+.menu-section-label {
+  padding: 14px 28px 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 7px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--gold); opacity: 0.55;
+}
+.menu-category-header em {
+  display: block;
+  font-style: normal;
+  font-size: 9px;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: rgba(184,169,138,0.55);
+  letter-spacing: 0.05em;
+  margin-top: 1px;
+  font-weight: 300;
+}
+.menu-category.open .menu-subcategory { max-height: 340px; }
+
+/* ══════════════════════════════════════
+   CART SIDEBAR
+══════════════════════════════════════ */
+.cart-sidebar-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 2000; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cart-sidebar-overlay.open { opacity: 1; pointer-events: all; }
+
+.cart-sidebar {
+  position: fixed; top: 0; right: 0;
+  width: 400px; max-width: 94vw; height: 100vh;
+  background: var(--white);
+  z-index: 2001;
+  transform: translateX(100%);
+  transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+  box-shadow: -4px 0 32px rgba(0,0,0,0.1);
+}
+.cart-sidebar.open { transform: translateX(0); }
+
+.cart-sidebar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--gray-light);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+}
+.cart-sidebar-close {
+  font-size: 22px; cursor: pointer; opacity: 0.35;
+  transition: opacity 0.2s; line-height: 1;
+}
+.cart-sidebar-close:hover { opacity: 1; }
+
+.cart-sidebar-items {
+  flex: 1; overflow-y: auto; padding: 8px 28px;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.cart-sidebar-items::-webkit-scrollbar { display: none; }
+
+.cart-sidebar-item {
+  display: flex; gap: 16px; padding: 18px 0;
+  border-bottom: 1px solid var(--gray-light);
+}
+.cart-sidebar-item img {
+  width: 64px; height: 80px; object-fit: cover;
+  background: var(--gray-light); flex-shrink: 0;
+}
+.cart-sidebar-item-info { flex: 1; min-width: 0; }
+.cart-sidebar-item-name {
+  font-size: 12px; letter-spacing: 0.03em;
+  margin-bottom: 4px; line-height: 1.5;
+}
+.cart-sidebar-item-opts {
+  font-size: 11px; color: var(--gray-dark); margin-bottom: 6px;
+  line-height: 1.5;
+}
+.cart-sidebar-item-price { font-size: 13px; letter-spacing: 0.03em; }
+
+.cart-sidebar-footer {
+  padding: 20px 28px 28px;
+  border-top: 1px solid var(--gray-light);
+}
+.cart-sidebar-subtotal {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; margin-bottom: 16px; letter-spacing: 0.03em;
+}
+.cart-sidebar-subtotal span:last-child {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 400;
+}
+.cart-sidebar-checkout {
+  display: block; text-align: center;
+  background: var(--black); color: var(--white);
+  padding: 15px; font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  margin-bottom: 10px;
+  transition: background 0.3s;
+}
+.cart-sidebar-checkout:hover { background: #333; }
+.cart-sidebar-continue {
+  width: 100%; padding: 13px;
+  border: 1px solid var(--gray-mid);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  background: none; cursor: pointer; font-family: inherit;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cart-sidebar-continue:hover { border-color: var(--black); color: var(--black); }
+
+/* ══════════════════════════════════════
+   SHOP SECTION BACKGROUND
+══════════════════════════════════════ */
+.shop-bg {
+  background-color: #f9f6f1;
+  background-image:
+    radial-gradient(circle, rgba(184,169,138,0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ══════════════════════════════════════
    UTILITY
 ══════════════════════════════════════ */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
