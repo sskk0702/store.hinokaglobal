@@ -341,10 +341,10 @@
             <strong>【銀行振込のご案内】</strong><br>
             ご注文確定後、登録のメールアドレスへ振込先口座情報をお送りします。<br><br>
             🏦 振込先口座：<br>
-            　銀行名：<strong id="bank-name-display">GMOあおぞらネット銀行</strong><br>
-            　支店名：<strong id="bank-branch-display">支店：法人営業部（支店コード：101）</strong><br>
-            　口座種別：普通　口座番号：<strong id="bank-number-display">2569980</strong><br>
-            　口座名義：<strong id="bank-holder-display">株式会社HINOKA　カ）ヒノカ</strong><br><br>
+            　銀行名：<strong id="bank-name-display">〇〇銀行</strong><br>
+            　支店名：<strong id="bank-branch-display">〇〇支店</strong><br>
+            　口座種別：普通　口座番号：<strong id="bank-number-display">1234567</strong><br>
+            　口座名義：<strong id="bank-holder-display">カ）ヒノカ</strong><br><br>
             ⏰ お振込期限：ご注文日より <strong>3営業日以内</strong><br>
             期限内にご入金が確認できない場合、ご注文をキャンセルとなります。<br>
             振込手数料はお客様ご負担となります。
@@ -397,6 +397,7 @@
     <div>
       <div class="checkout-summary">
         <h3>ご注文内容</h3>
+        <div class="method-badge" id="methodBadge">💳 クレジットカード</div>
         <div id="summaryItems"></div>
         <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
         <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
@@ -431,14 +432,15 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">暮らしに、ときめきを。</div>
+        <div class="footer-tagline">ある変化を、ともに。</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
         <a href="store.html">ホーム</a>
-        <a href="product-list.html?category=pet">ペット用品</a>
-        <a href="product-list.html?category=fashion">ファッション</a>
-        <a href="product-list.html?category=daily">生活雑貨</a>
+        <a href="product-list.html?category=for-business">For Business</a>
+        <a href="product-list.html?category=for-life">For Life</a>
+        <a href="product-list.html?category=pet">Pet Supplies</a>
+        <a href="product-list.html?category=featured">Featured</a>
       </div>
       <div class="footer-col">
         <h4>Account</h4>
@@ -448,15 +450,17 @@
       </div>
       <div class="footer-col">
         <h4>Info</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
         <a href="legal.html#terms">利用規約</a>
-        <a href="legal.html#privacy">プライバシーノーティス</a>
-        <a href="legal.html#cookie">Cookieポリシー</a>
-        <a href="../index.html">← 会社サイトへ</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="legal.html#shipping">配送ポリシー</a>
+        <a href="legal.html#shipping">返品・返金ポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
       </div>
     </div>
     <div class="store-footer-bottom">
-      <span class="footer-copy">© 2026 株式会社HINOKA All Rights Reserved.</span>
-      <span class="footer-shipping-badge">🚚 通常送料：550円（税込）※北海道・沖縄・離島は追加送料あり</span>
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
     </div>
   </footer>
 
@@ -664,7 +668,7 @@
     //  Formspree送信
     // ════════════════════════════════════════
     async function sendFormspree(data) {
-      if (CONFIG.formspreeUrl.includes('https://formspree.io/f/mqejbkdn')) {
+      if (CONFIG.formspreeUrl.includes('YOUR_FORMSPREE_ID')) {
         console.warn('Formspree未設定のためスキップ（開発環境）');
         return true; // 開発中はブロックしない
       }
