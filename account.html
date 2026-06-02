@@ -542,7 +542,7 @@
       <div>
         <div class="footer-brand-logo">HINOKA</div>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">ある変化を、ともに。</div>
+        <div class="footer-tagline">Bridging Insight and Action. / 知見を、成果へ</div>
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
@@ -570,7 +570,7 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
@@ -765,7 +765,8 @@
     //
     // Cloud Function未設定の間は「準備中」として案内します。
     const LINE_CHANNEL_ID       = '2010269245';           // ← LINE ChannelID を入力
-    const LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         // ← Cloud Function URL を入力
+    const LINE_CLOUD_FUNCTION_URL = '
+https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         // ← Cloud Function URL を入力
 
     async function handleLINEAuth(errorDivId) {
       if (!LINE_CHANNEL_ID || !LINE_CLOUD_FUNCTION_URL) {
