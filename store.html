@@ -67,6 +67,17 @@
       margin-top: 10px; font-size: 10px;
       letter-spacing: 0.25em; text-transform: uppercase; opacity: 0.75;
     }
+    .caption-jp {
+      margin-top: 14px; font-size: 15px;
+      font-family: 'Noto Sans JP', sans-serif; font-weight: 300;
+      letter-spacing: 0.12em; opacity: 0.88; text-transform: none;
+    }
+    .caption-sub {
+      margin-top: 10px; font-size: 11px;
+      font-family: 'Noto Sans JP', sans-serif; font-weight: 300;
+      letter-spacing: 0.05em; opacity: 0.6; line-height: 1.9;
+      text-transform: none;
+    }
 
     /* ★ スマホ：スライダーの高さを調整 */
     @media (max-width: 768px) {
@@ -99,8 +110,8 @@
 
     .category-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
     }
 
     .category-card {
@@ -146,9 +157,12 @@
     }
 
     @media (max-width: 768px) {
-      .category-grid { grid-template-columns: 1fr; }
+      .category-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .section-featured { padding: 60px 24px; }
       .slide-caption { left: 24px; bottom: 72px; }
+    }
+    @media (max-width: 480px) {
+      .category-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     }
   </style>
 </head>
@@ -164,10 +178,11 @@
     <div class="slide"></div>
     <div class="slide"></div>
 
-    <!-- キャプション（スライドごとに切り替え可） -->
+    <!-- キャプション -->
     <div class="slide-caption">
-      <h2>New Collection<br>2025</h2>
-      <p>Shop Now</p>
+      <h2>Quality Beyond Borders.</h2>
+      <p class="caption-jp">世界の良いものを、もっと身近に。</p>
+      <p class="caption-sub">国内外から厳選した商品を、<br>品質と実用性にこだわってお届けします。</p>
     </div>
 
     <!-- ドットインジケーター -->
@@ -178,29 +193,73 @@
   <section class="section-featured">
     <h2 class="section-title">Collections</h2>
     <div class="category-grid">
-      <div class="category-card" onclick="location.href='product-list.html?category=pet'">
-        <img src="assets/images/cat-pet.jpg" alt="ペット用品">
+      <div class="category-card" onclick="location.href='product-list.html?category=for-business'">
+        <img src="assets/images/cat-business.jpg" alt="For Business" onerror="this.src='assets/images/cat-daily.jpg'">
         <div class="category-card-label">
-          <span>Category</span>
+          <span>For Business</span>
+          <h3>ビジネスソリューション</h3>
+        </div>
+      </div>
+      <div class="category-card" onclick="location.href='product-list.html?category=for-life'">
+        <img src="assets/images/cat-daily.jpg" alt="For Life">
+        <div class="category-card-label">
+          <span>For Life</span>
+          <h3>暮らしを豊かにする商品</h3>
+        </div>
+      </div>
+      <div class="category-card" onclick="location.href='product-list.html?category=pet'">
+        <img src="assets/images/cat-pet.jpg" alt="Pet Supplies">
+        <div class="category-card-label">
+          <span>Pet Supplies</span>
           <h3>ペット用品</h3>
         </div>
       </div>
-      <div class="category-card" onclick="location.href='product-list.html?category=fashion'">
-        <img src="assets/images/cat-fashion.jpg" alt="ファッション">
+      <div class="category-card" onclick="location.href='product-list.html?category=featured'">
+        <img src="assets/images/cat-fashion.jpg" alt="Featured Collection">
         <div class="category-card-label">
-          <span>Category</span>
-          <h3>ファッション</h3>
-        </div>
-      </div>
-      <div class="category-card" onclick="location.href='product-list.html?category=daily'">
-        <img src="assets/images/cat-daily.jpg" alt="生活雑貨">
-        <div class="category-card-label">
-          <span>Category</span>
-          <h3>生活雑貨</h3>
+          <span>Featured Collection</span>
+          <h3>特集商品</h3>
         </div>
       </div>
     </div>
   </section>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <div class="footer-brand-logo">HINOKA</div>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">ある変化を、ともに。</div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="store.html">ホーム</a>
+        <a href="product-list.html?category=for-business">For Business</a>
+        <a href="product-list.html?category=for-life">For Life</a>
+        <a href="product-list.html?category=pet">Pet Supplies</a>
+        <a href="product-list.html?category=featured">Featured</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="account.html">マイアカウント</a>
+        <a href="wishlist.html">ウィッシュリスト</a>
+        <a href="cart.html">カート</a>
+      </div>
+      <div class="footer-col">
+        <h4>Info</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="legal.html#shipping">配送ポリシー</a>
+        <a href="legal.html#shipping">返品・返金ポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+      <span class="footer-shipping-badge">当サイトのコンテンツの著作権は株式会社HINOKAに帰属し、無断転載・転用を禁止します。</span>
+    </div>
+  </footer>
 
   <script src="js/nav.js"></script>
   <script>
