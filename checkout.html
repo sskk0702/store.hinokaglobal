@@ -151,7 +151,7 @@
        支払い方法タブ
     ═══════════════════════════ */
     .pay-tabs {
-      display: grid; grid-template-columns: repeat(3,1fr);
+      display: grid; grid-template-columns: repeat(2,1fr);
       border: 1px solid #ddd;
       margin-bottom: 20px; overflow: hidden;
     }
@@ -170,20 +170,16 @@
     .pay-panel { display: none; }
     .pay-panel.active { display: block; }
 
-    /* Stripe redirect box */
-    .stripe-redirect-box {
-      border: 1px solid #e0ddf5; background: #fafafe;
-      padding: 18px 20px; margin-bottom: 18px; border-radius: 0;
+    /* PayPal panel */
+    .paypal-panel-box {
+      border: 1px solid #e8e4df; background: #fafaf8;
+      padding: 18px 20px; margin-bottom: 16px;
     }
-    .stripe-redirect-logo {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 10px; font-size: 12px; font-weight: 500;
-      color: #5469d4; letter-spacing: 0.04em;
-    }
-    .stripe-redirect-desc {
+    .paypal-panel-desc {
       font-size: 11px; color: #666;
-      line-height: 1.9; margin-bottom: 12px;
+      line-height: 1.9; margin-bottom: 14px;
     }
+    #paypal-button-container { min-height: 44px; }
 
     /* セキュリティ */
     .security-note {
@@ -192,7 +188,7 @@
       padding: 10px 14px; font-size: 10px;
       color: #555; line-height: 1.8;
     }
-    .security-note svg { flex-shrink: 0; margin-top: 1px; color: #5469d4; }
+    .security-note svg { flex-shrink: 0; margin-top: 1px; color: #0070ba; }
 
     /* 情報ボックス */
     .info-box {
@@ -365,7 +361,6 @@
   <div class="co-header">
     <a class="co-back" href="cart.html">
       <svg viewBox="0 0 14 14"><polyline points="9,2 4,7 9,12"/></svg>
-      カートに戻る
     </a>
   </div>
 
@@ -455,34 +450,29 @@
 
         <div class="pay-tabs">
           <button class="pay-tab active" data-tab="credit">
-            <span class="tab-icon">💳</span>クレジット
+            <span class="tab-icon">💳</span>PayPal / カード
           </button>
           <button class="pay-tab" data-tab="bank">
             <span class="tab-icon">🏦</span>銀行振込
           </button>
-          <button class="pay-tab" data-tab="conbini">
-            <span class="tab-icon">🏪</span>コンビニ
-          </button>
         </div>
 
-        <!-- ① クレジットカード -->
+        <!-- ① クレジットカード / PayPal -->
         <div class="pay-panel active" id="panel-credit">
-          <div class="stripe-redirect-box">
-            <div class="stripe-redirect-logo">
-              <svg width="48" height="20" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg"><path d="M59.64 14.28h-8.06c.19 1.93 1.86 2.76 3.73 2.76 1.86 0 3.14-.47 4.29-1.23l1.51 2.71c-1.47 1.05-3.47 1.71-5.9 1.71-4.77 0-7.87-3.14-7.87-7.11 0-3.94 3.07-7.11 7.38-7.11 4.24 0 6.87 3.07 6.87 7.05.01.41-.03.82-.12 1.22zm-8.14-2.46h5.18c-.09-1.61-1.09-2.71-2.59-2.71-1.51 0-2.51 1.1-2.59 2.71zm-5.39-6.33H50v12.41h-3.88V5.49zm-8.26 0h3.88V17.9h-3.88V5.49zm-3.69 5.69h-1.23v3.74h1.23c1.42 0 2.28-.76 2.28-1.87s-.86-1.87-2.28-1.87zm0-5.69h-1.23v3.65h1.23c1.33 0 2.09-.76 2.09-1.83s-.76-1.82-2.09-1.82zm-5.97-1.23h6.26c3.31 0 5.5 1.99 5.5 4.66 0 1.33-.66 2.66-1.9 3.41v.09c1.52.66 2.56 2.18 2.56 3.79 0 3.03-2.28 5.02-5.78 5.02h-6.64V4.26zm-8.42 8.49V17.9H16.7V5.49h4.07v7.12l3.5-7.12h4.26l-3.79 7.22 4.07 5.19H24.4l-3.24-4.65v4.65h-3.07v-1.16l-2.09-3.94-.28.57v4.53H12.5V5.49h3.69v7.26l-1.23-2.47c-.28.57-.56 1.14-.85 1.7l1.27 2.4v3.52H12.5zM4.95 11.23c.57.09 1.23.19 1.8.19 1.33 0 2-.57 2-1.71s-.66-1.71-1.99-1.71H4.95v3.23zM.77 5.49h4.46c3.21 0 5.59 1.9 5.59 4.75 0 2.56-1.85 4.75-5.59 4.75H4.95V17.9H.77V5.49z" fill="#5469d4"/></svg>
-              <span>Stripe 安全決済</span>
-            </div>
-            <p class="stripe-redirect-desc">
-              ボタンをクリックするとStripeの安全な決済ページに移動します。<br>
-              Visa · Mastercard · JCB · American Express 対応
+          <div class="paypal-panel-box">
+            <p class="paypal-panel-desc">
+              PayPalまたはクレジット・デビットカードでお支払いいただけます。<br>
+              Visa · Mastercard · JCB · American Express 対応（PayPalアカウント不要）
             </p>
-            <div class="security-note">
+            <div class="security-note" style="margin-bottom:14px;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
               </svg>
               <span>SSL 暗号化により安全に処理されます。カード情報は当社サーバーに一切保存されません。</span>
             </div>
           </div>
+          <div id="paypal-button-container"></div>
+          <div id="paypal-error" style="display:none;background:#fff0f0;border:1px solid #ffd0d0;color:#bf0000;font-size:11px;padding:10px 14px;margin-top:10px;"></div>
         </div>
 
         <!-- ② 銀行振込 -->
@@ -503,20 +493,8 @@
           </div>
         </div>
 
-        <!-- ③ コンビニ払い -->
-        <div class="pay-panel" id="panel-conbini">
-          <div class="info-box">
-            <strong>【コンビニ払いのご案内】</strong><br>
-            ご注文確定後、お支払い番号をメールにてお送りします。<br><br>
-            🏪 対応：<strong>セブン‐イレブン · ファミリーマート · ローソン</strong><br><br>
-            ⏰ お支払い期限：ご注文日より <strong>3日以内</strong>
-            <div class="info-highlight">
-              ✉️ ご注文確定後の自動返信メールにお支払い番号と手順が記載されます。
-            </div>
-          </div>
-        </div>
 
-        <button class="pay-btn" id="payBtn">💳 Stripeで安全に決済する</button>
+<button class="pay-btn" id="payBtn" style="display:none;">注文を確定する</button>
         <div id="pay-loading">処理中... しばらくお待ちください</div>
       </div>
     </div>
@@ -558,12 +536,11 @@
           ※北海道・沖縄・離島は追加送料が発生する場合があります。
         </div>
 
-        <!-- Stripe badge -->
         <div class="stripe-badge">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
           </svg>
-          Stripe による安全な決済
+          PayPal · SSL による安全な決済
         </div>
       </div>
     </div>
@@ -617,6 +594,7 @@
   </footer>
 
   <script src="js/nav.js"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AdVxpBQ5AzoeJbEalf8DkZwaJdYJiBiY3FUcLZsAF6FuvXH5P_sYm32o2lmDzNhr8JmG7GJ3NKABlEPi&currency=JPY&locale=ja_JP&intent=capture"></script>
 
   <!-- Brevoメール送信（ES Module） -->
   <script type="module">
@@ -638,8 +616,7 @@
     //  設定
     // ════════════════════════════════
     const CONFIG = {
-      stripePaymentLinkUrl: 'https://buy.stripe.com/YOUR_PAYMENT_LINK', // ← Stripe Payment Link URLに変更
-      formspreeUrl: 'https://formspree.io/f/YOUR_FORMSPREE_ID',         // ← Formspree URLに変更
+      formspreeUrl: 'https://formspree.io/f/mqejbkdn',
       bank: {
         name:   'GMOあおぞらネット銀行（金融機関コード0310）',
         branch: '法人営業部（支店コード101）',
@@ -715,25 +692,31 @@
     // ════════════════════════════════
     let currentMethod = 'credit';
     const METHOD_LABELS = {
-      credit:  '💳 クレジットカード',
-      bank:    '🏦 銀行振込',
-      conbini: '🏪 コンビニ払い'
+      credit: '💳 PayPal / クレジットカード',
+      bank:   '🏦 銀行振込'
     };
     const PAY_BTN_LABELS = {
-      credit:  '💳 Stripeで安全に決済する',
-      bank:    '🏦 注文を確定する（銀行振込）',
-      conbini: '🏪 注文を確定する（コンビニ払い）'
+      bank: '🏦 注文を確定する（銀行振込）'
     };
 
+    const payBtn = document.getElementById('payBtn');
+
+    function updatePayMethod(method) {
+      currentMethod = method;
+      document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector(`[data-tab="${method}"]`).classList.add('active');
+      document.getElementById(`panel-${method}`).classList.add('active');
+      if (method === 'credit') {
+        payBtn.style.display = 'none';
+      } else {
+        payBtn.style.display = '';
+        payBtn.textContent = PAY_BTN_LABELS[method];
+      }
+    }
+
     document.querySelectorAll('.pay-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        currentMethod = tab.dataset.tab;
-        document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(`panel-${currentMethod}`).classList.add('active');
-        document.getElementById('payBtn').textContent = PAY_BTN_LABELS[currentMethod];
-      });
+      tab.addEventListener('click', () => updatePayMethod(tab.dataset.tab));
     });
 
     // ════════════════════════════════
@@ -816,6 +799,63 @@
     renderSummary();
 
     // ════════════════════════════════
+    //  PayPal ボタン初期化
+    // ════════════════════════════════
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 44 },
+
+      createOrder: function(data, actions) {
+        if (!validate()) return Promise.reject(new Error('validation'));
+        const { total } = renderSummary();
+        if (total === 0) {
+          document.getElementById('paypal-error').textContent = 'カートに商品がありません。';
+          document.getElementById('paypal-error').style.display = 'block';
+          return Promise.reject(new Error('empty cart'));
+        }
+        document.getElementById('paypal-error').style.display = 'none';
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: String(total), currency_code: 'JPY' },
+            description: 'HINOKA Order'
+          }]
+        });
+      },
+
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          const { cart, subtotal, shipping, total } = renderSummary();
+          const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
+          const email = document.getElementById('email').value;
+          const addr  = [
+            document.getElementById('postal').value,
+            document.getElementById('prefecture').value,
+            document.getElementById('city').value,
+            document.getElementById('address').value,
+            document.getElementById('address2').value
+          ].filter(Boolean).join(' ');
+          const orderRef = details.id || ('HNK-' + Date.now().toString().slice(-8));
+          localStorage.setItem('hinoka_pending_order', JSON.stringify({
+            ref: orderRef, name, email, addr,
+            subtotal, shipping, total,
+            paymentMethod: METHOD_LABELS.credit, items: cart
+          }));
+          localStorage.removeItem('cartItems');
+          localStorage.removeItem('hinoka_cart');
+          location.href = 'checkout-success.html';
+        });
+      },
+
+      onCancel: function() {
+        location.href = 'checkout-cancel.html';
+      },
+
+      onError: function(err) {
+        document.getElementById('paypal-error').textContent = '決済処理中にエラーが発生しました。再度お試しください。';
+        document.getElementById('paypal-error').style.display = 'block';
+      }
+    }).render('#paypal-button-container');
+
+    // ════════════════════════════════
     //  バリデーション
     // ════════════════════════════════
     function validate() {
@@ -868,8 +908,7 @@
     //  成功モーダル
     // ════════════════════════════════
     const SUCCESS_MESSAGES = {
-      bank:    `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name}\n${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
-      conbini: 'ご注文ありがとうございます。\n\nコンビニお支払い番号を記載した\n確認メールをお送りしました。\n3日以内にお支払いください。'
+      bank: `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name}\n${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`
     };
 
     document.getElementById('successBtn').addEventListener('click', () => {
@@ -881,7 +920,7 @@
     // ════════════════════════════════
     //  注文確定
     // ════════════════════════════════
-    document.getElementById('payBtn').addEventListener('click', async () => {
+    payBtn.addEventListener('click', async () => {
       if (!validate()) return;
 
       const { cart, subtotal, shipping, total } = renderSummary();
@@ -892,11 +931,9 @@
         return;
       }
 
-      const btn     = document.getElementById('payBtn');
-      const loading = document.getElementById('pay-loading');
-      btn.disabled  = true;
-      btn.style.display     = 'none';
-      loading.style.display = 'block';
+      payBtn.disabled = true;
+      payBtn.style.display = 'none';
+      document.getElementById('pay-loading').style.display = 'block';
 
       const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
       const email = document.getElementById('email').value;
@@ -912,9 +949,7 @@
       cart.forEach((item, i) => {
         invoice += `${i+1}. ${item.name}${item.size ? ` [${item.size}]` : ''} × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
       });
-      invoice += `====================\n`;
-      invoice += `小計: ¥${subtotal.toLocaleString()} / 送料: ¥${shipping.toLocaleString()} / 合計: ¥${total.toLocaleString()}\n`;
-      invoice += `支払方法: ${METHOD_LABELS[currentMethod]}`;
+      invoice += `====================\n小計: ¥${subtotal.toLocaleString()} / 送料: ¥${shipping.toLocaleString()} / 合計: ¥${total.toLocaleString()}\n支払方法: ${METHOD_LABELS[currentMethod]}`;
 
       const commonData = {
         customer_name: name, customer_email: email,
@@ -926,27 +961,7 @@
       };
 
       try {
-        // ① Stripe Payment Link リダイレクト
-        if (currentMethod === 'credit') {
-          if (CONFIG.stripePaymentLinkUrl.includes('YOUR_PAYMENT_LINK')) {
-            alert('Stripe Payment Link が未設定です。\ncheckout.html の CONFIG.stripePaymentLinkUrl を設定してください。');
-            throw new Error('未設定');
-          }
-          const orderRef = 'HNK-' + Date.now().toString().slice(-8);
-          localStorage.setItem('hinoka_pending_order', JSON.stringify({
-            ref: orderRef, name, email, addr, invoice,
-            subtotal, shipping, total,
-            paymentMethod: METHOD_LABELS[currentMethod], items: cart
-          }));
-          const linkUrl = new URL(CONFIG.stripePaymentLinkUrl);
-          linkUrl.searchParams.set('prefilled_email', email);
-          linkUrl.searchParams.set('client_reference_id', orderRef);
-          location.href = linkUrl.toString();
-          return;
-        }
-
-        // ② 銀行振込
-        else if (currentMethod === 'bank') {
+        if (currentMethod === 'bank') {
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 銀行振込`,
             bank_info: `${CONFIG.bank.name} ${CONFIG.bank.branch} 普通 ${CONFIG.bank.number} ${CONFIG.bank.holder}`,
@@ -960,35 +975,19 @@
           });
         }
 
-        // ③ コンビニ払い
-        else if (currentMethod === 'conbini') {
-          const payNum = 'HNK-' + Date.now().toString().slice(-8);
-          const ok = await sendFormspree({
-            _subject: `【HINOKA注文】${name}様 コンビニ払い`,
-            payment_number: payNum, ...commonData
-          });
-          if (!ok) throw new Error('送信失敗');
-          await window.BREVO_MAIL?.sendConbiniPaymentEmail({
-            email, customerName: name, paymentNumber: payNum,
-            totalAmount: `¥${total.toLocaleString()}`
-          });
-        }
-
         localStorage.removeItem('cartItems');
         localStorage.removeItem('hinoka_cart');
-        loading.style.display = 'none';
+        document.getElementById('pay-loading').style.display = 'none';
         document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[currentMethod] || '';
         document.getElementById('successModal').classList.add('open');
 
       } catch(err) {
-        loading.style.display = 'none';
-        btn.disabled = false;
-        btn.style.display = 'block';
-        if (currentMethod !== 'credit') {
-          const e = document.getElementById('form-error');
-          e.textContent = '送信エラーが発生しました。再度お試しいただくか、メールにてご連絡ください。';
-          e.style.display = 'block';
-        }
+        document.getElementById('pay-loading').style.display = 'none';
+        payBtn.disabled = false;
+        payBtn.style.display = '';
+        const e = document.getElementById('form-error');
+        e.textContent = '送信エラーが発生しました。再度お試しいただくか、メールにてご連絡ください。';
+        e.style.display = 'block';
       }
     });
 
