@@ -63,15 +63,25 @@
     .add-wish-cart:hover { background: var(--black); color: var(--white); }
 
     .empty-state {
-      text-align: center; padding: 80px 0;
+      grid-column: 1 / -1;
+      text-align: center; padding: 80px 24px;
       color: var(--gray-dark);
     }
-    .empty-state p { font-size: 14px; margin-bottom: 24px; }
+    .empty-state-icon {
+      font-size: 56px; margin-bottom: 20px; display: block; opacity: 0.25;
+    }
+    .empty-state-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 300; letter-spacing: 0.15em;
+      margin-bottom: 10px; color: var(--black);
+    }
+    .empty-state p { font-size: 13px; margin-bottom: 28px; line-height: 2; }
     .empty-state a {
       display: inline-block; padding: 14px 40px;
       border: 1px solid var(--black);
-      font-size: 11px; letter-spacing: 0.2em;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
       transition: background var(--transition), color var(--transition);
+      color: var(--black);
     }
     .empty-state a:hover { background: var(--black); color: var(--white); }
 
@@ -131,28 +141,12 @@
   </footer>
 
   <script src="js/nav.js"></script>
+  <script src="js/products.js"></script>
   <script>
   (function () {
-    const ALL_PRODUCTS = {
-      '001':{ name:'プレミアム ドッグフード',    price:3850,  mainImg:'assets/images/p001-main.jpg', subImg:'assets/images/p001-sub.jpg' },
-      '002':{ name:'キャット ボウル セット',     price:5500,  mainImg:'assets/images/p002-main.jpg', subImg:'assets/images/p002-sub.jpg' },
-      '003':{ name:'ペット ロープ トイ',        price:1980,  mainImg:'assets/images/p003-main.jpg', subImg:'assets/images/p003-sub.jpg' },
-      '004':{ name:'オーガニック コットン ベッド',price:12100, mainImg:'assets/images/p004-main.jpg', subImg:'assets/images/p004-sub.jpg' },
-      '005':{ name:'レザー 首輪',               price:4400,  mainImg:'assets/images/p005-main.jpg', subImg:'assets/images/p005-sub.jpg' },
-      '006':{ name:'リネン オーバーシャツ',      price:18700, mainImg:'assets/images/p006-main.jpg', subImg:'assets/images/p006-sub.jpg' },
-      '007':{ name:'テーパード スラックス',      price:22000, mainImg:'assets/images/p007-main.jpg', subImg:'assets/images/p007-sub.jpg' },
-      '008':{ name:'ウール コート',             price:55000, mainImg:'assets/images/p008-main.jpg', subImg:'assets/images/p008-sub.jpg' },
-      '009':{ name:'シルバー チェーン',          price:8800,  mainImg:'assets/images/p009-main.jpg', subImg:'assets/images/p009-sub.jpg' },
-      '010':{ name:'レザー ローファー',          price:38500, mainImg:'assets/images/p010-main.jpg', subImg:'assets/images/p010-sub.jpg' },
-      '011':{ name:'鋳鉄 フライパン',           price:15400, mainImg:'assets/images/p011-main.jpg', subImg:'assets/images/p011-sub.jpg' },
-      '012':{ name:'ナチュラル ラグ',           price:22000, mainImg:'assets/images/p012-main.jpg', subImg:'assets/images/p012-sub.jpg' },
-      '013':{ name:'ウォールシェルフ',           price:9800,  mainImg:'assets/images/p013-main.jpg', subImg:'assets/images/p013-sub.jpg' },
-      '014':{ name:'リネン バスタオル セット',   price:6600,  mainImg:'assets/images/p014-main.jpg', subImg:'assets/images/p014-sub.jpg' },
-      '015':{ name:'竹製 バスマット',           price:4400,  mainImg:'assets/images/p015-main.jpg', subImg:'assets/images/p015-sub.jpg' },
-      '016':{ name:'ラタン バスケット',          price:7700,  mainImg:'assets/images/p016-main.jpg', subImg:'assets/images/p016-sub.jpg' },
-      '017':{ name:'ソイ キャンドル',           price:3300,  mainImg:'assets/images/p017-main.jpg', subImg:'assets/images/p017-sub.jpg' },
-      '018':{ name:'アロマ ディフューザー',      price:8800,  mainImg:'assets/images/p018-main.jpg', subImg:'assets/images/p018-sub.jpg' },
-    };
+    // js/products.js のデータをIDキーのMapに変換
+    const PRODUCT_MAP = {};
+    (window.HINOKA_PRODUCTS || []).forEach(p => { PRODUCT_MAP[p.id] = p; });
 
     function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
     function saveWishlist(l) { localStorage.setItem('hinoka_wishlist', JSON.stringify(l)); }
@@ -163,22 +157,27 @@
       grid.innerHTML = '';
 
       if (wishlist.length === 0) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-          <p>ウィッシュリストに商品がありません</p>
-          <a href="store.html">ショッピングを続ける</a>
-        </div>`;
+        grid.innerHTML = `
+          <div class="empty-state">
+            <span class="empty-state-icon">♡</span>
+            <p class="empty-state-title">ウィッシュリストは空です</p>
+            <p>気になる商品のハートマークをタップして<br>ウィッシュリストに追加してください</p>
+            <a href="store.html">ショッピングを始める</a>
+          </div>`;
         return;
       }
 
       wishlist.forEach(id => {
-        const p = ALL_PRODUCTS[id];
+        const p = PRODUCT_MAP[id];
         if (!p) return;
+        const img1 = p.images ? p.images[0] : (p.mainImg || 'assets/images/placeholder.jpg');
+        const img2 = p.images ? (p.images[1] || p.images[0]) : (p.subImg || img1);
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
           <div class="product-image-wrapper">
-            <img class="main-img" src="${p.mainImg}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            <img class="sub-img"  src="${p.subImg}"  alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <img class="main-img" src="${img1}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <img class="sub-img"  src="${img2}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
             <button class="remove-wish" data-id="${id}" title="削除">×</button>
           </div>
           <p class="product-name">${p.name}</p>
@@ -200,7 +199,7 @@
           const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
           const found = items.find(i => i.id === id);
           if (found) { found.qty++; } else {
-            items.push({ id, name: p.name, price: p.price, img: p.mainImg, qty: 1, color:'', size:'' });
+            items.push({ id, name: p.name, price: p.price, img: img1, qty: 1, color:'', size:'' });
           }
           localStorage.setItem('cartItems', JSON.stringify(items));
           window.dispatchEvent(new Event('cartUpdated'));
