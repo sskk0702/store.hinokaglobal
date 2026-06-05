@@ -144,6 +144,29 @@
     .dash-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); font-size: 12px; padding: 12px 28px; letter-spacing: 0.06em; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999; white-space: nowrap; }
     .dash-toast.show { opacity: 1; pointer-events: auto; }
 
+    /* ログイン成功オーバーレイ */
+    .login-success-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(255,255,255,0.97);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .login-success-overlay.show { opacity: 1; pointer-events: auto; }
+    .login-success-overlay .lso-icon { font-size: 52px; margin-bottom: 16px; }
+    .login-success-overlay .lso-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300;
+      letter-spacing: 0.15em; margin-bottom: 8px;
+    }
+    .login-success-overlay .lso-sub { font-size: 13px; color: var(--gray-dark); letter-spacing: 0.05em; }
+
+    /* エラーメッセージ強調 */
+    .login-error-box {
+      background: #fff0f0; border: 1px solid #ffb3b3; border-left: 4px solid #cc0000;
+      padding: 12px 16px; font-size: 13px; color: #cc0000; margin-bottom: 16px;
+      letter-spacing: 0.03em; display: none;
+    }
+
     @media (max-width: 640px) {
       .auth-wrap { padding: 0 12px 60px; margin-top: 32px; }
       .auth-card { padding: 22px 16px; }
@@ -182,7 +205,7 @@
     <!-- ログイン -->
     <div class="auth-panel active" id="panel-login">
       <div class="auth-card">
-        <div class="msg-error" id="login-error"></div>
+        <div class="login-error-box" id="login-error"></div>
         <div class="msg-success" id="login-success"></div>
         <p class="social-note">Googleアカウントでかんたんログイン</p>
         <div class="social-btns">
@@ -400,6 +423,13 @@
 
   <div class="dash-toast" id="dashToast"></div>
 
+  <!-- ログイン成功オーバーレイ -->
+  <div class="login-success-overlay" id="loginSuccessOverlay">
+    <div class="lso-icon">✅</div>
+    <div class="lso-title" id="lsoTitle">ログインしました</div>
+    <div class="lso-sub" id="lsoSub">マイアカウントへようこそ</div>
+  </div>
+
   <footer class="store-footer">
     <div class="store-footer-grid">
       <div>
@@ -491,7 +521,14 @@
   function toJpError(code) { return ERROR_MAP[code] || 'エラーが発生しました。(' + code + ')'; }
 
   // ── UIヘルパー ──
-  function showError(id, msg)   { var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+  function showError(id, msg)   { var e=document.getElementById(id); e.textContent='⚠️ '+msg; e.style.display='block'; }
+  function showLoginSuccess(user) {
+    var name = (user && (user.displayName || user.email)) || '';
+    var ov = document.getElementById('loginSuccessOverlay');
+    document.getElementById('lsoSub').textContent = name ? 'ようこそ、' + name + ' さん' : 'マイアカウントへようこそ';
+    ov.classList.add('show');
+    setTimeout(function(){ ov.classList.remove('show'); }, 2000);
+  }
   function hideMsg(id)          { var e=document.getElementById(id); if(e) e.style.display='none'; }
   function showSuccess(id, msg) { var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
   function setLoading(id, on) {
@@ -626,7 +663,10 @@
     if(!email||!pass){showError('login-error','メールアドレスとパスワードを入力してください。');return;}
     setLoading('loginBtn',true);
     auth.signInWithEmailAndPassword(email,pass)
-      .then(doRedirect)
+      .then(function(cred){
+        showLoginSuccess(cred.user);
+        doRedirect();
+      })
       .catch(function(err){showError('login-error',toJpError(err.code));})
       .finally(function(){setLoading('loginBtn',false);});
   });
@@ -826,7 +866,7 @@
       }
     }).catch(function(e){console.warn('Firestore:',e);});
 
-    if(isNewLogin){ setTimeout(function(){showToast('ログインしました');},400); }
+    if(isNewLogin){ showLoginSuccess(user); }
   }
 
   // ── 各種ボタン ──
