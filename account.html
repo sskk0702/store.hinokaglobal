@@ -188,7 +188,7 @@
       background: #f0fff4; border: 1px solid #9ae6b4;
       color: #276749; font-size: 12px;
       padding: 12px 14px; margin-bottom: 16px; display: none;
-      line-height: 1.7;
+      line-height: 1.7; white-space: pre-line;
     }
     .auth-note {
       text-align: center; font-size: 11px;
@@ -716,18 +716,18 @@
   // Googleリダイレクト結果の処理
   auth.getRedirectResult().then(function(result) {
     if (result && result.user) {
-      var user = result.user;
-      createUserDoc(user, { provider: 'google', marketingConsent: false }).then(function() {
-        doPostLoginRedirect();
-      });
+      createUserDoc(result.user, { provider: 'google', marketingConsent: false })
+        .catch(function(e) { console.warn('createUserDoc:', e); });
+      doPostLoginRedirect();
     }
   }).catch(function(err) {
-    if (err.code) {
+    // auth/エラーのみ表示（Firestoreエラー等は無視）
+    if (err.code && err.code.startsWith('auth/')) {
       var errorDivId = sessionStorage.getItem('google_auth_error_div') || 'login-error';
       sessionStorage.removeItem('google_auth_error_div');
-      document.getElementById('loadingSection').style.display = 'none';
-      document.getElementById('authSection').style.display    = 'block';
       showError(errorDivId, toJpError(err.code));
+    } else {
+      console.warn('getRedirectResult error:', err);
     }
   });
 
@@ -826,7 +826,7 @@
           .then(function() { return createUserDoc(user, { lastName: last, firstName: first, marketingConsent: consMkt, provider: 'email' }); })
           .then(function() { return user.sendEmailVerification(); })
           .then(function() {
-            showSuccess('reg-success', '✅ 登録が完了しました！確認メールを ' + email + ' にお送りしました。');
+            showSuccess('reg-success', '✅ 登録が完了しました！確認メールを ' + email + ' にお送りしました。\n※ 迷惑メールフォルダに入っている場合があります。ご確認ください。');
             doPostLoginRedirect();
           });
       })
