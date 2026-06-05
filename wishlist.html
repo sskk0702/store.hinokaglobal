@@ -142,6 +142,10 @@
 
   <script src="js/nav.js"></script>
   <script src="js/products.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-sync.js"></script>
   <script>
   (function () {
     // js/products.js のデータをIDキーのMapに変換
@@ -149,7 +153,7 @@
     (window.HINOKA_PRODUCTS || []).forEach(p => { PRODUCT_MAP[p.id] = p; });
 
     function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
-    function saveWishlist(l) { localStorage.setItem('hinoka_wishlist', JSON.stringify(l)); }
+    function saveWishlist(l) { localStorage.setItem('hinoka_wishlist', JSON.stringify(l)); window.dispatchEvent(new Event('wishlistUpdated')); }
 
     function render() {
       const grid     = document.getElementById('wishlistGrid');
