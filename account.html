@@ -874,26 +874,43 @@
 
   if(googleRedirectPending){
     // ── Googleリダイレクト後の処理 ──
-    // ローディング画面のまま getRedirectResult の完了を待つ
-    auth.getRedirectResult().then(function(result){
+    // getRedirectResult と onAuthStateChanged の両方を待ち、どちらかのユーザーを使用
+    var _redirectDone = false, _authDone = false;
+    var _redirectUser = null, _authUser = null;
+    var _redirectErr  = null;
+
+    function _decideGoogleUI(){
+      if(!_redirectDone || !_authDone) return; // 両方完了を待つ
       sessionStorage.removeItem('google_redirect_pending');
       clearTimeout(_loadFallback);
-      if(result && result.user){
-        createUserDoc(result.user,{provider:'google',marketingConsent:false}).catch(function(){});
+      var user = _redirectUser || _authUser || auth.currentUser;
+      if(user){
+        createUserDoc(user,{provider:'google',marketingConsent:false}).catch(function(){});
         window.dispatchEvent(new Event('hinoka_auth_login'));
-        showDashboard(result.user, true); // isNewLogin=true → トースト通知
+        showDashboard(user, true);
         setupAuthListener();
       } else {
         showLogin();
-        showError('login-error','Googleログインがキャンセルされました。');
+        if(_redirectErr) showError('login-error', toJpError(_redirectErr));
         setupAuthListener();
       }
+    }
+
+    auth.getRedirectResult().then(function(result){
+      _redirectUser = (result && result.user) ? result.user : null;
+      _redirectDone = true;
+      _decideGoogleUI();
     }).catch(function(err){
-      sessionStorage.removeItem('google_redirect_pending');
-      clearTimeout(_loadFallback);
-      showLogin();
-      if(err.code) showError('login-error', toJpError(err.code));
-      setupAuthListener();
+      _redirectErr = err.code||'';
+      _redirectDone = true;
+      _decideGoogleUI();
+    });
+
+    auth.onAuthStateChanged(function(u){
+      if(_authDone) return;
+      _authDone = true;
+      _authUser = u;
+      _decideGoogleUI();
     });
 
   } else {
