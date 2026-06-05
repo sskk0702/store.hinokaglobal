@@ -858,6 +858,7 @@
     if(!initialAuthDone){
       // 初回呼び出し（ページ読み込み時の初期状態確定）
       initialAuthDone = true;
+      clearTimeout(_loadFallback);
       if(user){
         window.dispatchEvent(new Event('hinoka_auth_login'));
         showDashboard(user, !!pendingRedirectUser);
@@ -901,13 +902,6 @@
       } else {
         window._authErrMsg = msg;
       }
-    }
-  });
-
-  // onAuthStateChanged が発火したらフォールバックタイマーをキャンセル
-  clearTimeout(_loadFallback);
-
-      });
     }
   });
 
