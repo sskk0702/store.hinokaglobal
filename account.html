@@ -853,54 +853,51 @@
   var pendingRedirectUser = null;
   var initialAuthDone = false;
 
-  // onAuthStateChanged が主軸：Firebase が認証状態を確定したら即座に UI を切り替える
-  auth.onAuthStateChanged(function(user){
-    if(!initialAuthDone){
-      // 初回呼び出し（ページ読み込み時の初期状態確定）
-      initialAuthDone = true;
-      clearTimeout(_loadFallback);
-      if(user){
-        window.dispatchEvent(new Event('hinoka_auth_login'));
-        showDashboard(user, !!pendingRedirectUser);
-        if(redirectAfterLogin) location.href = redirectAfterLogin;
-      } else {
-        showLogin();
-        if(window._authErrMsg){
-          showError('login-error', window._authErrMsg);
-          window._authErrMsg = null;
-        }
-      }
-    } else {
-      // 2回目以降（ログイン・ログアウト操作）
-      if(user){
-        window.dispatchEvent(new Event('hinoka_auth_login'));
-        showDashboard(user, false);
-        if(redirectAfterLogin) location.href = redirectAfterLogin;
-      } else {
-        window.dispatchEvent(new Event('hinoka_auth_logout'));
-        showLogin();
-      }
-    }
-  });
-
-  // getRedirectResult は Google リダイレクト結果を検知するためだけに使用
-  // （ローディングをブロックしない — onAuthStateChanged が先に UI を決定する）
-  auth.getRedirectResult().then(function(result){
+  // getRedirectResult を先に開始（Googleリダイレクト結果を取得）
+  var redirectPromise = auth.getRedirectResult().then(function(result){
     if(result && result.user){
       pendingRedirectUser = result.user;
       createUserDoc(result.user,{provider:'google',marketingConsent:false}).catch(function(){});
-      // onAuthStateChanged がすでに完了していた場合、ウェルカム表示で更新
-      if(initialAuthDone){
-        showDashboard(result.user, true);
-      }
     }
+    return (result && result.user) ? result.user : null;
   }).catch(function(err){
-    if(err.code){
-      var msg = toJpError(err.code);
-      if(initialAuthDone){
-        showError('login-error', msg);
+    if(err.code) window._authErrMsg = toJpError(err.code);
+    return null;
+  });
+
+  auth.onAuthStateChanged(function(user){
+    if(!initialAuthDone){
+      initialAuthDone = true;
+      clearTimeout(_loadFallback);
+
+      if(user){
+        // ログイン済み → 即ダッシュボード
+        window.dispatchEvent(new Event('hinoka_auth_login'));
+        showDashboard(user, false);
+        redirectPromise.then(function(ru){ if(ru) showDashboard(ru, true); });
       } else {
-        window._authErrMsg = msg;
+        // null → Googleリダイレクト処理中の可能性があるので getRedirectResult を待つ
+        redirectPromise.then(function(redirectUser){
+          if(redirectUser){
+            window.dispatchEvent(new Event('hinoka_auth_login'));
+            showDashboard(redirectUser, true);
+          } else {
+            showLogin();
+            if(window._authErrMsg){
+              showError('login-error', window._authErrMsg);
+              window._authErrMsg = null;
+            }
+          }
+        });
+      }
+    } else {
+      // 2回目以降（ログイン・ログアウト）
+      if(user){
+        window.dispatchEvent(new Event('hinoka_auth_login'));
+        showDashboard(user, false);
+      } else {
+        window.dispatchEvent(new Event('hinoka_auth_logout'));
+        showLogin();
       }
     }
   });
