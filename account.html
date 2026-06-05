@@ -704,22 +704,32 @@
     if (redirectAfterLogin) { location.href = redirectAfterLogin; }
   }
 
-  // ── Google認証 ────────────────────────────────────────────
+  // ── Google認証（リダイレクト方式） ───────────────────────
   function handleGoogleAuth(errorDivId) {
     var provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(function(result) {
-      var user  = result.user;
-      var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-      return createUserDoc(user, { provider: 'google', marketingConsent: false }).then(function() {
-        doPostLoginRedirect();
-      });
-    }).catch(function(err) {
-      if (err.code !== 'auth/popup-closed-by-user' &&
-          err.code !== 'auth/cancelled-popup-request') {
-        showError(errorDivId, toJpError(err.code));
-      }
+    sessionStorage.setItem('google_auth_error_div', errorDivId);
+    auth.signInWithRedirect(provider).catch(function(err) {
+      showError(errorDivId, toJpError(err.code));
     });
   }
+
+  // Googleリダイレクト結果の処理
+  auth.getRedirectResult().then(function(result) {
+    if (result && result.user) {
+      var user = result.user;
+      createUserDoc(user, { provider: 'google', marketingConsent: false }).then(function() {
+        doPostLoginRedirect();
+      });
+    }
+  }).catch(function(err) {
+    if (err.code) {
+      var errorDivId = sessionStorage.getItem('google_auth_error_div') || 'login-error';
+      sessionStorage.removeItem('google_auth_error_div');
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('authSection').style.display    = 'block';
+      showError(errorDivId, toJpError(err.code));
+    }
+  });
 
   // ── LINE認証 ──────────────────────────────────────────────
   function handleLINEAuth(errorDivId) {
