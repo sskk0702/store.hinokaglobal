@@ -708,7 +708,9 @@
   function handleGoogleAuth(errorDivId) {
     var provider = new firebase.auth.GoogleAuthProvider();
     sessionStorage.setItem('google_auth_error_div', errorDivId);
+    sessionStorage.setItem('google_login_pending', '1');
     auth.signInWithRedirect(provider).catch(function(err) {
+      sessionStorage.removeItem('google_login_pending');
       showError(errorDivId, toJpError(err.code));
     });
   }
@@ -716,12 +718,15 @@
   // Googleリダイレクト結果の処理
   auth.getRedirectResult().then(function(result) {
     if (result && result.user) {
+      sessionStorage.removeItem('google_auth_error_div');
       createUserDoc(result.user, { provider: 'google', marketingConsent: false })
         .catch(function(e) { console.warn('createUserDoc:', e); });
+      showDashboard(result.user);
+      setTimeout(function() { showToast('Googleでログインしました'); }, 300);
       doPostLoginRedirect();
     }
   }).catch(function(err) {
-    // auth/エラーのみ表示（Firestoreエラー等は無視）
+    sessionStorage.removeItem('google_login_pending');
     if (err.code && err.code.startsWith('auth/')) {
       var errorDivId = sessionStorage.getItem('google_auth_error_div') || 'login-error';
       sessionStorage.removeItem('google_auth_error_div');
@@ -790,7 +795,10 @@
     if (!email || !pass) { showError('login-error', 'メールアドレスとパスワードを入力してください。'); return; }
     setLoading('loginBtn', true);
     auth.signInWithEmailAndPassword(email, pass)
-      .then(function() { doPostLoginRedirect(); })
+      .then(function() {
+        showToast('ログインしました');
+        doPostLoginRedirect();
+      })
       .catch(function(err) { showError('login-error', toJpError(err.code)); })
       .finally(function() { setLoading('loginBtn', false); });
   });
@@ -934,6 +942,8 @@
       window.dispatchEvent(new Event('hinoka_auth_login'));
       showDashboard(user);
     } else {
+      // Googleリダイレクト処理中はローディングを維持
+      if (sessionStorage.getItem('google_login_pending')) return;
       document.getElementById('loadingSection').style.display = 'none';
       document.getElementById('authSection').style.display    = 'block';
       document.getElementById('dashSection').style.display    = 'none';
