@@ -182,35 +182,40 @@
   <script src="js/nav.js"></script>
   <script>
   (function () {
-    const raw = localStorage.getItem('hinoka_pending_order');
+    var raw = localStorage.getItem('hinoka_pending_order');
     if (!raw) return;
 
-    let order;
+    var order;
     try { order = JSON.parse(raw); } catch(e) { return; }
+
+    // 注文履歴に保存
+    var orders = JSON.parse(localStorage.getItem('hinoka_orders') || '[]');
+    order.date = new Date().toLocaleDateString('ja-JP');
+    orders.push(order);
+    localStorage.setItem('hinoka_orders', JSON.stringify(orders));
 
     // Show order card
     document.getElementById('orderCard').style.display = '';
 
     // Order items
-    const itemsEl = document.getElementById('orderItems');
-    (order.items || []).forEach(item => {
-      const row = document.createElement('div');
+    var itemsEl = document.getElementById('orderItems');
+    (order.items || []).forEach(function(item) {
+      var row = document.createElement('div');
       row.className = 'order-item-row';
-      row.innerHTML = `<span>${item.name}${item.size ? ` [${item.size}]` : ''} × ${item.qty}</span><span>¥${(item.price * item.qty).toLocaleString()}</span>`;
+      row.innerHTML = '<span>'+item.name+(item.size?' ['+item.size+']':'')+' × '+item.qty+'</span><span>¥'+(item.price*item.qty).toLocaleString()+'</span>';
       itemsEl.appendChild(row);
     });
 
     // Totals
-    const totalsEl = document.getElementById('orderTotals');
-    const shipping = order.shipping || 550;
-    totalsEl.innerHTML = `
-      <div class="order-row"><span>商品小計</span><span>¥${(order.subtotal || 0).toLocaleString()}</span></div>
-      <div class="order-row"><span>送料</span><span>¥${shipping.toLocaleString()}</span></div>
-      <div class="order-row"><span>お届け先</span><span style="font-size:11px;text-align:right;max-width:300px;">${order.addr || ''}</span></div>
-      <div class="total-row"><span>合計（税込）</span><span>¥${(order.total || 0).toLocaleString()}</span></div>
-    `;
+    var totalsEl = document.getElementById('orderTotals');
+    var shipping = order.shipping || 550;
+    totalsEl.innerHTML =
+      '<div class="order-row"><span>商品小計</span><span>¥'+(order.subtotal||0).toLocaleString()+'</span></div>'+
+      '<div class="order-row"><span>送料</span><span>¥'+shipping.toLocaleString()+'</span></div>'+
+      '<div class="order-row"><span>お届け先</span><span style="font-size:11px;text-align:right;max-width:300px;">'+(order.addr||'')+'</span></div>'+
+      '<div class="total-row"><span>合計（税込）</span><span>¥'+(order.total||0).toLocaleString()+'</span></div>';
 
-    // Clear order data from localStorage after displaying
+    // Clear pending order
     localStorage.removeItem('hinoka_pending_order');
     localStorage.removeItem('cartItems');
     localStorage.removeItem('hinoka_cart');
