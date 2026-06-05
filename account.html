@@ -442,7 +442,23 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-  firebase.initializeApp({
+  // Firebase 読み込み失敗・JS エラー時の最終フォールバック（3秒）
+  var _loadFallback = setTimeout(function(){
+    var ls = document.getElementById('loadingSection');
+    var as = document.getElementById('authSection');
+    if(ls && ls.style.display !== 'none'){ ls.style.display='none'; if(as) as.style.display='block'; }
+  }, 3000);
+
+  // グローバルエラーをキャッチして loading を解除
+  window.addEventListener('error', function(){
+    clearTimeout(_loadFallback);
+    var ls = document.getElementById('loadingSection');
+    var as = document.getElementById('authSection');
+    if(ls) ls.style.display='none'; if(as) as.style.display='block';
+  });
+
+  // Firebase 二重初期化を防止
+  var app = firebase.apps.length ? firebase.app() : firebase.initializeApp({
     apiKey:            'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
     authDomain:        'hinoka-0304.firebaseapp.com',
     projectId:         'hinoka-0304',
@@ -450,8 +466,8 @@
     messagingSenderId: '275098198657',
     appId:             '1:275098198657:web:d9b11ff1086c972ac6e380'
   });
-  var auth = firebase.auth();
-  var db   = firebase.firestore();
+  var auth = firebase.auth(app);
+  var db   = firebase.firestore(app);
 
   var LINE_CHANNEL_ID        = '2010269245';
   var LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';
@@ -888,13 +904,8 @@
     }
   });
 
-  // 10秒以内に onAuthStateChanged が発火しない場合のフォールバック
-  setTimeout(function(){
-    if(!initialAuthDone){
-      initialAuthDone = true;
-      showLogin();
-    }
-  }, 10000);
+  // onAuthStateChanged が発火したらフォールバックタイマーをキャンセル
+  clearTimeout(_loadFallback);
 
       });
     }
