@@ -858,9 +858,11 @@
     if(result && result.user){
       pendingRedirectUser = result.user;
       createUserDoc(result.user,{provider:'google',marketingConsent:false}).catch(function(){});
+      return result.user;
     }
-    return (result && result.user) ? result.user : null;
+    return null;
   }).catch(function(err){
+    console.error('getRedirectResult error:', err.code, err.message);
     if(err.code) window._authErrMsg = toJpError(err.code);
     return null;
   });
@@ -876,11 +878,12 @@
         showDashboard(user, false);
         redirectPromise.then(function(ru){ if(ru) showDashboard(ru, true); });
       } else {
-        // null → Googleリダイレクト処理中の可能性があるので getRedirectResult を待つ
+        // null → getRedirectResult 完了後に auth.currentUser も確認
         redirectPromise.then(function(redirectUser){
-          if(redirectUser){
+          var finalUser = redirectUser || auth.currentUser;
+          if(finalUser){
             window.dispatchEvent(new Event('hinoka_auth_login'));
-            showDashboard(redirectUser, true);
+            showDashboard(finalUser, !!redirectUser);
           } else {
             showLogin();
             if(window._authErrMsg){
