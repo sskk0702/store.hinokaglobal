@@ -930,7 +930,6 @@
       }
     }).catch(function(e){console.warn('Firestore:',e);});
 
-    if(isNewLogin){ showLoginSuccess(user); }
   }
 
   // ── 各種ボタン ──
@@ -958,57 +957,33 @@
   });
 
   // ── 認証フロー（メイン）──
-  // getRedirectResult を最優先で確認し、その後 onAuthStateChanged で継続監視
+  // getRedirectResult が完了してから onAuthStateChanged を1つだけ登録するシンプル設計
 
-  // ログアウト・メールログイン後の状態変化を監視（初回は必ずスキップ）
-  function listenAuthChanges(){
-    var first=true;
-    auth.onAuthStateChanged(function(u){
-      if(first){first=false;return;}
-      if(u){ window.dispatchEvent(new Event('hinoka_auth_login')); showDashboard(u,false); }
-      else  { window.dispatchEvent(new Event('hinoka_auth_logout')); showLogin(); }
-    });
+  function handleAuthState(user){
+    clearTimeout(_loadFallback);
+    if(user){
+      window.dispatchEvent(new Event('hinoka_auth_login'));
+      showDashboard(user, false);
+    } else {
+      window.dispatchEvent(new Event('hinoka_auth_logout'));
+      showLogin();
+      if(window._authErrMsg){ showError('login-error',window._authErrMsg); window._authErrMsg=null; }
+    }
   }
 
-  // getRedirectResult を最初に実行 → Google リダイレクト結果を判定
   auth.getRedirectResult().then(function(result){
-    clearTimeout(_loadFallback);
     if(result && result.user){
-      // ✅ Google リダイレクトログイン成功
-      createUserDoc(result.user,{provider:'google',marketingConsent:false}).then(function(r){
-        showLoginSuccess(result.user, r&&r.isNew);
-      }).catch(function(){ showLoginSuccess(result.user, false); });
-      window.dispatchEvent(new Event('hinoka_auth_login'));
-      showDashboard(result.user, true);
-      listenAuthChanges();
-    } else {
-      // Google リダイレクトなし → onAuthStateChanged で現在の認証状態を確認
-      auth.onAuthStateChanged(function(user){
-        clearTimeout(_loadFallback);
-        if(user){
-          window.dispatchEvent(new Event('hinoka_auth_login'));
-          showDashboard(user, false);
-        } else {
-          showLogin();
-        }
-        listenAuthChanges();
-      });
+      // Google リダイレクトログイン成功 → 先にダッシュボードを表示し、isNew を確認
+      showDashboard(result.user, false);
+      createUserDoc(result.user,{provider:'google',marketingConsent:false})
+        .then(function(r){ showLoginSuccess(result.user, r&&r.isNew); })
+        .catch(function(){ showLoginSuccess(result.user, false); });
     }
+    // getRedirectResult 完了後にリスナーを1つだけ登録
+    auth.onAuthStateChanged(handleAuthState);
   }).catch(function(err){
-    // getRedirectResult エラー → onAuthStateChanged にフォールバック
-    clearTimeout(_loadFallback);
     if(err.code) window._authErrMsg = toJpError(err.code);
-    auth.onAuthStateChanged(function(user){
-      clearTimeout(_loadFallback);
-      if(user){
-        window.dispatchEvent(new Event('hinoka_auth_login'));
-        showDashboard(user, false);
-      } else {
-        showLogin();
-        if(window._authErrMsg){ showError('login-error',window._authErrMsg); window._authErrMsg=null; }
-      }
-      listenAuthChanges();
-    });
+    auth.onAuthStateChanged(handleAuthState);
   });
 
   </script>
