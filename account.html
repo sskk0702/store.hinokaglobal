@@ -834,9 +834,16 @@
   });
 
   // ── 認証フロー（メイン）──
-  // getRedirectResult と onAuthStateChanged を Promise で同期
+  // getRedirectResult で初期表示を決定、onAuthStateChanged はその後の変化（ログアウト等）のみ担当
+  var initDone = false;
+  var pendingRedirectUser = null;
+
   var redirectResultPromise = auth.getRedirectResult().then(function(result){
-    return (result && result.user) ? result.user : null;
+    pendingRedirectUser = (result && result.user) ? result.user : null;
+    if(pendingRedirectUser){
+      createUserDoc(pendingRedirectUser,{provider:'google',marketingConsent:false}).catch(function(){});
+    }
+    return pendingRedirectUser;
   }).catch(function(err){
     if(err.code && err.code.startsWith('auth/')){
       window._authErrMsg = toJpError(err.code);
@@ -844,25 +851,35 @@
     return null;
   });
 
-  auth.onAuthStateChanged(function(user){
+  // getRedirectResult が完了してから初期表示を決定
+  redirectResultPromise.then(function(){
+    initDone = true;
+    var user = auth.currentUser;
     if(user){
       window.dispatchEvent(new Event('hinoka_auth_login'));
-      redirectResultPromise.then(function(redirectUser){
-        showDashboard(user, !!redirectUser);
-        if(redirectUser){
-          createUserDoc(user,{provider:'google',marketingConsent:false}).catch(function(){});
-          doRedirect();
-        }
-      });
+      showDashboard(user, !!pendingRedirectUser);
+      if(redirectAfterLogin) location.href = redirectAfterLogin;
     } else {
-      redirectResultPromise.then(function(){
-        if(window._authErrMsg){
-          showLogin();
-          showError('login-error', window._authErrMsg);
-          window._authErrMsg=null;
-        } else {
-          showLogin();
-        }
+      showLogin();
+      if(window._authErrMsg){
+        showError('login-error', window._authErrMsg);
+        window._authErrMsg = null;
+      }
+    }
+  });
+
+  // ログアウト・メールログイン後の状態変化のみ処理
+  auth.onAuthStateChanged(function(user){
+    if(!initDone) return; // 初期化完了前は無視
+    if(user){
+      window.dispatchEvent(new Event('hinoka_auth_login'));
+      showDashboard(user, false);
+    } else {
+      window.dispatchEvent(new Event('hinoka_auth_logout'));
+      showLogin();
+    }
+  });
+
       });
     }
   });
