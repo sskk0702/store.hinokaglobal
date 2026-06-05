@@ -3,330 +3,453 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HINOKA | 商品詳細</title>
+  <title>HINOKA | マイアカウント</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
   <style>
-    body { padding-top: var(--nav-height); }
+    body { padding-top: var(--nav-height); background: #f8f8f6; }
 
-    .breadcrumb {
-      padding: 18px 48px;
-      font-size: 11px; letter-spacing: 0.1em;
-      color: var(--gray-dark);
-      border-bottom: 1px solid var(--gray-light);
-    }
-    .footer-shipping-badge {
-  font-size: 8px;
-  color: #777;
-  display: block;
-  margin-top: 4px;
-  line-height: 1.5;
-}
-    /* ★ カテゴリーリンクをクリッカブルに */
-    .breadcrumb a {
-      color: var(--gray-dark);
-      transition: color var(--transition);
-      cursor: pointer;
-    }
-    .breadcrumb a:hover { color: var(--black); text-decoration: underline; }
-    .breadcrumb span { margin: 0 8px; }
+    /* ── ローディング ── */
+    .auth-loading { text-align: center; padding: 120px 0; font-size: 13px; color: var(--gray-dark); letter-spacing: 0.1em; }
+    .spinner { width: 32px; height: 32px; margin: 0 auto 20px; border: 2px solid var(--gray-light); border-top-color: var(--black); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .product-layout {
-      display: grid;
-      grid-template-columns: 55% 45%;
-      min-height: calc(100vh - var(--nav-height));
-    }
+    /* ── 認証フォーム ── */
+    .auth-wrap { max-width: 500px; margin: 56px auto; padding: 0 20px 80px; }
+    .account-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; letter-spacing: 0.15em; text-align: center; margin-bottom: 6px; }
+    .account-sub { text-align: center; font-size: 12px; color: var(--gray-dark); letter-spacing: 0.05em; margin-bottom: 36px; }
 
-    /* 左：ギャラリー */
-    .product-gallery {
-      position: sticky;
-      top: var(--nav-height);
-      height: calc(100vh - var(--nav-height));
-      overflow: hidden;
-      background: var(--gray-light);
-    }
-    .gallery-main {
-      position: relative;
-      width: 100%; height: calc(100% - 88px);
-      overflow: hidden;
-    }
-    .gallery-main img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transition: opacity 0.4s ease;
-    }
-    .gallery-main img.active { opacity: 1; }
+    .auth-tabs { display: flex; border-bottom: 1px solid var(--gray-mid); margin-bottom: 28px; }
+    .auth-tab { flex: 1; padding: 12px; text-align: center; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; background: none; border: none; color: var(--gray-dark); font-family: inherit; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
+    .auth-tab.active { color: var(--black); border-bottom-color: var(--black); }
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
 
-    .gallery-arrow {
-      position: absolute; top: 50%;
-      transform: translateY(-50%);
-      z-index: 5;
-      background: rgba(255,255,255,0.85);
-      border: none; width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 16px;
-      transition: background var(--transition);
-    }
-    .gallery-arrow:hover { background: var(--white); }
-    .gallery-arrow.prev { left: 12px; }
-    .gallery-arrow.next { right: 12px; }
+    .auth-card { background: var(--white); padding: 32px; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-size: 11px; letter-spacing: 0.12em; color: var(--gray-dark); margin-bottom: 6px; }
+    .form-input { width: 100%; border: 1px solid var(--gray-mid); padding: 12px 14px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; background: var(--white); box-sizing: border-box; }
+    .form-input:focus { border-color: var(--black); }
+    .pw-wrap { position: relative; }
+    .pw-wrap .form-input { padding-right: 42px; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--gray-dark); line-height: 1; }
+    .pw-toggle:hover { color: var(--black); }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .consent-box { background: #fafaf8; border: 1px solid #e8e4df; padding: 16px; margin-bottom: 18px; font-size: 11px; color: var(--gray-dark); line-height: 1.9; }
+    .consent-box label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .consent-box input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--black); width: 14px; height: 14px; }
+    .consent-box a { color: var(--black); text-decoration: underline; }
+    .auth-btn { width: 100%; padding: 15px; background: var(--black); color: var(--white); font-size: 12px; letter-spacing: 0.2em; border: none; cursor: pointer; font-family: inherit; transition: background var(--transition); }
+    .auth-btn:hover:not(:disabled) { background: #222; }
+    .auth-btn:disabled { background: #aaa; cursor: not-allowed; }
+    .social-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; font-size: 11px; color: var(--gray-dark); }
+    .social-divider::before, .social-divider::after { content: ''; flex: 1; border-top: 1px solid var(--gray-light); }
+    .social-btns { display: flex; flex-direction: column; gap: 10px; }
+    .social-btn { width: 100%; padding: 13px; font-size: 13px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background var(--transition), border-color var(--transition); border: 1px solid var(--gray-mid); }
+    .google-btn { background: var(--white); color: #444; }
+    .google-btn:hover { background: #f5f5f5; border-color: #aaa; }
+    .line-btn { background: #f0f0f0; color: #999; border-color: #e0e0e0; cursor: not-allowed; opacity: 0.6; position: relative; }
+    .line-btn .coming-badge { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 9px; letter-spacing: 0.08em; background: #ccc; color: #666; padding: 2px 6px; border-radius: 2px; }
+    .social-note { font-size: 10px; color: var(--gray-dark); text-align: center; margin-bottom: 14px; letter-spacing: 0.04em; line-height: 1.7; }
+    .pw-strength { display: flex; gap: 4px; margin-top: 6px; }
+    .pw-bar { height: 3px; flex: 1; background: var(--gray-light); transition: background 0.3s; }
+    .pw-bar.weak { background: #e53e3e; }
+    .pw-bar.medium { background: #f6c90e; }
+    .pw-bar.strong { background: #38a169; }
+    .pw-strength-label { font-size: 10px; color: var(--gray-dark); margin-top: 4px; }
+    .msg-error { background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000; font-size: 12px; padding: 12px 14px; margin-bottom: 16px; display: none; line-height: 1.7; }
+    .msg-success { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; font-size: 12px; padding: 12px 14px; margin-bottom: 16px; display: none; line-height: 1.7; white-space: pre-line; }
+    .auth-note { text-align: center; font-size: 11px; color: var(--gray-dark); margin-top: 14px; line-height: 1.9; }
+    .auth-note a { color: var(--black); text-decoration: underline; cursor: pointer; }
 
-    .gallery-thumbs {
-      display: flex; gap: 8px;
-      padding: 12px 16px; height: 88px;
-      overflow-x: auto; background: var(--gray-light);
-    }
-    .gallery-thumbs img {
-      height: 64px; width: 48px;
-      object-fit: cover; cursor: pointer;
-      opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0;
-      border: 1px solid transparent;
-    }
-    .gallery-thumbs img.active { opacity: 1; border-color: var(--black); }
+    /* ── ダッシュボード ── */
+    .dashboard { display: none; max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
 
-    /* 右：商品情報 */
-    .product-info {
-      padding: 40px 40px 48px;
-      overflow-y: auto;
+    .dash-profile-card {
+      background: var(--white); padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .product-info-top {
-      display: flex; align-items: flex-start;
-      justify-content: space-between; margin-bottom: 16px;
-    }
+    .dash-profile-left { display: flex; align-items: center; gap: 16px; }
+    .dash-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--black); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; flex-shrink: 0; overflow: hidden; }
+    .dash-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .dash-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: 0.08em; }
+    .dash-email { font-size: 11px; color: var(--gray-dark); margin-top: 3px; }
+    .logout-btn { font-size: 11px; letter-spacing: 0.1em; color: var(--gray-dark); cursor: pointer; border: 1px solid var(--gray-mid); padding: 8px 16px; background: none; font-family: inherit; transition: border-color var(--transition), color var(--transition); white-space: nowrap; }
+    .logout-btn:hover { border-color: var(--black); color: var(--black); }
 
-    /* ★ カテゴリークリックで一覧に戻るリンク */
-    .product-category-link {
-      font-size: 11px; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--gray-dark);
-      cursor: pointer; text-decoration: none;
-      transition: color var(--transition);
-      display: inline-flex; align-items: center; gap: 4px;
-    }
-    .product-category-link:hover { color: var(--black); text-decoration: underline; }
+    .verify-banner { background: #fff8e1; border: 1px solid #ffe082; color: #f57c00; padding: 12px 16px; font-size: 12px; line-height: 1.8; margin-bottom: 16px; display: none; align-items: center; gap: 10px; }
+    .verify-banner.show { display: flex; }
+    .verify-banner button { margin-left: auto; white-space: nowrap; font-size: 11px; padding: 6px 12px; border: 1px solid #f57c00; background: none; color: #f57c00; cursor: pointer; font-family: inherit; }
 
-    .wish-btn { background: none; border: none; cursor: pointer; padding: 4px; }
-    .wish-btn svg {
-      width: 22px; height: 22px;
-      stroke: var(--black); fill: none; stroke-width: 1.5;
-      transition: fill 0.2s;
-    }
-    .wish-btn.active svg { fill: var(--black); }
+    /* ダッシュボードタブ */
+    .dash-tabs { display: flex; background: var(--white); border-bottom: 1px solid var(--gray-light); margin-bottom: 16px; overflow-x: auto; }
+    .dash-tab { padding: 14px 20px; font-size: 12px; letter-spacing: 0.08em; cursor: pointer; background: none; border: none; color: var(--gray-dark); font-family: inherit; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .dash-tab.active { color: var(--black); border-bottom-color: var(--black); }
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; }
 
-    .product-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 400;
-      letter-spacing: 0.08em; line-height: 1.4;
-      margin-bottom: 10px;
-    }
-    .product-price { font-size: 16px; letter-spacing: 0.05em; margin-bottom: 6px; }
+    /* 概要 */
+    .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--white); padding: 22px 20px; text-align: center; cursor: pointer; transition: box-shadow var(--transition); }
+    .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .stat-icon { font-size: 28px; margin-bottom: 8px; }
+    .stat-label { font-size: 11px; color: var(--gray-dark); letter-spacing: 0.08em; margin-bottom: 4px; }
+    .stat-count { font-family: 'Cormorant Garamond', serif; font-size: 32px; }
 
-    /* ★ 送料表記 */
-    .product-shipping-note {
-      font-size: 11px; color: var(--gray-dark);
-      letter-spacing: 0.03em; margin-bottom: 24px;
-      line-height: 1.6;
-    }
+    /* セクション共通 */
+    .dash-section { background: var(--white); padding: 24px 28px; margin-bottom: 12px; }
+    .dash-section h4 { font-family: 'Cormorant Garamond', serif; font-size: 16px; letter-spacing: 0.1em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-light); }
 
-    .divider { border: none; border-top: 1px solid var(--gray-light); margin: 20px 0; }
+    /* 注文履歴 */
+    .order-empty { text-align: center; padding: 60px 20px; color: var(--gray-dark); font-size: 13px; }
+    .order-card { border: 1px solid var(--gray-light); margin-bottom: 14px; }
+    .order-card-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #fafaf8; border-bottom: 1px solid var(--gray-light); flex-wrap: wrap; gap: 8px; }
+    .order-id { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; }
+    .order-date { font-size: 11px; color: var(--gray-dark); }
+    .order-status { font-size: 10px; letter-spacing: 0.08em; padding: 3px 10px; background: #e8f4e8; color: #2d7a2d; }
+    .order-status.pending { background: #fff8e1; color: #b45309; }
+    .order-items-list { padding: 14px 18px; }
+    .order-item-line { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--gray-light); }
+    .order-item-line:last-child { border-bottom: none; }
+    .order-card-foot { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-top: 1px solid var(--gray-light); background: #fafaf8; flex-wrap: wrap; gap: 8px; }
+    .order-total { font-size: 14px; font-weight: 500; }
+    .order-method { font-size: 11px; color: var(--gray-dark); }
 
-    .option-label {
-      font-size: 11px; letter-spacing: 0.15em;
-      text-transform: uppercase; margin-bottom: 10px;
-    }
+    /* ウィッシュリスト */
+    .wish-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px 16px; }
+    .wish-card { cursor: pointer; }
+    .wish-img-wrap { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--gray-light); margin-bottom: 10px; }
+    .wish-img-wrap img { position: absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.35s; }
+    .wish-img-wrap .main-img { opacity:1; }
+    .wish-img-wrap .sub-img  { opacity:0; }
+    .wish-card:hover .main-img { opacity:0; }
+    .wish-card:hover .sub-img  { opacity:1; }
+    .wish-remove { position:absolute; top:8px; right:8px; z-index:2; background:rgba(255,255,255,0.9); border:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; transition:background var(--transition); }
+    .wish-remove:hover { background:var(--black); color:var(--white); }
+    .wish-name { font-size: 12px; letter-spacing: 0.04em; margin-bottom: 3px; }
+    .wish-price { font-size: 12px; color: var(--gray-dark); margin-bottom: 8px; }
+    .wish-add-cart { width:100%; padding:9px; border:1px solid var(--black); font-size:10px; letter-spacing:0.12em; background:none; cursor:pointer; transition:background var(--transition),color var(--transition); }
+    .wish-add-cart:hover { background:var(--black); color:var(--white); }
+    .wish-empty { text-align:center; padding:60px 20px; color:var(--gray-dark); font-size:13px; }
 
-    .color-options { display: flex; gap: 10px; margin-bottom: 24px; }
-    .color-dot {
-      width: 24px; height: 24px; border-radius: 50%;
-      cursor: pointer; border: 2px solid transparent;
-      transition: border-color 0.2s;
-    }
-    .color-dot.selected {
-      border-color: var(--black);
-      outline: 2px solid var(--black); outline-offset: 2px;
-    }
+    /* アカウント設定 */
+    .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-light); letter-spacing: 0.03em; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: var(--gray-dark); min-width: 100px; }
+    .change-pw-btn { font-size: 11px; letter-spacing: 0.1em; color: var(--gray-dark); cursor: pointer; text-decoration: underline; background: none; border: none; font-family: inherit; padding: 0; transition: color var(--transition); }
+    .change-pw-btn:hover { color: var(--black); }
 
-    .size-options { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-    .size-btn {
-      min-width: 44px; height: 44px; padding: 0 12px;
-      border: 1px solid var(--gray-mid);
-      font-size: 12px; letter-spacing: 0.05em;
-      cursor: pointer; background: none;
-      transition: background var(--transition), color var(--transition), border-color var(--transition);
-    }
-    .size-btn.selected { background: var(--black); color: var(--white); border-color: var(--black); }
-    .size-btn:hover:not(.selected) { border-color: var(--black); }
+    /* トースト */
+    .dash-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); font-size: 12px; padding: 12px 28px; letter-spacing: 0.06em; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999; white-space: nowrap; }
+    .dash-toast.show { opacity: 1; pointer-events: auto; }
 
-    .add-to-cart-btn {
-      width: 100%; padding: 16px;
-      background: var(--black); color: var(--white);
-      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
-      cursor: pointer; border: none;
-      transition: background var(--transition); margin-bottom: 20px;
+    /* ログイン成功オーバーレイ */
+    .login-success-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(255,255,255,0.97);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.4s;
+      pointer-events: none;
     }
-    .add-to-cart-btn:hover { background: #333; }
+    .login-success-overlay.show { opacity: 1; pointer-events: auto; }
+    .login-success-overlay .lso-icon { font-size: 52px; margin-bottom: 16px; }
+    .login-success-overlay .lso-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300;
+      letter-spacing: 0.15em; margin-bottom: 8px;
+    }
+    .login-success-overlay .lso-sub { font-size: 13px; color: var(--gray-dark); letter-spacing: 0.05em; }
 
-    .product-desc {
-      font-size: 13px; line-height: 2;
-      color: var(--gray-dark); margin-bottom: 24px;
+    /* エラーメッセージ強調 */
+    .login-error-box {
+      background: #fff0f0; border: 1px solid #ffb3b3; border-left: 4px solid #cc0000;
+      padding: 12px 16px; font-size: 13px; color: #cc0000; margin-bottom: 16px;
+      letter-spacing: 0.03em; display: none;
     }
 
-    .stock-info {
-      font-size: 11px; letter-spacing: 0.08em;
-      padding: 4px 10px; border-radius: 2px; margin-bottom: 16px; display: inline-block;
-    }
-    .stock-ok       { background: #e8f5e9; color: #2e7d32; }
-    .stock-low      { background: #fff8e1; color: #f57f17; }
-    .stock-critical { background: #fbe9e7; color: #bf360c; }
-    .stock-none     { background: #f5f5f5; color: #9e9e9e; }
-    .moq-note { font-size: 11px; color: var(--gray-dark); margin-bottom: 16px; letter-spacing: 0.05em; }
-
-    .info-accordion { border-top: 1px solid var(--gray-light); }
-    .accordion-item { border-bottom: 1px solid var(--gray-light); }
-    .accordion-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 0; cursor: pointer;
-      font-size: 12px; letter-spacing: 0.1em;
-    }
-    .accordion-icon { font-size: 18px; font-weight: 300; transition: transform 0.3s; }
-    .accordion-item.open .accordion-icon { transform: rotate(45deg); }
-    .accordion-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.35s ease, padding 0.2s ease;
-      font-size: 12px; color: var(--gray-dark); line-height: 2; letter-spacing: 0.03em;
-    }
-    .accordion-item.open .accordion-body { max-height: 500px; padding-bottom: 16px; }
-
-    /* Sidebar qty controls */
-    .sidebar-item-qty {
-      display: flex; align-items: center; gap: 0; margin-top: 6px;
-    }
-    .sidebar-qty-btn {
-      width: 26px; height: 26px; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--gray-light); border: 1px solid var(--gray-mid);
-      cursor: pointer; transition: background var(--transition);
-    }
-    .sidebar-qty-btn:hover { background: var(--black); color: var(--white); }
-    .sidebar-qty-num {
-      width: 32px; height: 26px; text-align: center; font-size: 12px;
-      border: 1px solid var(--gray-mid); border-left: none; border-right: none;
-      font-family: inherit; outline: none;
-    }
-    .sidebar-delete-btn {
-      font-size: 10px; letter-spacing: 0.08em; color: var(--gray-dark);
-      text-decoration: underline; cursor: pointer;
-      background: none; border: none; font-family: inherit;
-      padding: 0; margin-left: 8px;
-    }
-
-    @media (max-width: 768px) {
-      .product-layout { grid-template-columns: 1fr; }
-      .product-gallery { position: relative; height: 70vw; }
-      .breadcrumb { padding: 14px 16px; }
-      .product-info { padding: 24px 16px; }
+    @media (max-width: 640px) {
+      .auth-wrap { padding: 0 12px 60px; margin-top: 32px; }
+      .auth-card { padding: 22px 16px; }
+      .dashboard { padding: 0 12px 60px; }
+      .dash-profile-card { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .dash-section { padding: 18px; }
+      .stat-cards { grid-template-columns: repeat(3,1fr); gap: 8px; }
+      .stat-card { padding: 16px 10px; }
+      .stat-count { font-size: 24px; }
+      .wish-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .order-card-head { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <p class="breadcrumb" id="breadcrumb">
-    <a href="store.html">HOME</a>
-    <span>/</span>
-    <a href="#" id="breadCatLink">カテゴリー</a>
-    <span>/</span>
-    <span id="breadName">商品名</span>
-  </p>
+  <!-- ローディング -->
+  <div id="loadingSection">
+    <div class="auth-loading">
+      <div class="spinner"></div>
+      読み込み中...
+    </div>
+  </div>
 
-  <div class="product-layout">
-    <!-- 左：ギャラリー -->
-    <div class="product-gallery">
-      <div class="gallery-main" id="galleryMain">
-        <button class="gallery-arrow prev" id="galleryPrev">&#8592;</button>
-        <button class="gallery-arrow next" id="galleryNext">&#8594;</button>
-      </div>
-      <div class="gallery-thumbs" id="galleryThumbs"></div>
+  <!-- 未ログイン：認証フォーム -->
+  <div class="auth-wrap" id="authSection" style="display:none;">
+    <h1 class="account-title">マイアカウント</h1>
+    <p class="account-sub">ログインまたは新規登録してください</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">ログイン</button>
+      <button class="auth-tab" data-tab="register">新規登録</button>
     </div>
 
-    <!-- 右：商品情報 -->
-    <div class="product-info">
-      <div class="product-info-top">
-        <!-- ★ カテゴリーをリンクに変更 -->
-        <a class="product-category-link" id="productCategoryLink" href="#">← カテゴリーに戻る</a>
-        <button class="wish-btn" id="wishBtn" aria-label="ウィッシュリスト">
-          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
+    <!-- ログイン -->
+    <div class="auth-panel active" id="panel-login">
+      <div class="auth-card">
+        <div class="login-error-box" id="login-error"></div>
+        <div class="msg-success" id="login-success"></div>
+        <p class="social-note">Googleアカウントでかんたんログイン</p>
+        <div class="social-btns">
+          <button class="social-btn google-btn" id="googleLoginBtn">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+            Googleでログイン
+          </button>
+          <button class="social-btn line-btn" id="lineLoginBtn" disabled>
+            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor"><path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/></svg>
+            LINEでログイン
+            <span class="coming-badge">準備中</span>
+          </button>
+        </div>
+        <div class="social-divider">または</div>
+        <div class="form-group">
+          <label class="form-label" for="login-email">メールアドレス</label>
+          <input type="email" class="form-input" id="login-email" placeholder="example@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-pass">パスワード</label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="login-pass" placeholder="パスワードを入力" autocomplete="current-password">
+            <button type="button" class="pw-toggle" data-target="login-pass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <button class="auth-btn" id="loginBtn">ログイン</button>
+        <p class="auth-note">パスワードをお忘れの方は <a id="forgotPwLink">こちら</a></p>
       </div>
 
-      <h1 class="product-name" id="productName"></h1>
-      <p class="product-price" id="productPrice"></p>
-      <p class="product-shipping-note">
-        🚚 通常送料：550円（税込）<br>
-        <small>※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。</small>
-      </p>
-      <hr class="divider">
-
-      <p class="option-label">カラー</p>
-      <div class="color-options" id="colorOptions"></div>
-
-      <p class="option-label">サイズ</p>
-      <div class="size-options" id="sizeOptions"></div>
-
-      <div id="stockInfo"></div>
-      <div id="moqInfo"></div>
-
-      <button class="add-to-cart-btn" id="addToCartBtn">カートに追加する</button>
-
-      <p class="product-desc" id="productDesc"></p>
-
-      <div class="info-accordion">
-        <div class="accordion-item">
-          <div class="accordion-header">
-            <span>商品詳細</span><span class="accordion-icon">+</span>
+      <!-- パスワードリセットパネル（初期非表示） -->
+      <div class="auth-card" id="resetPanel" style="display:none;">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;letter-spacing:0.1em;margin-bottom:16px;">パスワードの再設定</h3>
+        <p style="font-size:12px;color:var(--gray-dark);line-height:1.9;margin-bottom:20px;">
+          ご登録のメールアドレスを入力してください。<br>
+          パスワード再設定用のリンクをメールでお送りします。
+        </p>
+        <div class="login-error-box" id="reset-error"></div>
+        <div class="msg-success" id="reset-success" style="display:none;background:#f0fff4;border:1px solid #68d391;border-left:4px solid #38a169;padding:16px;font-size:13px;color:#276749;line-height:1.9;"></div>
+        <div id="resetFormArea">
+          <div class="form-group">
+            <label class="form-label" for="reset-email">メールアドレス</label>
+            <input type="email" class="form-input" id="reset-email" placeholder="example@email.com" autocomplete="email">
           </div>
-          <div class="accordion-body" id="accordionDetail"></div>
+          <button class="auth-btn" id="resetSendBtn">リセットメールを送信</button>
         </div>
-        <div class="accordion-item">
-          <div class="accordion-header">
-            <span>配送について</span><span class="accordion-icon">+</span>
+        <p style="margin-top:16px;text-align:center;">
+          <a id="backToLogin" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;cursor:pointer;">← ログインに戻る</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- 新規登録 -->
+    <div class="auth-panel" id="panel-register">
+      <div class="auth-card">
+        <div class="login-error-box" id="reg-error"></div>
+        <div class="msg-success" id="reg-success"></div>
+        <p class="social-note">Googleアカウントでかんたん登録</p>
+        <div class="social-btns">
+          <button class="social-btn google-btn" id="googleRegisterBtn">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+            Googleで登録
+          </button>
+          <button class="social-btn line-btn" id="lineRegisterBtn" disabled>
+            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor"><path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/></svg>
+            LINEで登録
+            <span class="coming-badge">準備中</span>
+          </button>
+        </div>
+        <div class="social-divider">または</div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="reg-last">姓</label>
+            <input type="text" class="form-input" id="reg-last" placeholder="山田" autocomplete="family-name">
           </div>
-          <div class="accordion-body">
-            通常送料：<strong>550円（税込）</strong><br>
-            ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。<br><br>
-            配送方法：標準配送のみ（月〜日 8:00〜21:00）<br>
-            最短お届け：ご注文日の翌々日<br>
-            配送エリア：日本国内のみ
+          <div class="form-group">
+            <label class="form-label" for="reg-first">名</label>
+            <input type="text" class="form-input" id="reg-first" placeholder="花子" autocomplete="given-name">
           </div>
         </div>
-        <div class="accordion-item">
-          <div class="accordion-header">
-            <span>返品について</span><span class="accordion-icon">+</span>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">メールアドレス</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="example@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-pass">パスワード（8文字以上）</label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="reg-pass" placeholder="パスワードを設定" autocomplete="new-password">
+            <button type="button" class="pw-toggle" data-target="reg-pass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
-          <div class="accordion-body">
-            お受け取りから30日以内にお申し込みください。<br><br>
-            以下の商品は返品・交換不可：カスタマイズ商品 / 香水・フレグランス（ディフューザー含む）/ 開封済み衛生用品 / セール品・返品不可と記載された商品
+          <div class="pw-strength">
+            <div class="pw-bar" id="pwBar1"></div>
+            <div class="pw-bar" id="pwBar2"></div>
+            <div class="pw-bar" id="pwBar3"></div>
+          </div>
+          <p class="pw-strength-label" id="pwLabel"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-pass2">パスワード（確認）</label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="reg-pass2" placeholder="パスワードを再入力" autocomplete="new-password">
+            <button type="button" class="pw-toggle" data-target="reg-pass2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
+        <div class="consent-box">
+          <label>
+            <input type="checkbox" id="consentMarketing">
+            <span>HINOKAからのメールマガジン（新商品・セール情報等）の受信に同意します。いつでも配信停止できます。</span>
+          </label>
+        </div>
+        <div class="consent-box" style="margin-top:-12px;">
+          <label>
+            <input type="checkbox" id="consentPrivacy" required>
+            <span><a href="legal.html#privacy" target="_blank">プライバシーポリシー</a>および<a href="legal.html#terms" target="_blank">利用規約</a>に同意します。<span style="color:#cc0000;">*</span></span>
+          </label>
+        </div>
+        <button class="auth-btn" id="registerBtn">アカウントを作成</button>
       </div>
     </div>
   </div>
 
-  <!-- カートサイドバー -->
-  <div class="cart-sidebar-overlay" id="cartSidebarOverlay"></div>
-  <aside class="cart-sidebar" id="cartSidebar">
-    <div class="cart-sidebar-header">
-      <span>Shopping Bag</span>
-      <button class="cart-sidebar-close" id="cartSidebarClose">&times;</button>
+  <!-- ログイン済み：ダッシュボード -->
+  <div class="dashboard" id="dashSection">
+
+    <div style="padding-top:32px;"></div>
+
+    <!-- メール未確認バナー -->
+    <div class="verify-banner" id="verifyBanner">
+      ⚠️ メールアドレスが未確認です。確認メールをご確認ください。
+      <button id="resendVerifyBtn">再送信</button>
     </div>
-    <div class="cart-sidebar-items" id="cartSidebarItems"></div>
-    <div class="cart-sidebar-footer">
-      <div class="cart-sidebar-subtotal">
-        <span>小計（税込）</span>
-        <span id="cartSidebarSubtotal">¥0</span>
+
+    <!-- プロフィールカード -->
+    <div class="dash-profile-card">
+      <div class="dash-profile-left">
+        <div class="dash-avatar" id="dashAvatar">H</div>
+        <div>
+          <div class="dash-name" id="dashName">—</div>
+          <div class="dash-email" id="dashEmail">—</div>
+        </div>
       </div>
-      <a href="checkout.html" class="cart-sidebar-checkout">チェックアウトへ進む</a>
-      <button class="cart-sidebar-continue" id="cartSidebarContinue">ショッピングを続ける</button>
+      <button class="logout-btn" id="logoutBtn">ログアウト</button>
     </div>
-  </aside>
+
+    <!-- タブナビ -->
+    <div class="dash-tabs">
+      <button class="dash-tab active" data-panel="overview">概要</button>
+      <button class="dash-tab" data-panel="orders">注文履歴</button>
+      <button class="dash-tab" data-panel="wishlist">ウィッシュリスト</button>
+      <button class="dash-tab" data-panel="settings">アカウント設定</button>
+    </div>
+
+    <!-- 概要タブ -->
+    <div class="dash-panel active" id="panel-overview">
+      <div class="stat-cards">
+        <div class="stat-card" onclick="switchDashTab('orders')">
+          <div class="stat-icon">📦</div>
+          <div class="stat-label">注文履歴</div>
+          <div class="stat-count" id="statOrders">0</div>
+        </div>
+        <div class="stat-card" onclick="switchDashTab('wishlist')">
+          <div class="stat-icon">❤️</div>
+          <div class="stat-label">ウィッシュリスト</div>
+          <div class="stat-count" id="statWish">0</div>
+        </div>
+        <div class="stat-card" onclick="location.href='cart.html'">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-label">カート</div>
+          <div class="stat-count" id="statCart">0</div>
+        </div>
+      </div>
+
+      <div class="dash-section" id="recentOrderSection" style="display:none;">
+        <h4>最新の注文</h4>
+        <div id="recentOrderContent"></div>
+      </div>
+
+      <div class="dash-section">
+        <h4>クイックリンク</h4>
+        <div class="info-row"><span></span><a href="store.html" style="font-size:12px;color:var(--black);">🛍 ショッピングを始める</a></div>
+        <div class="info-row"><span></span><a href="wishlist.html" style="font-size:12px;color:var(--black);">❤️ ウィッシュリストを見る</a></div>
+        <div class="info-row"><span></span><a href="cart.html" style="font-size:12px;color:var(--black);">🛒 カートを確認する</a></div>
+        <div class="info-row"><span></span><a href="legal.html#shipping" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">配送・返品ポリシー</a></div>
+      </div>
+    </div>
+
+    <!-- 注文履歴タブ -->
+    <div class="dash-panel" id="panel-orders">
+      <div class="dash-section">
+        <h4>注文履歴</h4>
+        <div id="orderHistoryList"></div>
+      </div>
+    </div>
+
+    <!-- ウィッシュリストタブ -->
+    <div class="dash-panel" id="panel-wishlist">
+      <div class="dash-section">
+        <h4>ウィッシュリスト</h4>
+        <div class="wish-grid" id="wishlistGrid"></div>
+      </div>
+    </div>
+
+    <!-- アカウント設定タブ -->
+    <div class="dash-panel" id="panel-settings">
+      <div class="dash-section">
+        <h4>プロフィール</h4>
+        <div class="info-row"><span>お名前</span><span id="infoName">—</span></div>
+        <div class="info-row"><span>メールアドレス</span><span id="infoEmail">—</span></div>
+        <div class="info-row"><span>登録日</span><span id="infoDate">—</span></div>
+        <div class="info-row"><span>ログイン方法</span><span id="infoProvider">—</span></div>
+        <div class="info-row"><span>メール確認</span><span id="infoVerified">—</span></div>
+        <div class="info-row" id="changePwRow">
+          <span>パスワード</span>
+          <button class="change-pw-btn" id="changePwBtn">変更メールを送信</button>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h4>メール設定</h4>
+        <div class="info-row">
+          <span>マーケティングメール</span>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="marketingToggle" style="accent-color:var(--black);">
+            <span style="font-size:12px;" id="marketingLabel">受信する</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h4>リンク</h4>
+        <div class="info-row"><span></span><a href="legal.html#terms" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">利用規約</a></div>
+        <div class="info-row"><span></span><a href="legal.html#privacy" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">プライバシーポリシー</a></div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+
+  <div class="dash-toast" id="dashToast"></div>
+
+  <!-- ログイン成功オーバーレイ -->
+  <div class="login-success-overlay" id="loginSuccessOverlay">
+    <div class="lso-icon">✅</div>
+    <div class="lso-title" id="lsoTitle">ログインしました</div>
+    <div class="lso-sub" id="lsoSub">マイアカウントへようこそ</div>
+  </div>
 
   <footer class="store-footer">
     <div class="store-footer-grid">
@@ -361,357 +484,505 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
-  <!-- モーダル：商品詳細 -->
-  <div class="modal-overlay" id="modalDetail">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalDetail">×</button>
-      <h3>商品詳細</h3>
-      <p>産地：日本</p>
-      <p>素材：コットン 100%</p>
-      <p>サイズ詳細：S（着丈65cm / 身幅48cm）M（着丈68cm / 身幅51cm）L（着丈71cm / 身幅54cm）</p>
-      <p>ケア方法：洗濯機可（ネット使用）／ 乾燥機不可</p>
-    </div>
-  </div>
-
-  <!-- モーダル：配送 -->
-  <div class="modal-overlay" id="modalShipping">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalShipping">×</button>
-      <h3>配送について</h3>
-      <p>通常送料：<strong>550円（税込）</strong></p>
-      <p>※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。</p><br>
-      <p>現在ご利用いただける配送方法は標準配送のみとなります（月〜日 8:00〜21:00）。</p>
-      <p>最短でのお届けはご注文日の翌々日となります。</p><br>
-      <p>※配送は日本国内のみとなります。</p>
-    </div>
-  </div>
-
-  <!-- モーダル：返品 -->
-  <div class="modal-overlay" id="modalReturn">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalReturn">×</button>
-      <h3>返品について</h3>
-      <p>お受け取りから30日以内にお申し込みください。</p><br>
-      <p>以下の商品は返品・交換不可：</p>
-      <ul>
-        <li>カスタマイズ商品</li>
-        <li>香水・フレグランス（ディフューザー含む）</li>
-        <li>衛生テープが取り外された水着・下着</li>
-        <li>開封済みマスク</li>
-        <li>セール品・返品不可と記載された商品</li>
-      </ul>
-    </div>
-  </div>
-
   <script src="js/nav.js"></script>
   <script src="js/products.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-  (function () {
-    // Legacy fallback products (used if products.js fails to load)
-    const PRODUCTS_LEGACY = {
-      '001':{ name:'プレミアム ドッグフード',   price:3850,  category:'dog-food',    parentCat:'pet',
-              images:['assets/images/p001-main.jpg','assets/images/p001-sub.jpg'],
-              colors:['#8B6914','#D4B896','#333'], sizes:['S','M','L'],
-              desc:'厳選された国産素材を使用したプレミアムドッグフードです。' },
-      '002':{ name:'キャット ボウル セット',    price:5500,  category:'cat-food',    parentCat:'pet',
-              images:['assets/images/p002-main.jpg','assets/images/p002-sub.jpg'],
-              colors:['#fff','#F5F0E8'], sizes:['FREE'],
-              desc:'ステンレス製の高品質キャットボウルセットです。' },
-      '003':{ name:'ペット ロープ トイ',       price:1980,  category:'pet-toys',    parentCat:'pet',
-              images:['assets/images/p003-main.jpg','assets/images/p003-sub.jpg'],
-              colors:['#e74c3c','#3498db'], sizes:['FREE'],
-              desc:'天然コットン素材の安全なロープトイです。' },
-      '004':{ name:'オーガニック コットン ベッド',price:12100,category:'pet-bed',    parentCat:'pet',
-              images:['assets/images/p004-main.jpg','assets/images/p004-sub.jpg'],
-              colors:['#F5F0E8','#8B6914'], sizes:['S','M','L'],
-              desc:'オーガニックコットン100%のペットベッドです。' },
-      '005':{ name:'レザー 首輪',              price:4400,  category:'pet-collar',  parentCat:'pet',
-              images:['assets/images/p005-main.jpg','assets/images/p005-sub.jpg'],
-              colors:['#000','#8B6914','#8B4513'], sizes:['S','M','L'],
-              desc:'本革使用の高級首輪です。' },
-      '006':{ name:'リネン オーバーシャツ',     price:18700, category:'tops',        parentCat:'fashion',
-              images:['assets/images/p006-main.jpg','assets/images/p006-sub.jpg'],
-              colors:['#fff','#F5F0E8','#888'], sizes:['S','M','L','XL'],
-              desc:'上質なリネン素材のオーバーサイズシャツです。' },
-      '007':{ name:'テーパード スラックス',     price:22000, category:'bottoms',     parentCat:'fashion',
-              images:['assets/images/p007-main.jpg','assets/images/p007-sub.jpg'],
-              colors:['#000','#333','#8B8682'], sizes:['S','M','L','XL'],
-              desc:'美しいシルエットのテーパードスラックスです。' },
-      '008':{ name:'ウール コート',            price:55000, category:'outer',       parentCat:'fashion',
-              images:['assets/images/p008-main.jpg','assets/images/p008-sub.jpg'],
-              colors:['#000','#8B8682','#F5F0E8'], sizes:['S','M','L'],
-              desc:'上質なウール素材のロングコートです。' },
-      '009':{ name:'シルバー チェーン',         price:8800,  category:'accessories', parentCat:'fashion',
-              images:['assets/images/p009-main.jpg','assets/images/p009-sub.jpg'],
-              colors:['#C0C0C0','#FFD700'], sizes:['FREE'],
-              desc:'スターリングシルバー製のチェーンネックレスです。' },
-      '010':{ name:'レザー ローファー',         price:38500, category:'shoes',       parentCat:'fashion',
-              images:['assets/images/p010-main.jpg','assets/images/p010-sub.jpg'],
-              colors:['#000','#8B4513'], sizes:['24','24.5','25','25.5','26','26.5','27'],
-              desc:'本革使用の上品なローファーです。' },
-      '011':{ name:'鋳鉄 フライパン',          price:15400, category:'kitchen',     parentCat:'daily',
-              images:['assets/images/p011-main.jpg','assets/images/p011-sub.jpg'],
-              colors:['#333'], sizes:['20cm','24cm','28cm'],
-              desc:'熱伝導率が高い鋳鉄製フライパンです。' },
-      '012':{ name:'ナチュラル ラグ',          price:22000, category:'interior',    parentCat:'daily',
-              images:['assets/images/p012-main.jpg','assets/images/p012-sub.jpg'],
-              colors:['#F5F0E8','#D4B896','#8B8682'], sizes:['100x140','140x200','170x240'],
-              desc:'天然素材のナチュラルラグです。' },
-      '013':{ name:'ウォールシェルフ',          price:9800,  category:'interior',    parentCat:'daily',
-              images:['assets/images/p013-main.jpg','assets/images/p013-sub.jpg'],
-              colors:['#F5F0E8','#8B6914'], sizes:['S','M'],
-              desc:'無垢材を使用したウォールシェルフです。' },
-      '014':{ name:'リネン バスタオル セット',  price:6600,  category:'bath',        parentCat:'daily',
-              images:['assets/images/p014-main.jpg','assets/images/p014-sub.jpg'],
-              colors:['#fff','#F5F0E8','#8B8682'], sizes:['FREE'],
-              desc:'上質なリネン素材のバスタオルセットです。' },
-      '015':{ name:'竹製 バスマット',          price:4400,  category:'bath',        parentCat:'daily',
-              images:['assets/images/p015-main.jpg','assets/images/p015-sub.jpg'],
-              colors:['#D4B896'], sizes:['FREE'],
-              desc:'天然竹素材の環境に優しいバスマットです。' },
-      '016':{ name:'ラタン バスケット',         price:7700,  category:'storage',     parentCat:'daily',
-              images:['assets/images/p016-main.jpg','assets/images/p016-sub.jpg'],
-              colors:['#D4B896'], sizes:['S','M','L'],
-              desc:'天然ラタン素材の収納バスケットです。' },
-      '017':{ name:'ソイ キャンドル',          price:3300,  category:'aroma',       parentCat:'daily',
-              images:['assets/images/p017-main.jpg','assets/images/p017-sub.jpg'],
-              colors:['#fff','#F5F0E8'], sizes:['S','M'],
-              desc:'天然大豆由来のソイワックスキャンドルです。' },
-      '018':{ name:'アロマ ディフューザー',     price:8800,  category:'aroma',       parentCat:'daily',
-              images:['assets/images/p018-main.jpg','assets/images/p018-sub.jpg'],
-              colors:['#fff','#333'], sizes:['FREE'],
-              desc:'超音波式アロマディフューザーです。' },
-    };
+  // Firebase 読み込み失敗・JS エラー時の最終フォールバック（3秒）
+  var _loadFallback = setTimeout(function(){
+    var ls = document.getElementById('loadingSection');
+    var as = document.getElementById('authSection');
+    if(ls && ls.style.display !== 'none'){ ls.style.display='none'; if(as) as.style.display='block'; }
+  }, 3000);
 
-    // Use products.js data if available, otherwise fall back to legacy
-    const ALL_PRODUCTS = window.HINOKA_PRODUCTS || [];
-    const CAT_NAMES    = window.HINOKA_CAT_NAMES || {};
-    const PARENT_CAT   = window.HINOKA_PARENT_CAT || {};
+  // グローバルエラーをキャッチして loading を解除
+  window.addEventListener('error', function(){
+    clearTimeout(_loadFallback);
+    var ls = document.getElementById('loadingSection');
+    var as = document.getElementById('authSection');
+    if(ls) ls.style.display='none'; if(as) as.style.display='block';
+  });
 
-    const params  = new URLSearchParams(location.search);
-    const id      = params.get('id') || '';
-    let product   = ALL_PRODUCTS.find(p => p.id === id);
-    if (!product && PRODUCTS_LEGACY[id]) {
-      const l = PRODUCTS_LEGACY[id];
-      product = { id, ...l, images: l.images || [], colors: l.colors || ['#000'], sizes: l.sizes || ['FREE'], stock: null, moq: 1 };
-    }
-    if (!product) { document.location.href = 'store.html'; return; }
+  // Firebase 二重初期化を防止
+  var app = firebase.apps.length ? firebase.app() : firebase.initializeApp({
+    apiKey:            'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
+    authDomain:        'hinoka-0304.firebaseapp.com',
+    projectId:         'hinoka-0304',
+    storageBucket:     'hinoka-0304.firebasestorage.app',
+    messagingSenderId: '275098198657',
+    appId:             '1:275098198657:web:d9b11ff1086c972ac6e380'
+  });
+  var auth = firebase.auth(app);
+  var db   = firebase.firestore(app);
 
-    // ── ページ情報セット ──
-    document.getElementById('productName').textContent  = product.name;
-    document.getElementById('productPrice').textContent = `¥${product.price.toLocaleString()}（税込）`;
-    document.getElementById('productDesc').textContent  = product.desc || '';
-    document.getElementById('breadName').textContent    = product.name;
-    document.title = `HINOKA | ${product.name}`;
+  var LINE_CHANNEL_ID        = '2010269245';
+  var LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';
+  var redirectAfterLogin = new URLSearchParams(location.search).get('redirect');
 
-    // Stock display
-    if (product.stock !== undefined && product.stock !== null) {
-      const s = product.stock;
-      let cls, label;
-      if (s === 0)    { cls = 'stock-none';     label = '在庫なし'; }
-      else if (s <= 5) { cls = 'stock-critical'; label = `在庫わずか（残${s}点）`; }
-      else if (s <= 10){ cls = 'stock-low';      label = `在庫少（残${s}点）`; }
-      else             { cls = 'stock-ok';       label = '在庫あり'; }
-      document.getElementById('stockInfo').innerHTML = `<span class="stock-info ${cls}">${label}</span>`;
-      if (s === 0) document.getElementById('addToCartBtn').disabled = true;
-    }
-    if (product.moq && product.moq > 1) {
-      document.getElementById('moqInfo').innerHTML = `<p class="moq-note">最低注文数量（MOQ）：${product.moq}点</p>`;
-    }
+  // ── エラー変換 ──
+  var ERROR_MAP = {
+    'auth/email-already-in-use':   'このメールアドレスはすでに登録されています。',
+    'auth/invalid-email':          'メールアドレスの形式が正しくありません。',
+    'auth/weak-password':          'パスワードは8文字以上で設定してください。',
+    'auth/wrong-password':         'パスワードが正しくありません。',
+    'auth/user-not-found':         'このメールアドレスは登録されていません。',
+    'auth/invalid-credential':     'メールアドレスまたはパスワードが正しくありません。',
+    'auth/too-many-requests':      'ログイン試行が多すぎます。しばらくお待ちください。',
+    'auth/network-request-failed': 'ネットワークエラーが発生しました。',
+    'auth/popup-closed-by-user':   'ログインがキャンセルされました。',
+    'auth/popup-blocked':          'ポップアップがブロックされました。',
+    'auth/cancelled-popup-request':'ログインがキャンセルされました。',
+    'auth/account-exists-with-different-credential': 'このメールアドレスは別の方法で登録済みです。'
+  };
+  function toJpError(code) { return ERROR_MAP[code] || 'エラーが発生しました。(' + code + ')'; }
 
-    // Accordion detail content
-    if (product.specs) {
-      document.getElementById('accordionDetail').innerHTML = product.specs.split('/').map(s => s.trim()).join('<br>');
-    }
+  // ── UIヘルパー ──
+  function showError(id, msg)   { var e=document.getElementById(id); e.textContent='⚠️ '+msg; e.style.display='block'; }
+  function showLoginSuccess(user, isNew) {
+    var name = (user && (user.displayName || user.email)) || '';
+    var ov = document.getElementById('loginSuccessOverlay');
+    document.getElementById('lsoTitle').textContent = isNew ? '登録が完了しました' : 'ログインしました';
+    document.getElementById('lsoSub').textContent = name ? 'ようこそ、' + name + ' さん' : 'マイアカウントへようこそ';
+    ov.classList.add('show');
+    setTimeout(function(){ ov.classList.remove('show'); }, 2500);
+  }
+  function hideMsg(id)          { var e=document.getElementById(id); if(e) e.style.display='none'; }
+  function showSuccess(id, msg) { var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+  function setLoading(id, on) {
+    var b=document.getElementById(id); b.disabled=on;
+    var labels={loginBtn:['処理中...','ログイン'],registerBtn:['処理中...','アカウントを作成']};
+    b.textContent = on ? labels[id][0] : labels[id][1];
+  }
+  function showToast(msg) {
+    var el=document.getElementById('dashToast'); el.textContent=msg; el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 3000);
+  }
+  function showLogin() {
+    document.getElementById('loadingSection').style.display='none';
+    document.getElementById('authSection').style.display='block';
+    document.getElementById('dashSection').style.display='none';
+  }
 
-    // ★ カテゴリーリンク
-    const catLink      = document.getElementById('productCategoryLink');
-    const breadCatLink = document.getElementById('breadCatLink');
-    const parentKey    = product.parentCat || PARENT_CAT[product.category] || product.category;
-    const catName      = CAT_NAMES[product.category] || product.category;
-    const parentName   = CAT_NAMES[parentKey] || parentKey;
-    const catUrl       = `product-list.html?category=${product.category}`;
-    const parentUrl    = `product-list.html?category=${parentKey}`;
+  // ── ダッシュボードタブ切替 ──
+  function switchDashTab(panelId) {
+    document.querySelectorAll('.dash-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.dash-panel').forEach(function(p){ p.classList.remove('active'); });
+    var tab = document.querySelector('.dash-tab[data-panel="'+panelId+'"]');
+    if(tab) tab.classList.add('active');
+    var panel = document.getElementById('panel-'+panelId);
+    if(panel) panel.classList.add('active');
+  }
+  document.querySelectorAll('.dash-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){ switchDashTab(tab.dataset.panel); });
+  });
 
-    catLink.textContent = `← ${catName}`;
-    catLink.href        = catUrl;
-    breadCatLink.textContent = parentName;
-    breadCatLink.href        = parentUrl;
-
-    // ── ギャラリー ──
-    const galleryMain   = document.getElementById('galleryMain');
-    const galleryThumbs = document.getElementById('galleryThumbs');
-    let currentImg = 0;
-
-    product.images.forEach((src, i) => {
-      const img = document.createElement('img');
-      img.src = src; img.alt = product.name;
-      img.className = i === 0 ? 'active' : '';
-      img.onerror = () => { img.src = 'assets/images/placeholder.jpg'; };
-      galleryMain.insertBefore(img, document.getElementById('galleryPrev'));
-
-      const thumb = document.createElement('img');
-      thumb.src = src; thumb.alt = `サムネイル ${i+1}`;
-      thumb.className = i === 0 ? 'active' : '';
-      thumb.onerror = () => { thumb.src = 'assets/images/placeholder.jpg'; };
-      thumb.addEventListener('click', () => goTo(i));
-      galleryThumbs.appendChild(thumb);
+  // ── 認証タブ切替 ──
+  document.querySelectorAll('.auth-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.auth-tab').forEach(function(t){t.classList.remove('active');});
+      document.querySelectorAll('.auth-panel').forEach(function(p){p.classList.remove('active');});
+      tab.classList.add('active');
+      document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
     });
+  });
 
-    function goTo(index) {
-      galleryMain.querySelectorAll('img').forEach((img, i) => img.classList.toggle('active', i === index));
-      galleryThumbs.querySelectorAll('img').forEach((t, i) => t.classList.toggle('active', i === index));
-      currentImg = index;
-    }
-
-    document.getElementById('galleryPrev').addEventListener('click', () => goTo((currentImg - 1 + product.images.length) % product.images.length));
-    document.getElementById('galleryNext').addEventListener('click', () => goTo((currentImg + 1) % product.images.length));
-
-    // ── カラー ──
-    let selectedColor = product.colors[0];
-    const colorContainer = document.getElementById('colorOptions');
-    product.colors.forEach(c => {
-      const dot = document.createElement('div');
-      dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
-      dot.style.background = c;
-      if (c === '#fff') dot.style.border = '1px solid #ccc';
-      dot.addEventListener('click', () => {
-        selectedColor = c;
-        colorContainer.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-        dot.classList.add('selected');
-      });
-      colorContainer.appendChild(dot);
+  // ── PW表示切替 ──
+  document.querySelectorAll('.pw-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var inp=document.getElementById(btn.dataset.target);
+      inp.type = inp.type==='password' ? 'text' : 'password';
     });
+  });
 
-    // ── サイズ ──
-    let selectedSize = '';
-    const sizeContainer = document.getElementById('sizeOptions');
-    product.sizes.forEach(s => {
-      const btn = document.createElement('button');
-      btn.className = 'size-btn'; btn.textContent = s;
-      btn.addEventListener('click', () => {
-        selectedSize = s;
-        sizeContainer.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-      sizeContainer.appendChild(btn);
-    });
+  // ── PW強度 ──
+  document.getElementById('reg-pass').addEventListener('input', function(){
+    var v=this.value;
+    var bars=[1,2,3].map(function(i){return document.getElementById('pwBar'+i);});
+    var lbl=document.getElementById('pwLabel');
+    bars.forEach(function(b){b.className='pw-bar';});
+    if(!v){lbl.textContent='';return;}
+    var strong=v.length>=10&&/[A-Z]/.test(v)&&/[0-9]/.test(v)&&/[^A-Za-z0-9]/.test(v);
+    var medium=v.length>=8;
+    if(strong){bars.forEach(function(b){b.classList.add('strong');});lbl.textContent='強い';}
+    else if(medium){bars[0].classList.add('medium');bars[1].classList.add('medium');lbl.textContent='普通';}
+    else{bars[0].classList.add('weak');lbl.textContent='弱い';}
+  });
 
-    // ── ウィッシュリスト ──
-    function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
-    function saveWishlist(l) { localStorage.setItem('hinoka_wishlist', JSON.stringify(l)); }
-
-    const wishBtn = document.getElementById('wishBtn');
-    if (getWishlist().includes(id)) wishBtn.classList.add('active');
-
-    wishBtn.addEventListener('click', () => {
-      const list = getWishlist();
-      const idx  = list.indexOf(id);
-      if (idx === -1) list.push(id); else list.splice(idx, 1);
-      saveWishlist(list);
-      wishBtn.classList.toggle('active');
-    });
-
-    // ── カートに追加 ──
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-      const items    = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      const existing = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
-      if (existing) { existing.qty++; }
-      else {
-        items.push({ id, name: product.name, price: product.price,
-                     color: selectedColor, size: selectedSize,
-                     img: product.images[0], qty: 1 });
+  // ── Firestore ユーザー作成（isNew を返す）──
+  function createUserDoc(user, extra) {
+    extra=extra||{};
+    var ref=db.collection('users').doc(user.uid);
+    return ref.get().then(function(snap){
+      if(!snap.exists){
+        return ref.set({
+          uid:user.uid, email:user.email, displayName:user.displayName||'',
+          lastName:extra.lastName||'', firstName:extra.firstName||'',
+          createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+          emailVerified:user.emailVerified,
+          marketingConsent:extra.marketingConsent||false,
+          provider:extra.provider||'email'
+        }).then(function(){ return {isNew:true}; });
       }
-      localStorage.setItem('cartItems', JSON.stringify(items));
-      window.dispatchEvent(new Event('cartUpdated'));
-      openCartSidebar();
+      return {isNew:false};
     });
+  }
 
-    // ── カートサイドバー ──
-    function renderSidebar() {
-      const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      const container = document.getElementById('cartSidebarItems');
-      container.innerHTML = '';
-      let subtotal = 0;
+  function doRedirect() { if(redirectAfterLogin) location.href=redirectAfterLogin; }
 
-      if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:var(--gray-dark);padding:40px 0;font-size:12px;">カートは空です</p>';
-      } else {
-        items.forEach((item, idx) => {
-          const lineTotal = item.price * (item.qty || 1);
-          subtotal += lineTotal;
-          const el = document.createElement('div');
-          el.className = 'cart-sidebar-item';
-          el.innerHTML = `
-            <img src="${item.img || 'assets/images/placeholder.jpg'}" alt="${item.name}"
-                 onerror="this.src='assets/images/placeholder.jpg'">
-            <div class="cart-sidebar-item-info">
-              <div class="cart-sidebar-item-name">${item.name}</div>
-              <div class="cart-sidebar-item-opts">${item.size ? `サイズ：${item.size}` : ''}</div>
-              <div class="sidebar-item-qty">
-                <button class="sidebar-qty-btn" data-action="dec" data-idx="${idx}">−</button>
-                <input class="sidebar-qty-num" type="text" value="${item.qty || 1}" readonly>
-                <button class="sidebar-qty-btn" data-action="inc" data-idx="${idx}">+</button>
-                <button class="sidebar-delete-btn" data-idx="${idx}">削除</button>
-              </div>
-              <div class="cart-sidebar-item-price">¥${lineTotal.toLocaleString()}</div>
-            </div>`;
-          container.appendChild(el);
-        });
-
-        container.querySelectorAll('.sidebar-qty-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
-            const i = parseInt(btn.dataset.idx);
-            if (btn.dataset.action === 'inc') cart[i].qty++;
-            else if (cart[i].qty > 1) cart[i].qty--;
-            localStorage.setItem('cartItems', JSON.stringify(cart));
-            window.dispatchEvent(new Event('cartUpdated'));
-            renderSidebar();
-          });
-        });
-        container.querySelectorAll('.sidebar-delete-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
-            cart.splice(parseInt(btn.dataset.idx), 1);
-            localStorage.setItem('cartItems', JSON.stringify(cart));
-            window.dispatchEvent(new Event('cartUpdated'));
-            renderSidebar();
-          });
-        });
-      }
-
-      document.getElementById('cartSidebarSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
-    }
-
-    function openCartSidebar() {
-      renderSidebar();
-      document.getElementById('cartSidebar').classList.add('open');
-      document.getElementById('cartSidebarOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeCartSidebar() {
-      document.getElementById('cartSidebar').classList.remove('open');
-      document.getElementById('cartSidebarOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('cartSidebarClose').addEventListener('click', closeCartSidebar);
-    document.getElementById('cartSidebarContinue').addEventListener('click', closeCartSidebar);
-    document.getElementById('cartSidebarOverlay').addEventListener('click', closeCartSidebar);
-
-    // ── インライン アコーディオン ──
-    document.querySelectorAll('.accordion-header').forEach(h => {
-      h.addEventListener('click', () => {
-        h.parentElement.classList.toggle('open');
+  // ── Google認証 ──
+  function handleGoogleAuth() {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .then(function(result){
+        if(!result.user) return;
+        createUserDoc(result.user,{provider:'google',marketingConsent:false})
+          .then(function(r){ showLoginSuccess(result.user, r&&r.isNew); })
+          .catch(function(){ showLoginSuccess(result.user, false); });
+      })
+      .catch(function(err){
+        if(err.code==='auth/popup-closed-by-user'||err.code==='auth/cancelled-popup-request') return;
+        showError('login-error', toJpError(err.code));
       });
-    });
+  }
+  document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleAuth);
+  document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleAuth);
+
+  // ── LINE認証 ──
+  function handleLINEAuth() {
+    var state=Math.random().toString(36).substr(2);
+    sessionStorage.setItem('line_oauth_state', state);
+    location.href='https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id='+LINE_CHANNEL_ID+'&redirect_uri='+encodeURIComponent(location.origin+location.pathname)+'&state='+state+'&scope=profile%20openid%20email';
+  }
+  document.getElementById('lineLoginBtn').addEventListener('click', handleLINEAuth);
+  document.getElementById('lineRegisterBtn').addEventListener('click', handleLINEAuth);
+
+  // LINE コールバック
+  (function(){
+    var params=new URLSearchParams(location.search);
+    var code=params.get('code'), state=params.get('state');
+    if(!code||!state) return;
+    var saved=sessionStorage.getItem('line_oauth_state');
+    sessionStorage.removeItem('line_oauth_state');
+    if(state!==saved) return;
+    history.replaceState({},'',' location.pathname');
+    fetch(LINE_CLOUD_FUNCTION_URL+'?code='+encodeURIComponent(code)+'&redirect_uri='+encodeURIComponent(location.origin+location.pathname))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error) throw new Error(d.error);
+        return auth.signInWithCustomToken(d.customToken);
+      })
+      .then(function(r){ return createUserDoc(r.user,{provider:'line'}); })
+      .then(doRedirect)
+      .catch(function(){
+        showLogin();
+        showError('login-error','LINEログインに失敗しました。');
+      });
   })();
+
+  // ── メール/PW ログイン ──
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    hideMsg('login-error'); hideMsg('login-success');
+    var email=document.getElementById('login-email').value.trim();
+    var pass=document.getElementById('login-pass').value;
+    if(!email||!pass){showError('login-error','メールアドレスとパスワードを入力してください。');return;}
+    setLoading('loginBtn',true);
+    auth.signInWithEmailAndPassword(email,pass)
+      .then(function(cred){
+        showLoginSuccess(cred.user, false);
+        doRedirect();
+      })
+      .catch(function(err){showError('login-error',toJpError(err.code));})
+      .finally(function(){setLoading('loginBtn',false);});
+  });
+  ['login-email','login-pass'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown',function(e){
+      if(e.key==='Enter') document.getElementById('loginBtn').click();
+    });
+  });
+
+  // ── 新規登録 ──
+  document.getElementById('registerBtn').addEventListener('click', function(){
+    hideMsg('reg-error'); hideMsg('reg-success');
+    var last=document.getElementById('reg-last').value.trim();
+    var first=document.getElementById('reg-first').value.trim();
+    var email=document.getElementById('reg-email').value.trim();
+    var pass=document.getElementById('reg-pass').value;
+    var pass2=document.getElementById('reg-pass2').value;
+    var consPriv=document.getElementById('consentPrivacy').checked;
+    var consMkt=document.getElementById('consentMarketing').checked;
+    if(!last||!first){showError('reg-error','氏名を入力してください。');return;}
+    if(!email){showError('reg-error','メールアドレスを入力してください。');return;}
+    if(pass.length<8){showError('reg-error','パスワードは8文字以上で設定してください。');return;}
+    if(pass!==pass2){showError('reg-error','パスワードが一致しません。');return;}
+    if(!consPriv){showError('reg-error','プライバシーポリシーと利用規約への同意が必要です。');return;}
+    setLoading('registerBtn',true);
+    auth.createUserWithEmailAndPassword(email,pass)
+      .then(function(cred){
+        var user=cred.user;
+        return user.updateProfile({displayName:last+' '+first})
+          .then(function(){return createUserDoc(user,{lastName:last,firstName:first,marketingConsent:consMkt,provider:'email'});})
+          .then(function(){return user.sendEmailVerification();})
+          .then(function(){
+            showLoginSuccess(user, true);
+            showSuccess('reg-success','✅ 登録が完了しました！確認メールを '+email+' にお送りしました。\n※ 迷惑メールフォルダも確認してください。');
+            doRedirect();
+          });
+      })
+      .catch(function(err){
+        if(err.code==='auth/email-already-in-use'){
+          var el=document.getElementById('reg-error');
+          el.innerHTML='⚠️ このメールアドレスはすでに登録されています。<br><a href="#" id="goToLogin" style="color:#cc0000;text-decoration:underline;">ログイン画面へ →</a>';
+          el.style.display='block';
+          document.getElementById('goToLogin').addEventListener('click',function(e){
+            e.preventDefault();
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+            document.getElementById('login-email').value=document.getElementById('reg-email').value;
+          });
+        } else {
+          showError('reg-error',toJpError(err.code));
+        }
+      })
+      .finally(function(){setLoading('registerBtn',false);});
+  });
+
+  // ── PW リセット（専用パネル）──
+  document.getElementById('forgotPwLink').addEventListener('click', function(){
+    // ログインフォームを隠してリセットパネルを表示
+    document.getElementById('panel-login').querySelector('.auth-card').style.display='none';
+    var resetPanel=document.getElementById('resetPanel');
+    resetPanel.style.display='block';
+    // ログイン欄にメールが入力されていれば引き継ぐ
+    var existEmail=document.getElementById('login-email').value.trim();
+    if(existEmail) document.getElementById('reset-email').value=existEmail;
+    hideMsg('reset-error'); hideMsg('reset-success');
+    document.getElementById('resetFormArea').style.display='block';
+  });
+
+  document.getElementById('backToLogin').addEventListener('click', function(){
+    document.getElementById('resetPanel').style.display='none';
+    document.getElementById('panel-login').querySelector('.auth-card').style.display='block';
+  });
+
+  document.getElementById('resetSendBtn').addEventListener('click', function(){
+    hideMsg('reset-error');
+    var email=document.getElementById('reset-email').value.trim();
+    if(!email){showError('reset-error','メールアドレスを入力してください。');return;}
+    this.disabled=true; this.textContent='送信中...';
+    var btn=this;
+    auth.sendPasswordResetEmail(email)
+      .then(function(){
+        document.getElementById('resetFormArea').style.display='none';
+        var el=document.getElementById('reset-success');
+        el.innerHTML=
+          '✅ <strong>'+email+'</strong> にパスワード再設定メールを送信しました。<br><br>'+
+          '📧 メール内のリンクをクリックして、新しいパスワードを設定してください。<br>'+
+          '⚠️ メールが届かない場合は<strong>迷惑メールフォルダ</strong>もご確認ください。<br>'+
+          '※ リンクの有効期限は<strong>1時間</strong>です。';
+        el.style.display='block';
+      })
+      .catch(function(err){
+        showError('reset-error',toJpError(err.code));
+        btn.disabled=false; btn.textContent='リセットメールを送信';
+      });
+  });
+
+  // ── 注文履歴 ──
+  function getOrders() { return JSON.parse(localStorage.getItem('hinoka_orders')||'[]'); }
+
+  function renderOrders() {
+    var orders=getOrders();
+    var el=document.getElementById('orderHistoryList');
+    if(!orders.length){
+      el.innerHTML='<div class="order-empty">注文履歴がありません。<br><a href="store.html" style="color:var(--black);text-decoration:underline;">ショッピングを始める →</a></div>';
+      return;
+    }
+    el.innerHTML='';
+    orders.slice().reverse().forEach(function(o){
+      var isPending=o.paymentMethod&&o.paymentMethod.indexOf('振込')!==-1;
+      var div=document.createElement('div');
+      div.className='order-card';
+      var itemsHtml=(o.items||[]).map(function(item){
+        return '<div class="order-item-line"><span>'+item.name+(item.size?' ['+item.size+']':'')+'  ×'+item.qty+'</span><span>¥'+(item.price*item.qty).toLocaleString()+'</span></div>';
+      }).join('');
+      div.innerHTML=
+        '<div class="order-card-head">'+
+          '<span class="order-id">注文番号：'+o.ref+'</span>'+
+          '<span class="order-date">'+o.date+'</span>'+
+          '<span class="order-status'+(isPending?' pending':'')+'">'+( isPending?'振込待ち':'完了')+'</span>'+
+        '</div>'+
+        '<div class="order-items-list">'+itemsHtml+'</div>'+
+        '<div class="order-card-foot">'+
+          '<span class="order-method">'+o.paymentMethod+'</span>'+
+          '<span class="order-total">合計 ¥'+o.total.toLocaleString()+'（税込）</span>'+
+        '</div>';
+      el.appendChild(div);
+    });
+  }
+
+  // 最新注文をサマリーに表示
+  function renderRecentOrder() {
+    var orders=getOrders();
+    if(!orders.length) return;
+    var latest=orders[orders.length-1];
+    var sec=document.getElementById('recentOrderSection');
+    var cnt=document.getElementById('recentOrderContent');
+    sec.style.display='';
+    cnt.innerHTML=
+      '<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--gray-light);">'+
+        '<span>注文番号：'+latest.ref+'</span><span>'+latest.date+'</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 0 4px;">'+
+        '<span style="color:var(--gray-dark);">合計金額</span><span style="font-weight:500;">¥'+latest.total.toLocaleString()+'（税込）</span>'+
+      '</div>'+
+      '<div style="text-align:right;margin-top:8px;">'+
+        '<button onclick="switchDashTab(\'orders\')" style="font-size:11px;letter-spacing:0.1em;background:none;border:1px solid var(--black);padding:7px 16px;cursor:pointer;">注文履歴をすべて見る</button>'+
+      '</div>';
+  }
+
+  // ── ウィッシュリスト ──
+  function getWishlist(){ return JSON.parse(localStorage.getItem('hinoka_wishlist')||'[]'); }
+  function saveWishlist(l){ localStorage.setItem('hinoka_wishlist',JSON.stringify(l)); }
+
+  function renderWishlist(){
+    var grid=document.getElementById('wishlistGrid');
+    var wl=getWishlist();
+    var PMAP={};
+    (window.HINOKA_PRODUCTS||[]).forEach(function(p){PMAP[p.id]=p;});
+    grid.innerHTML='';
+    if(!wl.length){
+      grid.innerHTML='<div class="wish-empty" style="grid-column:1/-1;">ウィッシュリストは空です。<br><a href="store.html" style="color:var(--black);text-decoration:underline;">ショッピングを始める →</a></div>';
+      return;
+    }
+    wl.forEach(function(id){
+      var p=PMAP[id]; if(!p) return;
+      var img1=p.images?p.images[0]:(p.mainImg||'assets/images/placeholder.jpg');
+      var img2=p.images?(p.images[1]||p.images[0]):(p.subImg||img1);
+      var card=document.createElement('div');
+      card.className='wish-card';
+      card.innerHTML=
+        '<div class="wish-img-wrap">'+
+          '<img class="main-img" src="'+img1+'" alt="'+p.name+'" onerror="this.src=\'assets/images/placeholder.jpg\'">'+
+          '<img class="sub-img" src="'+img2+'" alt="'+p.name+'" onerror="this.src=\'assets/images/placeholder.jpg\'">'+
+          '<button class="wish-remove" data-id="'+id+'" title="削除">×</button>'+
+        '</div>'+
+        '<p class="wish-name">'+p.name+'</p>'+
+        '<p class="wish-price">¥'+p.price.toLocaleString()+'（税込）</p>'+
+        '<button class="wish-add-cart" data-id="'+id+'">カートに追加</button>';
+      card.querySelector('.wish-remove').addEventListener('click',function(e){
+        e.stopPropagation();
+        var l=getWishlist(); var i=l.indexOf(id); if(i!==-1)l.splice(i,1);
+        saveWishlist(l); renderWishlist();
+        document.getElementById('statWish').textContent=getWishlist().length;
+      });
+      card.querySelector('.wish-add-cart').addEventListener('click',function(e){
+        e.stopPropagation();
+        var items=JSON.parse(localStorage.getItem('cartItems')||'[]');
+        var found=items.find(function(i){return i.id===id;});
+        if(found){found.qty++;}else{items.push({id:id,name:p.name,price:p.price,img:img1,qty:1,color:'',size:''});}
+        localStorage.setItem('cartItems',JSON.stringify(items));
+        window.dispatchEvent(new Event('cartUpdated'));
+        showToast('カートに追加しました');
+      });
+      card.addEventListener('click',function(){location.href='product-detail.html?id='+id;});
+      grid.appendChild(card);
+    });
+  }
+
+  // ── ダッシュボード表示 ──
+  function showDashboard(user, isNewLogin) {
+    document.getElementById('loadingSection').style.display='none';
+    document.getElementById('authSection').style.display='none';
+    document.getElementById('dashSection').style.display='block';
+
+    var avatarEl=document.getElementById('dashAvatar');
+    if(user.photoURL){ avatarEl.innerHTML='<img src="'+user.photoURL+'" alt="">'; }
+    else{ avatarEl.textContent=(user.displayName||user.email||'H')[0].toUpperCase(); }
+
+    document.getElementById('dashName').textContent   = user.displayName||'ゲスト';
+    document.getElementById('dashEmail').textContent  = user.email||'';
+    document.getElementById('infoName').textContent   = user.displayName||'—';
+    document.getElementById('infoEmail').textContent  = user.email||'—';
+    document.getElementById('infoVerified').textContent = user.emailVerified ? '✅ 確認済み' : '⚠️ 未確認';
+
+    var provLabel={'google.com':'Google','line':'LINE','password':'メール / パスワード'};
+    var provIds=user.providerData.map(function(p){return p.providerId;});
+    document.getElementById('infoProvider').textContent = provIds.map(function(id){return provLabel[id]||id;}).join(', ')||'—';
+
+    var isEmail=provIds.indexOf('password')!==-1;
+    document.getElementById('changePwRow').style.display=isEmail?'':'none';
+    if(!user.emailVerified&&isEmail) document.getElementById('verifyBanner').classList.add('show');
+
+    // カウント
+    var wishCount=getWishlist().length;
+    var cartCount=(JSON.parse(localStorage.getItem('cartItems')||'[]')).reduce(function(s,i){return s+(i.qty||0);},0);
+    var orderCount=getOrders().length;
+    document.getElementById('statWish').textContent=wishCount;
+    document.getElementById('statCart').textContent=cartCount;
+    document.getElementById('statOrders').textContent=orderCount;
+
+    renderOrders();
+    renderWishlist();
+    renderRecentOrder();
+
+    // Firestore
+    db.collection('users').doc(user.uid).get().then(function(snap){
+      if(snap.exists){
+        var data=snap.data();
+        document.getElementById('infoDate').textContent = data.createdAt ? data.createdAt.toDate().toLocaleDateString('ja-JP') : '—';
+        var mkt=document.getElementById('marketingToggle');
+        mkt.checked=data.marketingConsent||false;
+        document.getElementById('marketingLabel').textContent=mkt.checked?'受信する':'受信しない';
+      }
+    }).catch(function(e){console.warn('Firestore:',e);});
+
+  }
+
+  // ── 各種ボタン ──
+  document.getElementById('marketingToggle').addEventListener('change',function(){
+    var user=auth.currentUser; if(!user) return;
+    db.collection('users').doc(user.uid).update({marketingConsent:this.checked})
+      .then(function(){showToast('設定を保存しました');})
+      .catch(function(){showToast('保存に失敗しました');});
+    document.getElementById('marketingLabel').textContent=this.checked?'受信する':'受信しない';
+  });
+  document.getElementById('changePwBtn').addEventListener('click',function(){
+    var user=auth.currentUser; if(!user||!user.email) return;
+    auth.sendPasswordResetEmail(user.email)
+      .then(function(){showToast(user.email+' にパスワード変更メールを送信しました');})
+      .catch(function(){showToast('送信に失敗しました');});
+  });
+  document.getElementById('resendVerifyBtn').addEventListener('click',function(){
+    var user=auth.currentUser; if(!user) return;
+    user.sendEmailVerification()
+      .then(function(){showToast('確認メールを再送信しました');})
+      .catch(function(){showToast('再送信に失敗しました');});
+  });
+  document.getElementById('logoutBtn').addEventListener('click',function(){
+    auth.signOut().then(function(){ window.dispatchEvent(new Event('hinoka_auth_logout')); });
+  });
+
+  // ── 認証フロー（メイン）──
+  // getRedirectResult が完了してから onAuthStateChanged を1つだけ登録するシンプル設計
+
+  function handleAuthState(user){
+    clearTimeout(_loadFallback);
+    if(user){
+      window.dispatchEvent(new Event('hinoka_auth_login'));
+      showDashboard(user, false);
+    } else {
+      window.dispatchEvent(new Event('hinoka_auth_logout'));
+      showLogin();
+      if(window._authErrMsg){ showError('login-error',window._authErrMsg); window._authErrMsg=null; }
+    }
+  }
+
+  // onAuthStateChanged を1つだけ登録してすべての認証状態を管理
+  auth.onAuthStateChanged(handleAuthState);
+
   </script>
 </body>
 </html>
