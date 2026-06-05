@@ -576,8 +576,12 @@
 
   // ── Google認証 ──
   function handleGoogleAuth() {
+    sessionStorage.setItem('google_redirect_pending', '1'); // ← リダイレクト前にフラグ設定
     auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
-      .catch(function(err){ showError('login-error', toJpError(err.code)); });
+      .catch(function(err){
+        sessionStorage.removeItem('google_redirect_pending');
+        showError('login-error', toJpError(err.code));
+      });
   }
   document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleAuth);
   document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleAuth);
@@ -850,51 +854,14 @@
   });
 
   // ── 認証フロー（メイン）──
-  var pendingRedirectUser = null;
-  var initialAuthDone = false;
+  // sessionStorage フラグで「Googleリダイレクト中かどうか」を確実に判別
+  var googleRedirectPending = sessionStorage.getItem('google_redirect_pending') === '1';
 
-  // getRedirectResult を先に開始（Googleリダイレクト結果を取得）
-  var redirectPromise = auth.getRedirectResult().then(function(result){
-    if(result && result.user){
-      pendingRedirectUser = result.user;
-      createUserDoc(result.user,{provider:'google',marketingConsent:false}).catch(function(){});
-      return result.user;
-    }
-    return null;
-  }).catch(function(err){
-    console.error('getRedirectResult error:', err.code, err.message);
-    if(err.code) window._authErrMsg = toJpError(err.code);
-    return null;
-  });
-
-  auth.onAuthStateChanged(function(user){
-    if(!initialAuthDone){
-      initialAuthDone = true;
-      clearTimeout(_loadFallback);
-
-      if(user){
-        // ログイン済み → 即ダッシュボード
-        window.dispatchEvent(new Event('hinoka_auth_login'));
-        showDashboard(user, false);
-        redirectPromise.then(function(ru){ if(ru) showDashboard(ru, true); });
-      } else {
-        // null → getRedirectResult 完了後に auth.currentUser も確認
-        redirectPromise.then(function(redirectUser){
-          var finalUser = redirectUser || auth.currentUser;
-          if(finalUser){
-            window.dispatchEvent(new Event('hinoka_auth_login'));
-            showDashboard(finalUser, !!redirectUser);
-          } else {
-            showLogin();
-            if(window._authErrMsg){
-              showError('login-error', window._authErrMsg);
-              window._authErrMsg = null;
-            }
-          }
-        });
-      }
-    } else {
-      // 2回目以降（ログイン・ログアウト）
+  function setupAuthListener() {
+    // ログイン・ログアウト後の継続的な状態監視
+    var firstCall = true;
+    auth.onAuthStateChanged(function(user){
+      if(firstCall){ firstCall=false; return; } // 初回は無視（初期化済みのため）
       if(user){
         window.dispatchEvent(new Event('hinoka_auth_login'));
         showDashboard(user, false);
@@ -902,8 +869,59 @@
         window.dispatchEvent(new Event('hinoka_auth_logout'));
         showLogin();
       }
-    }
-  });
+    });
+  }
+
+  if(googleRedirectPending){
+    // ── Googleリダイレクト後の処理 ──
+    // ローディング画面のまま getRedirectResult の完了を待つ
+    auth.getRedirectResult().then(function(result){
+      sessionStorage.removeItem('google_redirect_pending');
+      clearTimeout(_loadFallback);
+      if(result && result.user){
+        createUserDoc(result.user,{provider:'google',marketingConsent:false}).catch(function(){});
+        window.dispatchEvent(new Event('hinoka_auth_login'));
+        showDashboard(result.user, true); // isNewLogin=true → トースト通知
+        setupAuthListener();
+      } else {
+        showLogin();
+        showError('login-error','Googleログインがキャンセルされました。');
+        setupAuthListener();
+      }
+    }).catch(function(err){
+      sessionStorage.removeItem('google_redirect_pending');
+      clearTimeout(_loadFallback);
+      showLogin();
+      if(err.code) showError('login-error', toJpError(err.code));
+      setupAuthListener();
+    });
+
+  } else {
+    // ── 通常フロー（既存ログイン確認 or メールログイン）──
+    auth.onAuthStateChanged(function(user){
+      clearTimeout(_loadFallback);
+      if(user){
+        window.dispatchEvent(new Event('hinoka_auth_login'));
+        showDashboard(user, false);
+        // 以降のログアウトを監視
+        var skip=true;
+        auth.onAuthStateChanged(function(u){
+          if(skip){skip=false;return;}
+          if(!u){ window.dispatchEvent(new Event('hinoka_auth_logout')); showLogin(); }
+          else { showDashboard(u,false); }
+        });
+      } else {
+        showLogin();
+        // 以降のメールログイン成功を監視
+        var skip2=true;
+        auth.onAuthStateChanged(function(u){
+          if(skip2){skip2=false;return;}
+          if(u){ window.dispatchEvent(new Event('hinoka_auth_login')); showDashboard(u,false); }
+          else { window.dispatchEvent(new Event('hinoka_auth_logout')); showLogin(); }
+        });
+      }
+    });
+  }
 
   </script>
 </body>
