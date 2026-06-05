@@ -578,6 +578,24 @@
 
   <!-- Firebase + account ロジック（ES Modules） -->
   <script type="module">
+
+  // ── 読み込みタイムアウト（6秒で強制的にログイン画面表示） ──
+  function showAuthFallback(msg) {
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('authSection').style.display    = 'block';
+    if (msg) {
+      const d = document.createElement('div');
+      d.style.cssText = 'background:#fff8e1;border:1px solid #ffe082;color:#795548;font-size:11px;padding:10px 14px;margin-bottom:14px;line-height:1.8;';
+      d.innerHTML = '⚠️ ' + msg;
+      document.getElementById('panel-login').querySelector('.auth-card').prepend(d);
+    }
+  }
+  const initTimeout = setTimeout(() => {
+    if (document.getElementById('loadingSection').style.display !== 'none') {
+      showAuthFallback('読み込みに時間がかかっています。ページを再読み込みするか、しばらくお待ちください。');
+    }
+  }, 6000);
+
   try {
     const { auth, db } = await import('./js/firebase-config.js');
     const { sendWelcomeEmail } = await import('./js/brevo-mail.js');
@@ -766,7 +784,7 @@
     //
     // Cloud Function未設定の間は「準備中」として案内します。
     const LINE_CHANNEL_ID       = '2010269245';           // ← LINE ChannelID を入力
-    const LINE_CLOUD_FUNCTION_URL = '
+    const LINE_CLOUD_FUNCTION_URL = ' 
 https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         // ← Cloud Function URL を入力
 
     async function handleLINEAuth(errorDivId) {
@@ -1024,6 +1042,7 @@ https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         /
 
     // ── 認証状態監視（メイン） ────────────────────────────────
     onAuthStateChanged(auth, (user) => {
+      clearTimeout(initTimeout);
       if (user) {
         window.dispatchEvent(new Event('hinoka_auth_login'));
         showDashboard(user);
@@ -1038,13 +1057,9 @@ https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';         /
     handleLINECallback();
 
   } catch (err) {
+    clearTimeout(initTimeout);
     console.error('Account init error:', err);
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('authSection').style.display    = 'block';
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'background:#fff0f0;border:1px solid #ffd0d0;color:#bf0000;font-size:12px;padding:12px 16px;margin-bottom:16px;';
-    errDiv.textContent = '初期化エラー: ' + (err?.message || err);
-    document.getElementById('panel-login').querySelector('.auth-card').prepend(errDiv);
+    showAuthFallback('初期化エラー: ' + (err?.message || String(err)));
   }
   </script>
 </body>
