@@ -845,7 +845,7 @@
 
   // ── ウィッシュリスト ──
   function getWishlist(){ return JSON.parse(localStorage.getItem('hinoka_wishlist')||'[]'); }
-  function saveWishlist(l){ localStorage.setItem('hinoka_wishlist',JSON.stringify(l)); }
+  function saveWishlist(l){ localStorage.setItem('hinoka_wishlist',JSON.stringify(l)); window.dispatchEvent(new Event('wishlistUpdated')); if(window.hinokaSyncSave) window.hinokaSyncSave(); }
 
   function renderWishlist(){
     var grid=document.getElementById('wishlistGrid');
