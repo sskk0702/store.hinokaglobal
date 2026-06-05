@@ -636,8 +636,17 @@
 
   // ── Google認証 ──
   function handleGoogleAuth() {
-    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
-      .catch(function(err){ showError('login-error', toJpError(err.code)); });
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .then(function(result){
+        if(!result.user) return;
+        createUserDoc(result.user,{provider:'google',marketingConsent:false})
+          .then(function(r){ showLoginSuccess(result.user, r&&r.isNew); })
+          .catch(function(){ showLoginSuccess(result.user, false); });
+      })
+      .catch(function(err){
+        if(err.code==='auth/popup-closed-by-user'||err.code==='auth/cancelled-popup-request') return;
+        showError('login-error', toJpError(err.code));
+      });
   }
   document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleAuth);
   document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleAuth);
@@ -971,20 +980,8 @@
     }
   }
 
-  auth.getRedirectResult().then(function(result){
-    if(result && result.user){
-      // Google リダイレクトログイン成功 → 先にダッシュボードを表示し、isNew を確認
-      showDashboard(result.user, false);
-      createUserDoc(result.user,{provider:'google',marketingConsent:false})
-        .then(function(r){ showLoginSuccess(result.user, r&&r.isNew); })
-        .catch(function(){ showLoginSuccess(result.user, false); });
-    }
-    // getRedirectResult 完了後にリスナーを1つだけ登録
-    auth.onAuthStateChanged(handleAuthState);
-  }).catch(function(err){
-    if(err.code) window._authErrMsg = toJpError(err.code);
-    auth.onAuthStateChanged(handleAuthState);
-  });
+  // onAuthStateChanged を1つだけ登録してすべての認証状態を管理
+  auth.onAuthStateChanged(handleAuthState);
 
   </script>
 </body>
