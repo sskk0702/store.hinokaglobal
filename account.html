@@ -9,311 +9,160 @@
   <style>
     body { padding-top: var(--nav-height); background: #f8f8f6; }
 
-    .account-wrap {
-      max-width: 500px; margin: 56px auto;
-      padding: 0 20px 80px;
-    }
-
-    /* ローディング */
-    .auth-loading {
-      text-align: center; padding: 80px 0;
-      font-size: 13px; color: var(--gray-dark);
-      letter-spacing: 0.1em;
-    }
-    .spinner {
-      width: 32px; height: 32px; margin: 0 auto 20px;
-      border: 2px solid var(--gray-light);
-      border-top-color: var(--black);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    /* ── ローディング ── */
+    .auth-loading { text-align: center; padding: 120px 0; font-size: 13px; color: var(--gray-dark); letter-spacing: 0.1em; }
+    .spinner { width: 32px; height: 32px; margin: 0 auto 20px; border: 2px solid var(--gray-light); border-top-color: var(--black); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* タイトル */
-    .account-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 28px; font-weight: 400;
-      letter-spacing: 0.15em; text-align: center; margin-bottom: 6px;
-    }
-    .account-sub {
-      text-align: center; font-size: 12px;
-      color: var(--gray-dark); letter-spacing: 0.05em; margin-bottom: 36px;
-    }
+    /* ── 認証フォーム ── */
+    .auth-wrap { max-width: 500px; margin: 56px auto; padding: 0 20px 80px; }
+    .account-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; letter-spacing: 0.15em; text-align: center; margin-bottom: 6px; }
+    .account-sub { text-align: center; font-size: 12px; color: var(--gray-dark); letter-spacing: 0.05em; margin-bottom: 36px; }
 
-    /* タブ */
-    .auth-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--gray-mid); margin-bottom: 28px;
-    }
-    .auth-tab {
-      flex: 1; padding: 12px; text-align: center;
-      font-size: 12px; letter-spacing: 0.1em;
-      cursor: pointer; background: none; border: none;
-      color: var(--gray-dark); font-family: inherit;
-      border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
-    }
+    .auth-tabs { display: flex; border-bottom: 1px solid var(--gray-mid); margin-bottom: 28px; }
+    .auth-tab { flex: 1; padding: 12px; text-align: center; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; background: none; border: none; color: var(--gray-dark); font-family: inherit; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; }
     .auth-tab.active { color: var(--black); border-bottom-color: var(--black); }
-
     .auth-panel { display: none; }
     .auth-panel.active { display: block; }
 
-    /* カード */
     .auth-card { background: var(--white); padding: 32px; }
-
-    /* フォーム */
     .form-group { margin-bottom: 18px; }
-    .form-label {
-      display: block; font-size: 11px;
-      letter-spacing: 0.12em; color: var(--gray-dark); margin-bottom: 6px;
-    }
-    .form-input {
-      width: 100%; border: 1px solid var(--gray-mid);
-      padding: 12px 14px; font-size: 13px;
-      font-family: inherit; outline: none;
-      transition: border-color 0.2s; background: var(--white);
-      box-sizing: border-box;
-    }
+    .form-label { display: block; font-size: 11px; letter-spacing: 0.12em; color: var(--gray-dark); margin-bottom: 6px; }
+    .form-input { width: 100%; border: 1px solid var(--gray-mid); padding: 12px 14px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; background: var(--white); box-sizing: border-box; }
     .form-input:focus { border-color: var(--black); }
-
-    /* パスワード入力ラッパー */
     .pw-wrap { position: relative; }
     .pw-wrap .form-input { padding-right: 42px; }
-    .pw-toggle {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; padding: 4px;
-      color: var(--gray-dark); line-height: 1;
-    }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--gray-dark); line-height: 1; }
     .pw-toggle:hover { color: var(--black); }
-
     .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    /* 同意チェックボックス */
-    .consent-box {
-      background: #fafaf8; border: 1px solid #e8e4df;
-      padding: 16px; margin-bottom: 18px; font-size: 11px;
-      color: var(--gray-dark); line-height: 1.9;
-    }
-    .consent-box label {
-      display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
-    }
-    .consent-box input[type="checkbox"] {
-      margin-top: 2px; flex-shrink: 0;
-      accent-color: var(--black);
-      width: 14px; height: 14px;
-    }
+    .consent-box { background: #fafaf8; border: 1px solid #e8e4df; padding: 16px; margin-bottom: 18px; font-size: 11px; color: var(--gray-dark); line-height: 1.9; }
+    .consent-box label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .consent-box input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--black); width: 14px; height: 14px; }
     .consent-box a { color: var(--black); text-decoration: underline; }
-
-    /* ボタン */
-    .auth-btn {
-      width: 100%; padding: 15px;
-      background: var(--black); color: var(--white);
-      font-size: 12px; letter-spacing: 0.2em;
-      border: none; cursor: pointer; font-family: inherit;
-      transition: background var(--transition);
-    }
+    .auth-btn { width: 100%; padding: 15px; background: var(--black); color: var(--white); font-size: 12px; letter-spacing: 0.2em; border: none; cursor: pointer; font-family: inherit; transition: background var(--transition); }
     .auth-btn:hover:not(:disabled) { background: #222; }
     .auth-btn:disabled { background: #aaa; cursor: not-allowed; }
-
-    /* ソーシャルログイン */
-    .social-divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 20px 0; font-size: 11px; color: var(--gray-dark);
-    }
-    .social-divider::before,
-    .social-divider::after {
-      content: ''; flex: 1; border-top: 1px solid var(--gray-light);
-    }
-
+    .social-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; font-size: 11px; color: var(--gray-dark); }
+    .social-divider::before, .social-divider::after { content: ''; flex: 1; border-top: 1px solid var(--gray-light); }
     .social-btns { display: flex; flex-direction: column; gap: 10px; }
-
-    .social-btn {
-      width: 100%; padding: 13px;
-      font-size: 13px; font-family: inherit;
-      cursor: pointer; display: flex;
-      align-items: center; justify-content: center; gap: 10px;
-      transition: background var(--transition), border-color var(--transition);
-      border: 1px solid var(--gray-mid);
-    }
-
-    /* Google */
-    .google-btn {
-      background: var(--white); color: #444;
-    }
+    .social-btn { width: 100%; padding: 13px; font-size: 13px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background var(--transition), border-color var(--transition); border: 1px solid var(--gray-mid); }
+    .google-btn { background: var(--white); color: #444; }
     .google-btn:hover { background: #f5f5f5; border-color: #aaa; }
-
-    /* LINE（準備中） */
-    .line-btn {
-      background: #f0f0f0; color: #999;
-      border-color: #e0e0e0; cursor: not-allowed; opacity: 0.6;
-      position: relative;
-    }
-    .line-btn .coming-badge {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      font-size: 9px; letter-spacing: 0.08em;
-      background: #ccc; color: #666;
-      padding: 2px 6px; border-radius: 2px;
-    }
-
-    /* ソーシャルログイン説明 */
-    .social-note {
-      font-size: 10px; color: var(--gray-dark);
-      text-align: center; margin-bottom: 14px;
-      letter-spacing: 0.04em; line-height: 1.7;
-    }
-
-    /* パスワード強度 */
-    .pw-strength {
-      display: flex; gap: 4px; margin-top: 6px;
-    }
-    .pw-bar {
-      height: 3px; flex: 1; background: var(--gray-light);
-      transition: background 0.3s;
-    }
-    .pw-bar.weak   { background: #e53e3e; }
+    .line-btn { background: #f0f0f0; color: #999; border-color: #e0e0e0; cursor: not-allowed; opacity: 0.6; position: relative; }
+    .line-btn .coming-badge { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 9px; letter-spacing: 0.08em; background: #ccc; color: #666; padding: 2px 6px; border-radius: 2px; }
+    .social-note { font-size: 10px; color: var(--gray-dark); text-align: center; margin-bottom: 14px; letter-spacing: 0.04em; line-height: 1.7; }
+    .pw-strength { display: flex; gap: 4px; margin-top: 6px; }
+    .pw-bar { height: 3px; flex: 1; background: var(--gray-light); transition: background 0.3s; }
+    .pw-bar.weak { background: #e53e3e; }
     .pw-bar.medium { background: #f6c90e; }
     .pw-bar.strong { background: #38a169; }
-    .pw-strength-label {
-      font-size: 10px; color: var(--gray-dark); margin-top: 4px;
-    }
-
-    /* メッセージ */
-    .msg-error {
-      background: #fff0f0; border: 1px solid #ffcccc;
-      color: #cc0000; font-size: 12px;
-      padding: 12px 14px; margin-bottom: 16px; display: none;
-      line-height: 1.7;
-    }
-    .msg-success {
-      background: #f0fff4; border: 1px solid #9ae6b4;
-      color: #276749; font-size: 12px;
-      padding: 12px 14px; margin-bottom: 16px; display: none;
-      line-height: 1.7; white-space: pre-line;
-    }
-    .auth-note {
-      text-align: center; font-size: 11px;
-      color: var(--gray-dark); margin-top: 14px; line-height: 1.9;
-    }
+    .pw-strength-label { font-size: 10px; color: var(--gray-dark); margin-top: 4px; }
+    .msg-error { background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000; font-size: 12px; padding: 12px 14px; margin-bottom: 16px; display: none; line-height: 1.7; }
+    .msg-success { background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; font-size: 12px; padding: 12px 14px; margin-bottom: 16px; display: none; line-height: 1.7; white-space: pre-line; }
+    .auth-note { text-align: center; font-size: 11px; color: var(--gray-dark); margin-top: 14px; line-height: 1.9; }
     .auth-note a { color: var(--black); text-decoration: underline; cursor: pointer; }
 
-    /* ══ ダッシュボード ══ */
-    .dashboard { display: none; }
+    /* ── ダッシュボード ── */
+    .dashboard { display: none; max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
 
-    .dash-header {
+    .dash-profile-card {
       background: var(--white); padding: 24px 28px;
-      margin-bottom: 12px;
       display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .dash-avatar {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: var(--black); color: var(--white);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px; font-weight: 400; flex-shrink: 0;
-      overflow: hidden;
-    }
+    .dash-profile-left { display: flex; align-items: center; gap: 16px; }
+    .dash-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--black); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; flex-shrink: 0; overflow: hidden; }
     .dash-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .dash-name-wrap { margin-left: 14px; flex: 1; }
-    .dash-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px; letter-spacing: 0.08em;
-    }
-    .dash-email { font-size: 11px; color: var(--gray-dark); margin-top: 2px; }
-
-    .logout-btn {
-      font-size: 11px; letter-spacing: 0.1em;
-      color: var(--gray-dark); cursor: pointer;
-      border: 1px solid var(--gray-mid); padding: 8px 14px;
-      background: none; font-family: inherit;
-      transition: border-color var(--transition), color var(--transition);
-      white-space: nowrap;
-    }
+    .dash-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: 0.08em; }
+    .dash-email { font-size: 11px; color: var(--gray-dark); margin-top: 3px; }
+    .logout-btn { font-size: 11px; letter-spacing: 0.1em; color: var(--gray-dark); cursor: pointer; border: 1px solid var(--gray-mid); padding: 8px 16px; background: none; font-family: inherit; transition: border-color var(--transition), color var(--transition); white-space: nowrap; }
     .logout-btn:hover { border-color: var(--black); color: var(--black); }
 
-    /* ステータスカード */
-    .dash-cards {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 12px;
-    }
-    .dash-card {
-      background: var(--white); padding: 20px;
-      text-align: center; cursor: pointer;
-      transition: box-shadow var(--transition);
-    }
-    .dash-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
-    .dash-card-icon  { font-size: 26px; margin-bottom: 8px; }
-    .dash-card-label { font-size: 11px; color: var(--gray-dark); letter-spacing: 0.08em; }
-    .dash-card-count {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 28px; margin-top: 4px;
-    }
+    .verify-banner { background: #fff8e1; border: 1px solid #ffe082; color: #f57c00; padding: 12px 16px; font-size: 12px; line-height: 1.8; margin-bottom: 16px; display: none; align-items: center; gap: 10px; }
+    .verify-banner.show { display: flex; }
+    .verify-banner button { margin-left: auto; white-space: nowrap; font-size: 11px; padding: 6px 12px; border: 1px solid #f57c00; background: none; color: #f57c00; cursor: pointer; font-family: inherit; }
 
-    /* 情報セクション */
-    .dash-section {
-      background: var(--white); padding: 24px 28px; margin-bottom: 10px;
-    }
-    .dash-section h4 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 16px; letter-spacing: 0.1em; margin-bottom: 16px;
-      padding-bottom: 10px; border-bottom: 1px solid var(--gray-light);
-    }
-    .info-row {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 12px; padding: 10px 0;
-      border-bottom: 1px solid var(--gray-light); letter-spacing: 0.03em;
-    }
+    /* ダッシュボードタブ */
+    .dash-tabs { display: flex; background: var(--white); border-bottom: 1px solid var(--gray-light); margin-bottom: 16px; overflow-x: auto; }
+    .dash-tab { padding: 14px 20px; font-size: 12px; letter-spacing: 0.08em; cursor: pointer; background: none; border: none; color: var(--gray-dark); font-family: inherit; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; white-space: nowrap; flex-shrink: 0; }
+    .dash-tab.active { color: var(--black); border-bottom-color: var(--black); }
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; }
+
+    /* 概要 */
+    .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--white); padding: 22px 20px; text-align: center; cursor: pointer; transition: box-shadow var(--transition); }
+    .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .stat-icon { font-size: 28px; margin-bottom: 8px; }
+    .stat-label { font-size: 11px; color: var(--gray-dark); letter-spacing: 0.08em; margin-bottom: 4px; }
+    .stat-count { font-family: 'Cormorant Garamond', serif; font-size: 32px; }
+
+    /* セクション共通 */
+    .dash-section { background: var(--white); padding: 24px 28px; margin-bottom: 12px; }
+    .dash-section h4 { font-family: 'Cormorant Garamond', serif; font-size: 16px; letter-spacing: 0.1em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-light); }
+
+    /* 注文履歴 */
+    .order-empty { text-align: center; padding: 60px 20px; color: var(--gray-dark); font-size: 13px; }
+    .order-card { border: 1px solid var(--gray-light); margin-bottom: 14px; }
+    .order-card-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #fafaf8; border-bottom: 1px solid var(--gray-light); flex-wrap: wrap; gap: 8px; }
+    .order-id { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; }
+    .order-date { font-size: 11px; color: var(--gray-dark); }
+    .order-status { font-size: 10px; letter-spacing: 0.08em; padding: 3px 10px; background: #e8f4e8; color: #2d7a2d; }
+    .order-status.pending { background: #fff8e1; color: #b45309; }
+    .order-items-list { padding: 14px 18px; }
+    .order-item-line { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--gray-light); }
+    .order-item-line:last-child { border-bottom: none; }
+    .order-card-foot { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-top: 1px solid var(--gray-light); background: #fafaf8; flex-wrap: wrap; gap: 8px; }
+    .order-total { font-size: 14px; font-weight: 500; }
+    .order-method { font-size: 11px; color: var(--gray-dark); }
+
+    /* ウィッシュリスト */
+    .wish-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px 16px; }
+    .wish-card { cursor: pointer; }
+    .wish-img-wrap { position: relative; overflow: hidden; aspect-ratio: 3/4; background: var(--gray-light); margin-bottom: 10px; }
+    .wish-img-wrap img { position: absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.35s; }
+    .wish-img-wrap .main-img { opacity:1; }
+    .wish-img-wrap .sub-img  { opacity:0; }
+    .wish-card:hover .main-img { opacity:0; }
+    .wish-card:hover .sub-img  { opacity:1; }
+    .wish-remove { position:absolute; top:8px; right:8px; z-index:2; background:rgba(255,255,255,0.9); border:none; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; transition:background var(--transition); }
+    .wish-remove:hover { background:var(--black); color:var(--white); }
+    .wish-name { font-size: 12px; letter-spacing: 0.04em; margin-bottom: 3px; }
+    .wish-price { font-size: 12px; color: var(--gray-dark); margin-bottom: 8px; }
+    .wish-add-cart { width:100%; padding:9px; border:1px solid var(--black); font-size:10px; letter-spacing:0.12em; background:none; cursor:pointer; transition:background var(--transition),color var(--transition); }
+    .wish-add-cart:hover { background:var(--black); color:var(--white); }
+    .wish-empty { text-align:center; padding:60px 20px; color:var(--gray-dark); font-size:13px; }
+
+    /* アカウント設定 */
+    .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 12px 0; border-bottom: 1px solid var(--gray-light); letter-spacing: 0.03em; }
     .info-row:last-child { border-bottom: none; }
-    .info-row span:first-child { color: var(--gray-dark); }
-
-    /* パスワード変更 */
-    .change-pw-btn {
-      font-size: 11px; letter-spacing: 0.1em;
-      color: var(--gray-dark); cursor: pointer;
-      text-decoration: underline; background: none;
-      border: none; font-family: inherit; padding: 0;
-      transition: color var(--transition);
-    }
+    .info-row span:first-child { color: var(--gray-dark); min-width: 100px; }
+    .change-pw-btn { font-size: 11px; letter-spacing: 0.1em; color: var(--gray-dark); cursor: pointer; text-decoration: underline; background: none; border: none; font-family: inherit; padding: 0; transition: color var(--transition); }
     .change-pw-btn:hover { color: var(--black); }
 
-    /* メール確認バナー */
-    .verify-banner {
-      background: #fff8e1; border: 1px solid #ffe082;
-      color: #f57c00; padding: 12px 16px;
-      font-size: 12px; line-height: 1.8;
-      margin-bottom: 12px; display: none;
-      align-items: center; gap: 10px;
-    }
-    .verify-banner.show { display: flex; }
-    .verify-banner button {
-      margin-left: auto; white-space: nowrap;
-      font-size: 11px; padding: 6px 12px;
-      border: 1px solid #f57c00; background: none;
-      color: #f57c00; cursor: pointer; font-family: inherit;
-    }
-
-    /* ダッシュボード内トースト通知 */
-    .dash-toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--black); color: var(--white);
-      font-size: 12px; padding: 12px 24px; letter-spacing: 0.05em;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s; z-index: 9999; white-space: nowrap;
-    }
+    /* トースト */
+    .dash-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: var(--white); font-size: 12px; padding: 12px 28px; letter-spacing: 0.06em; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999; white-space: nowrap; }
     .dash-toast.show { opacity: 1; pointer-events: auto; }
 
-    @media (max-width: 480px) {
-      .account-wrap { padding: 0 12px 60px; margin-top: 36px; }
-      .auth-card { padding: 24px 18px; }
-      .dash-header { padding: 18px 16px; }
+    @media (max-width: 640px) {
+      .auth-wrap { padding: 0 12px 60px; margin-top: 32px; }
+      .auth-card { padding: 22px 16px; }
+      .dashboard { padding: 0 12px 60px; }
+      .dash-profile-card { flex-direction: column; align-items: flex-start; gap: 14px; }
       .dash-section { padding: 18px; }
+      .stat-cards { grid-template-columns: repeat(3,1fr); gap: 8px; }
+      .stat-card { padding: 16px 10px; }
+      .stat-count { font-size: 24px; }
+      .wish-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
       .form-row-2 { grid-template-columns: 1fr; }
+      .order-card-head { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
   <!-- ローディング -->
-  <div class="account-wrap" id="loadingSection">
+  <div id="loadingSection">
     <div class="auth-loading">
       <div class="spinner"></div>
       読み込み中...
@@ -321,7 +170,7 @@
   </div>
 
   <!-- 未ログイン：認証フォーム -->
-  <div class="account-wrap" id="authSection" style="display:none;">
+  <div class="auth-wrap" id="authSection" style="display:none;">
     <h1 class="account-title">マイアカウント</h1>
     <p class="account-sub">ログインまたは新規登録してください</p>
 
@@ -335,30 +184,19 @@
       <div class="auth-card">
         <div class="msg-error" id="login-error"></div>
         <div class="msg-success" id="login-success"></div>
-
-        <!-- ソーシャルログイン -->
         <p class="social-note">Googleアカウントでかんたんログイン</p>
         <div class="social-btns">
           <button class="social-btn google-btn" id="googleLoginBtn">
-            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-              <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/>
-              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/>
-              <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/>
-            </svg>
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
             Googleでログイン
           </button>
           <button class="social-btn line-btn" id="lineLoginBtn" disabled>
-            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
-              <path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor"><path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/></svg>
             LINEでログイン
             <span class="coming-badge">準備中</span>
           </button>
         </div>
-
         <div class="social-divider">または</div>
-
         <div class="form-group">
           <label class="form-label" for="login-email">メールアドレス</label>
           <input type="email" class="form-input" id="login-email" placeholder="example@email.com" autocomplete="email">
@@ -367,48 +205,32 @@
           <label class="form-label" for="login-pass">パスワード</label>
           <div class="pw-wrap">
             <input type="password" class="form-input" id="login-pass" placeholder="パスワードを入力" autocomplete="current-password">
-            <button type="button" class="pw-toggle" data-target="login-pass" aria-label="パスワードを表示">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+            <button type="button" class="pw-toggle" data-target="login-pass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
         <button class="auth-btn" id="loginBtn">ログイン</button>
-        <p class="auth-note">
-          パスワードをお忘れの方は
-          <a id="forgotPwLink">こちら</a>
-        </p>
+        <p class="auth-note">パスワードをお忘れの方は <a id="forgotPwLink">こちら</a></p>
       </div>
     </div>
 
     <!-- 新規登録 -->
     <div class="auth-panel" id="panel-register">
       <div class="auth-card">
-        <div class="msg-error"   id="reg-error"></div>
+        <div class="msg-error" id="reg-error"></div>
         <div class="msg-success" id="reg-success"></div>
-
-        <!-- ソーシャル登録 -->
         <p class="social-note">Googleアカウントでかんたん登録</p>
         <div class="social-btns">
           <button class="social-btn google-btn" id="googleRegisterBtn">
-            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-              <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/>
-              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/>
-              <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/>
-            </svg>
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
             Googleで登録
           </button>
           <button class="social-btn line-btn" id="lineRegisterBtn" disabled>
-            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor">
-              <path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 40 40" aria-hidden="true" fill="currentColor"><path d="M20 4C11.163 4 4 10.028 4 17.46c0 6.627 5.88 12.183 13.815 13.27.538.116 1.271.355 1.457.816.166.418.109 1.073.053 1.496l-.235 1.41c-.072.418-.33 1.638 1.434.892 1.763-.746 9.508-5.597 12.972-9.578C35.752 23.258 36 20.432 36 17.46 36 10.028 28.837 4 20 4z"/></svg>
             LINEで登録
             <span class="coming-badge">準備中</span>
           </button>
         </div>
-
         <div class="social-divider">または</div>
-
         <div class="form-row-2">
           <div class="form-group">
             <label class="form-label" for="reg-last">姓</label>
@@ -427,9 +249,7 @@
           <label class="form-label" for="reg-pass">パスワード（8文字以上）</label>
           <div class="pw-wrap">
             <input type="password" class="form-input" id="reg-pass" placeholder="パスワードを設定" autocomplete="new-password">
-            <button type="button" class="pw-toggle" data-target="reg-pass" aria-label="パスワードを表示">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+            <button type="button" class="pw-toggle" data-target="reg-pass"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
           <div class="pw-strength">
             <div class="pw-bar" id="pwBar1"></div>
@@ -442,35 +262,30 @@
           <label class="form-label" for="reg-pass2">パスワード（確認）</label>
           <div class="pw-wrap">
             <input type="password" class="form-input" id="reg-pass2" placeholder="パスワードを再入力" autocomplete="new-password">
-            <button type="button" class="pw-toggle" data-target="reg-pass2" aria-label="パスワードを表示">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
+            <button type="button" class="pw-toggle" data-target="reg-pass2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
-
-        <!-- 特定電子メール法・個人情報保護法対応 -->
         <div class="consent-box">
           <label>
             <input type="checkbox" id="consentMarketing">
-            <span>HINOKAからのメールマガジン（新商品・セール情報等）の受信に同意します。
-            いつでも配信停止できます。</span>
+            <span>HINOKAからのメールマガジン（新商品・セール情報等）の受信に同意します。いつでも配信停止できます。</span>
           </label>
         </div>
         <div class="consent-box" style="margin-top:-12px;">
           <label>
             <input type="checkbox" id="consentPrivacy" required>
-            <span><a href="legal.html#privacy" target="_blank">プライバシーノーティス</a>および
-            <a href="legal.html#terms" target="_blank">利用規約</a>に同意します。<span style="color:#cc0000;">*</span></span>
+            <span><a href="legal.html#privacy" target="_blank">プライバシーポリシー</a>および<a href="legal.html#terms" target="_blank">利用規約</a>に同意します。<span style="color:#cc0000;">*</span></span>
           </label>
         </div>
-
         <button class="auth-btn" id="registerBtn">アカウントを作成</button>
       </div>
     </div>
   </div>
 
   <!-- ログイン済み：ダッシュボード -->
-  <div class="account-wrap dashboard" id="dashSection">
+  <div class="dashboard" id="dashSection">
+
+    <div style="padding-top:32px;"></div>
 
     <!-- メール未確認バナー -->
     <div class="verify-banner" id="verifyBanner">
@@ -478,63 +293,111 @@
       <button id="resendVerifyBtn">再送信</button>
     </div>
 
-    <div class="dash-header">
-      <div style="display:flex;align-items:center;gap:0;">
+    <!-- プロフィールカード -->
+    <div class="dash-profile-card">
+      <div class="dash-profile-left">
         <div class="dash-avatar" id="dashAvatar">H</div>
-        <div class="dash-name-wrap">
-          <div class="dash-name" id="dashName">お名前</div>
-          <div class="dash-email" id="dashEmail"></div>
+        <div>
+          <div class="dash-name" id="dashName">—</div>
+          <div class="dash-email" id="dashEmail">—</div>
         </div>
       </div>
       <button class="logout-btn" id="logoutBtn">ログアウト</button>
     </div>
 
-    <div class="dash-cards">
-      <div class="dash-card" onclick="location.href='wishlist.html'">
-        <div class="dash-card-icon">❤️</div>
-        <div class="dash-card-label">ウィッシュリスト</div>
-        <div class="dash-card-count" id="dashWishCount">—</div>
+    <!-- タブナビ -->
+    <div class="dash-tabs">
+      <button class="dash-tab active" data-panel="overview">概要</button>
+      <button class="dash-tab" data-panel="orders">注文履歴</button>
+      <button class="dash-tab" data-panel="wishlist">ウィッシュリスト</button>
+      <button class="dash-tab" data-panel="settings">アカウント設定</button>
+    </div>
+
+    <!-- 概要タブ -->
+    <div class="dash-panel active" id="panel-overview">
+      <div class="stat-cards">
+        <div class="stat-card" onclick="switchDashTab('orders')">
+          <div class="stat-icon">📦</div>
+          <div class="stat-label">注文履歴</div>
+          <div class="stat-count" id="statOrders">0</div>
+        </div>
+        <div class="stat-card" onclick="switchDashTab('wishlist')">
+          <div class="stat-icon">❤️</div>
+          <div class="stat-label">ウィッシュリスト</div>
+          <div class="stat-count" id="statWish">0</div>
+        </div>
+        <div class="stat-card" onclick="location.href='cart.html'">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-label">カート</div>
+          <div class="stat-count" id="statCart">0</div>
+        </div>
       </div>
-      <div class="dash-card" onclick="location.href='cart.html'">
-        <div class="dash-card-icon">🛒</div>
-        <div class="dash-card-label">カート</div>
-        <div class="dash-card-count" id="dashCartCount">—</div>
+
+      <div class="dash-section" id="recentOrderSection" style="display:none;">
+        <h4>最新の注文</h4>
+        <div id="recentOrderContent"></div>
+      </div>
+
+      <div class="dash-section">
+        <h4>クイックリンク</h4>
+        <div class="info-row"><span></span><a href="store.html" style="font-size:12px;color:var(--black);">🛍 ショッピングを始める</a></div>
+        <div class="info-row"><span></span><a href="wishlist.html" style="font-size:12px;color:var(--black);">❤️ ウィッシュリストを見る</a></div>
+        <div class="info-row"><span></span><a href="cart.html" style="font-size:12px;color:var(--black);">🛒 カートを確認する</a></div>
+        <div class="info-row"><span></span><a href="legal.html#shipping" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">配送・返品ポリシー</a></div>
       </div>
     </div>
 
-    <div class="dash-section">
-      <h4>アカウント情報</h4>
-      <div class="info-row"><span>お名前</span><span id="infoName">—</span></div>
-      <div class="info-row"><span>メールアドレス</span><span id="infoEmail">—</span></div>
-      <div class="info-row"><span>登録日</span><span id="infoDate">—</span></div>
-      <div class="info-row"><span>ログイン方法</span><span id="infoProvider">—</span></div>
-      <div class="info-row"><span>メール確認</span><span id="infoVerified">—</span></div>
-      <div class="info-row" id="changePwRow">
-        <span>パスワード</span>
-        <button class="change-pw-btn" id="changePwBtn">変更メールを送信</button>
+    <!-- 注文履歴タブ -->
+    <div class="dash-panel" id="panel-orders">
+      <div class="dash-section">
+        <h4>注文履歴</h4>
+        <div id="orderHistoryList"></div>
       </div>
     </div>
 
-    <div class="dash-section">
-      <h4>メール設定</h4>
-      <div class="info-row">
-        <span>マーケティングメール</span>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-          <input type="checkbox" id="marketingToggle" style="accent-color:var(--black);">
-          <span style="font-size:12px;" id="marketingLabel">受信する</span>
-        </label>
+    <!-- ウィッシュリストタブ -->
+    <div class="dash-panel" id="panel-wishlist">
+      <div class="dash-section">
+        <h4>ウィッシュリスト</h4>
+        <div class="wish-grid" id="wishlistGrid"></div>
       </div>
     </div>
 
-    <div class="dash-section">
-      <h4>リンク</h4>
-      <div class="info-row"><span></span><a href="legal.html#terms"    style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">利用規約</a></div>
-      <div class="info-row"><span></span><a href="legal.html#privacy"  style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">プライバシーノーティス</a></div>
-      <div class="info-row"><span></span><a href="../index.html"        style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">← 会社サイトへ戻る</a></div>
-    </div>
-  </div>
+    <!-- アカウント設定タブ -->
+    <div class="dash-panel" id="panel-settings">
+      <div class="dash-section">
+        <h4>プロフィール</h4>
+        <div class="info-row"><span>お名前</span><span id="infoName">—</span></div>
+        <div class="info-row"><span>メールアドレス</span><span id="infoEmail">—</span></div>
+        <div class="info-row"><span>登録日</span><span id="infoDate">—</span></div>
+        <div class="info-row"><span>ログイン方法</span><span id="infoProvider">—</span></div>
+        <div class="info-row"><span>メール確認</span><span id="infoVerified">—</span></div>
+        <div class="info-row" id="changePwRow">
+          <span>パスワード</span>
+          <button class="change-pw-btn" id="changePwBtn">変更メールを送信</button>
+        </div>
+      </div>
 
-  <!-- トースト通知 -->
+      <div class="dash-section">
+        <h4>メール設定</h4>
+        <div class="info-row">
+          <span>マーケティングメール</span>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="marketingToggle" style="accent-color:var(--black);">
+            <span style="font-size:12px;" id="marketingLabel">受信する</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dash-section">
+        <h4>リンク</h4>
+        <div class="info-row"><span></span><a href="legal.html#terms" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">利用規約</a></div>
+        <div class="info-row"><span></span><a href="legal.html#privacy" style="font-size:12px;color:var(--gray-dark);text-decoration:underline;">プライバシーポリシー</a></div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+
   <div class="dash-toast" id="dashToast"></div>
 
   <footer class="store-footer">
@@ -570,388 +433,440 @@
     </div>
     <div class="store-footer-bottom">
       <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
-      <span class="footer-shipping-badge"></span>
     </div>
   </footer>
 
   <script src="js/nav.js"></script>
-
-  <!-- Firebase compat CDN -->
+  <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
   <script>
-  // Firebase初期化
-  const firebaseConfig = {
+  firebase.initializeApp({
     apiKey:            'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
     authDomain:        'hinoka-0304.firebaseapp.com',
     projectId:         'hinoka-0304',
     storageBucket:     'hinoka-0304.firebasestorage.app',
     messagingSenderId: '275098198657',
     appId:             '1:275098198657:web:d9b11ff1086c972ac6e380'
+  });
+  var auth = firebase.auth();
+  var db   = firebase.firestore();
+
+  var LINE_CHANNEL_ID        = '2010269245';
+  var LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';
+  var redirectAfterLogin = new URLSearchParams(location.search).get('redirect');
+
+  // ── エラー変換 ──
+  var ERROR_MAP = {
+    'auth/email-already-in-use':   'このメールアドレスはすでに登録されています。',
+    'auth/invalid-email':          'メールアドレスの形式が正しくありません。',
+    'auth/weak-password':          'パスワードは8文字以上で設定してください。',
+    'auth/wrong-password':         'パスワードが正しくありません。',
+    'auth/user-not-found':         'このメールアドレスは登録されていません。',
+    'auth/invalid-credential':     'メールアドレスまたはパスワードが正しくありません。',
+    'auth/too-many-requests':      'ログイン試行が多すぎます。しばらくお待ちください。',
+    'auth/network-request-failed': 'ネットワークエラーが発生しました。',
+    'auth/popup-closed-by-user':   'ログインがキャンセルされました。',
+    'auth/popup-blocked':          'ポップアップがブロックされました。',
+    'auth/cancelled-popup-request':'ログインがキャンセルされました。',
+    'auth/account-exists-with-different-credential': 'このメールアドレスは別の方法で登録済みです。'
   };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
+  function toJpError(code) { return ERROR_MAP[code] || 'エラーが発生しました。(' + code + ')'; }
 
-  const LINE_CHANNEL_ID        = '2010269245';
-  const LINE_CLOUD_FUNCTION_URL = 'https://us-central1-hinoka-0304.cloudfunctions.net/lineLoginCallback';
-
-  const redirectAfterLogin = new URLSearchParams(location.search).get('redirect');
-
-  // ── エラー日本語変換 ──────────────────────────────────────
-  const ERROR_MAP = {
-    'auth/email-already-in-use':    'このメールアドレスはすでに登録されています。',
-    'auth/invalid-email':           'メールアドレスの形式が正しくありません。',
-    'auth/weak-password':           'パスワードは8文字以上で設定してください。',
-    'auth/wrong-password':          'パスワードが正しくありません。',
-    'auth/user-not-found':          'このメールアドレスは登録されていません。',
-    'auth/invalid-credential':      'メールアドレスまたはパスワードが正しくありません。',
-    'auth/too-many-requests':       'ログイン試行が多すぎます。しばらく経ってからお試しください。',
-    'auth/network-request-failed':  'ネットワークエラーが発生しました。',
-    'auth/popup-closed-by-user':    'ログインがキャンセルされました。',
-    'auth/popup-blocked':           'ポップアップがブロックされました。ブラウザの設定をご確認ください。',
-    'auth/cancelled-popup-request': 'ログインがキャンセルされました。',
-    'auth/account-exists-with-different-credential':
-      'このメールアドレスは別の方法で登録済みです。他のログイン方法をお試しください。',
-  };
-  function toJpError(code) {
-    return ERROR_MAP[code] || 'エラーが発生しました。(' + code + ')';
+  // ── UIヘルパー ──
+  function showError(id, msg)   { var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+  function hideMsg(id)          { var e=document.getElementById(id); if(e) e.style.display='none'; }
+  function showSuccess(id, msg) { var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+  function setLoading(id, on) {
+    var b=document.getElementById(id); b.disabled=on;
+    var labels={loginBtn:['処理中...','ログイン'],registerBtn:['処理中...','アカウントを作成']};
+    b.textContent = on ? labels[id][0] : labels[id][1];
+  }
+  function showToast(msg) {
+    var el=document.getElementById('dashToast'); el.textContent=msg; el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 3000);
+  }
+  function showLogin() {
+    document.getElementById('loadingSection').style.display='none';
+    document.getElementById('authSection').style.display='block';
+    document.getElementById('dashSection').style.display='none';
   }
 
-  // ── UIヘルパー ────────────────────────────────────────────
-  function showError(id, msg)   { var el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
-  function hideError(id)        { var el = document.getElementById(id); if (el) el.style.display = 'none'; }
-  function showSuccess(id, msg) { var el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
-
-  function setLoading(btnId, loading) {
-    var btn = document.getElementById(btnId);
-    btn.disabled = loading;
-    var labels = { loginBtn: ['処理中...', 'ログイン'], registerBtn: ['処理中...', 'アカウントを作成'] };
-    btn.textContent = loading ? labels[btnId][0] : labels[btnId][1];
+  // ── ダッシュボードタブ切替 ──
+  function switchDashTab(panelId) {
+    document.querySelectorAll('.dash-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.dash-panel').forEach(function(p){ p.classList.remove('active'); });
+    var tab = document.querySelector('.dash-tab[data-panel="'+panelId+'"]');
+    if(tab) tab.classList.add('active');
+    var panel = document.getElementById('panel-'+panelId);
+    if(panel) panel.classList.add('active');
   }
-
-  function showToast(msg, duration) {
-    duration = duration || 3000;
-    var el = document.getElementById('dashToast');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(function() { el.classList.remove('show'); }, duration);
-  }
-
-  // ── パスワード表示/非表示トグル ──────────────────────────
-  document.querySelectorAll('.pw-toggle').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var input = document.getElementById(btn.dataset.target);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
+  document.querySelectorAll('.dash-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){ switchDashTab(tab.dataset.panel); });
   });
 
-  // ── タブ切替 ──────────────────────────────────────────────
-  document.querySelectorAll('.auth-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.auth-tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.auth-panel').forEach(function(p) { p.classList.remove('active'); });
+  // ── 認証タブ切替 ──
+  document.querySelectorAll('.auth-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.auth-tab').forEach(function(t){t.classList.remove('active');});
+      document.querySelectorAll('.auth-panel').forEach(function(p){p.classList.remove('active');});
       tab.classList.add('active');
-      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
     });
   });
 
-  // ── パスワード強度チェック ────────────────────────────────
-  document.getElementById('reg-pass').addEventListener('input', function() {
-    var v = this.value;
-    var bars  = [1,2,3].map(function(i) { return document.getElementById('pwBar' + i); });
-    var label = document.getElementById('pwLabel');
-    bars.forEach(function(b) { b.className = 'pw-bar'; });
-    if (!v) { label.textContent = ''; return; }
-    var strong = v.length >= 10 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v);
-    var medium = v.length >= 8;
-    if (strong) {
-      bars.forEach(function(b) { b.classList.add('strong'); });
-      label.textContent = '強い';
-    } else if (medium) {
-      bars[0].classList.add('medium'); bars[1].classList.add('medium');
-      label.textContent = '普通';
-    } else {
-      bars[0].classList.add('weak');
-      label.textContent = '弱い';
-    }
+  // ── PW表示切替 ──
+  document.querySelectorAll('.pw-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var inp=document.getElementById(btn.dataset.target);
+      inp.type = inp.type==='password' ? 'text' : 'password';
+    });
   });
 
-  // ── Firestoreユーザードキュメント作成 ────────────────────
+  // ── PW強度 ──
+  document.getElementById('reg-pass').addEventListener('input', function(){
+    var v=this.value;
+    var bars=[1,2,3].map(function(i){return document.getElementById('pwBar'+i);});
+    var lbl=document.getElementById('pwLabel');
+    bars.forEach(function(b){b.className='pw-bar';});
+    if(!v){lbl.textContent='';return;}
+    var strong=v.length>=10&&/[A-Z]/.test(v)&&/[0-9]/.test(v)&&/[^A-Za-z0-9]/.test(v);
+    var medium=v.length>=8;
+    if(strong){bars.forEach(function(b){b.classList.add('strong');});lbl.textContent='強い';}
+    else if(medium){bars[0].classList.add('medium');bars[1].classList.add('medium');lbl.textContent='普通';}
+    else{bars[0].classList.add('weak');lbl.textContent='弱い';}
+  });
+
+  // ── Firestore ユーザー作成 ──
   function createUserDoc(user, extra) {
-    extra = extra || {};
-    var ref = db.collection('users').doc(user.uid);
-    return ref.get().then(function(snap) {
-      if (!snap.exists) {
+    extra=extra||{};
+    var ref=db.collection('users').doc(user.uid);
+    return ref.get().then(function(snap){
+      if(!snap.exists){
         return ref.set({
-          uid:              user.uid,
-          email:            user.email,
-          displayName:      user.displayName || '',
-          lastName:         extra.lastName   || '',
-          firstName:        extra.firstName  || '',
-          createdAt:        firebase.firestore.FieldValue.serverTimestamp(),
-          emailVerified:    user.emailVerified,
-          marketingConsent: extra.marketingConsent || false,
-          provider:         extra.provider || 'email'
+          uid:user.uid, email:user.email, displayName:user.displayName||'',
+          lastName:extra.lastName||'', firstName:extra.firstName||'',
+          createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+          emailVerified:user.emailVerified,
+          marketingConsent:extra.marketingConsent||false,
+          provider:extra.provider||'email'
         });
       }
     });
   }
 
-  function doPostLoginRedirect() {
-    if (redirectAfterLogin) { location.href = redirectAfterLogin; }
+  function doRedirect() { if(redirectAfterLogin) location.href=redirectAfterLogin; }
+
+  // ── Google認証 ──
+  function handleGoogleAuth() {
+    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
+      .catch(function(err){ showError('login-error', toJpError(err.code)); });
   }
+  document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleAuth);
+  document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleAuth);
 
-  // ── Google認証（リダイレクト方式） ───────────────────────
-  function handleGoogleAuth(errorDivId) {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    sessionStorage.setItem('google_auth_error_div', errorDivId);
-    sessionStorage.setItem('google_login_pending', '1');
-    auth.signInWithRedirect(provider).catch(function(err) {
-      sessionStorage.removeItem('google_login_pending');
-      showError(errorDivId, toJpError(err.code));
-    });
-  }
-
-  // Googleリダイレクト結果の処理
-  auth.getRedirectResult().then(function(result) {
-    if (result && result.user) {
-      sessionStorage.removeItem('google_auth_error_div');
-      createUserDoc(result.user, { provider: 'google', marketingConsent: false })
-        .catch(function(e) { console.warn('createUserDoc:', e); });
-      showDashboard(result.user);
-      setTimeout(function() { showToast('Googleでログインしました'); }, 300);
-      doPostLoginRedirect();
-    }
-  }).catch(function(err) {
-    sessionStorage.removeItem('google_login_pending');
-    if (err.code && err.code.startsWith('auth/')) {
-      var errorDivId = sessionStorage.getItem('google_auth_error_div') || 'login-error';
-      sessionStorage.removeItem('google_auth_error_div');
-      showError(errorDivId, toJpError(err.code));
-    } else {
-      console.warn('getRedirectResult error:', err);
-    }
-  });
-
-  // ── LINE認証 ──────────────────────────────────────────────
-  function handleLINEAuth(errorDivId) {
-    var state    = Math.random().toString(36).substr(2);
-    var nonce    = Math.random().toString(36).substr(2);
-    var redirect = encodeURIComponent(location.origin + location.pathname);
+  // ── LINE認証 ──
+  function handleLINEAuth() {
+    var state=Math.random().toString(36).substr(2);
     sessionStorage.setItem('line_oauth_state', state);
-    sessionStorage.setItem('line_oauth_nonce', nonce);
-    var lineAuthUrl =
-      'https://access.line.me/oauth2/v2.1/authorize' +
-      '?response_type=code' +
-      '&client_id=' + LINE_CHANNEL_ID +
-      '&redirect_uri=' + redirect +
-      '&state=' + state +
-      '&scope=profile%20openid%20email' +
-      '&nonce=' + nonce;
-    location.href = lineAuthUrl;
+    location.href='https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id='+LINE_CHANNEL_ID+'&redirect_uri='+encodeURIComponent(location.origin+location.pathname)+'&state='+state+'&scope=profile%20openid%20email';
   }
+  document.getElementById('lineLoginBtn').addEventListener('click', handleLINEAuth);
+  document.getElementById('lineRegisterBtn').addEventListener('click', handleLINEAuth);
 
-  // LINE コールバック処理
-  function handleLINECallback() {
-    var params = new URLSearchParams(location.search);
-    var code   = params.get('code');
-    var state  = params.get('state');
-    if (!code || !state) return;
-    var savedState = sessionStorage.getItem('line_oauth_state');
+  // LINE コールバック
+  (function(){
+    var params=new URLSearchParams(location.search);
+    var code=params.get('code'), state=params.get('state');
+    if(!code||!state) return;
+    var saved=sessionStorage.getItem('line_oauth_state');
     sessionStorage.removeItem('line_oauth_state');
-    sessionStorage.removeItem('line_oauth_nonce');
-    if (state !== savedState) return;
-    history.replaceState({}, '', location.pathname);
-    fetch(LINE_CLOUD_FUNCTION_URL + '?code=' + encodeURIComponent(code) + '&redirect_uri=' + encodeURIComponent(location.origin + location.pathname))
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) throw new Error(data.error);
-        return auth.signInWithCustomToken(data.customToken);
+    if(state!==saved) return;
+    history.replaceState({},'',' location.pathname');
+    fetch(LINE_CLOUD_FUNCTION_URL+'?code='+encodeURIComponent(code)+'&redirect_uri='+encodeURIComponent(location.origin+location.pathname))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error) throw new Error(d.error);
+        return auth.signInWithCustomToken(d.customToken);
       })
-      .then(function(result) {
-        return createUserDoc(result.user, { provider: 'line', marketingConsent: false });
-      })
-      .then(function() { doPostLoginRedirect(); })
-      .catch(function() {
-        document.getElementById('loadingSection').style.display = 'none';
-        document.getElementById('authSection').style.display    = 'block';
-        showError('login-error', 'LINEログインに失敗しました。もう一度お試しください。');
+      .then(function(r){ return createUserDoc(r.user,{provider:'line'}); })
+      .then(doRedirect)
+      .catch(function(){
+        showLogin();
+        showError('login-error','LINEログインに失敗しました。');
       });
-  }
+  })();
 
-  document.getElementById('googleLoginBtn').addEventListener('click',    function() { handleGoogleAuth('login-error'); });
-  document.getElementById('googleRegisterBtn').addEventListener('click', function() { handleGoogleAuth('reg-error'); });
-  document.getElementById('lineLoginBtn').addEventListener('click',      function() { handleLINEAuth('login-error'); });
-  document.getElementById('lineRegisterBtn').addEventListener('click',   function() { handleLINEAuth('reg-error'); });
-
-  // ── メール・パスワードログイン ─────────────────────────────
-  document.getElementById('loginBtn').addEventListener('click', function() {
-    hideError('login-error'); hideError('login-success');
-    var email = document.getElementById('login-email').value.trim();
-    var pass  = document.getElementById('login-pass').value;
-    if (!email || !pass) { showError('login-error', 'メールアドレスとパスワードを入力してください。'); return; }
-    setLoading('loginBtn', true);
-    auth.signInWithEmailAndPassword(email, pass)
-      .then(function() {
-        showToast('ログインしました');
-        doPostLoginRedirect();
-      })
-      .catch(function(err) { showError('login-error', toJpError(err.code)); })
-      .finally(function() { setLoading('loginBtn', false); });
+  // ── メール/PW ログイン ──
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    hideMsg('login-error'); hideMsg('login-success');
+    var email=document.getElementById('login-email').value.trim();
+    var pass=document.getElementById('login-pass').value;
+    if(!email||!pass){showError('login-error','メールアドレスとパスワードを入力してください。');return;}
+    setLoading('loginBtn',true);
+    auth.signInWithEmailAndPassword(email,pass)
+      .then(doRedirect)
+      .catch(function(err){showError('login-error',toJpError(err.code));})
+      .finally(function(){setLoading('loginBtn',false);});
   });
-
-  ['login-email', 'login-pass'].forEach(function(id) {
-    document.getElementById(id).addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  ['login-email','login-pass'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown',function(e){
+      if(e.key==='Enter') document.getElementById('loginBtn').click();
     });
   });
 
-  // ── 新規登録 ──────────────────────────────────────────────
-  document.getElementById('registerBtn').addEventListener('click', function() {
-    hideError('reg-error'); hideError('reg-success');
-    var last     = document.getElementById('reg-last').value.trim();
-    var first    = document.getElementById('reg-first').value.trim();
-    var email    = document.getElementById('reg-email').value.trim();
-    var pass     = document.getElementById('reg-pass').value;
-    var pass2    = document.getElementById('reg-pass2').value;
-    var consPriv = document.getElementById('consentPrivacy').checked;
-    var consMkt  = document.getElementById('consentMarketing').checked;
-
-    if (!last || !first) { showError('reg-error', '氏名を入力してください。'); return; }
-    if (!email)          { showError('reg-error', 'メールアドレスを入力してください。'); return; }
-    if (pass.length < 8) { showError('reg-error', 'パスワードは8文字以上で設定してください。'); return; }
-    if (pass !== pass2)  { showError('reg-error', 'パスワードが一致しません。'); return; }
-    if (!consPriv)       { showError('reg-error', 'プライバシーノーティスと利用規約への同意が必要です。'); return; }
-
-    setLoading('registerBtn', true);
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then(function(cred) {
-        var user = cred.user;
-        return user.updateProfile({ displayName: last + ' ' + first })
-          .then(function() { return createUserDoc(user, { lastName: last, firstName: first, marketingConsent: consMkt, provider: 'email' }); })
-          .then(function() { return user.sendEmailVerification(); })
-          .then(function() {
-            showSuccess('reg-success', '✅ 登録が完了しました！確認メールを ' + email + ' にお送りしました。\n※ 迷惑メールフォルダに入っている場合があります。ご確認ください。');
-            doPostLoginRedirect();
+  // ── 新規登録 ──
+  document.getElementById('registerBtn').addEventListener('click', function(){
+    hideMsg('reg-error'); hideMsg('reg-success');
+    var last=document.getElementById('reg-last').value.trim();
+    var first=document.getElementById('reg-first').value.trim();
+    var email=document.getElementById('reg-email').value.trim();
+    var pass=document.getElementById('reg-pass').value;
+    var pass2=document.getElementById('reg-pass2').value;
+    var consPriv=document.getElementById('consentPrivacy').checked;
+    var consMkt=document.getElementById('consentMarketing').checked;
+    if(!last||!first){showError('reg-error','氏名を入力してください。');return;}
+    if(!email){showError('reg-error','メールアドレスを入力してください。');return;}
+    if(pass.length<8){showError('reg-error','パスワードは8文字以上で設定してください。');return;}
+    if(pass!==pass2){showError('reg-error','パスワードが一致しません。');return;}
+    if(!consPriv){showError('reg-error','プライバシーポリシーと利用規約への同意が必要です。');return;}
+    setLoading('registerBtn',true);
+    auth.createUserWithEmailAndPassword(email,pass)
+      .then(function(cred){
+        var user=cred.user;
+        return user.updateProfile({displayName:last+' '+first})
+          .then(function(){return createUserDoc(user,{lastName:last,firstName:first,marketingConsent:consMkt,provider:'email'});})
+          .then(function(){return user.sendEmailVerification();})
+          .then(function(){
+            showSuccess('reg-success','✅ 登録が完了しました！確認メールを '+email+' にお送りしました。\n※ 迷惑メールフォルダも確認してください。');
+            doRedirect();
           });
       })
-      .catch(function(err) { showError('reg-error', toJpError(err.code)); })
-      .finally(function() { setLoading('registerBtn', false); });
+      .catch(function(err){showError('reg-error',toJpError(err.code));})
+      .finally(function(){setLoading('registerBtn',false);});
   });
 
-  // ── パスワードリセット ────────────────────────────────────
-  document.getElementById('forgotPwLink').addEventListener('click', function() {
-    hideError('login-error'); hideError('login-success');
-    var email = document.getElementById('login-email').value.trim();
-    if (!email) { showError('login-error', 'パスワードリセット用のメールアドレスを入力してください。'); return; }
+  // ── PW リセット ──
+  document.getElementById('forgotPwLink').addEventListener('click', function(){
+    hideMsg('login-error'); hideMsg('login-success');
+    var email=document.getElementById('login-email').value.trim();
+    if(!email){showError('login-error','パスワードリセット用のメールアドレスを入力してください。');return;}
     auth.sendPasswordResetEmail(email)
-      .then(function() { showSuccess('login-success', '✅ ' + email + ' にパスワードリセットメールを送信しました。'); })
-      .catch(function(err) { showError('login-error', toJpError(err.code)); });
+      .then(function(){showSuccess('login-success','✅ '+email+' にパスワードリセットメールを送信しました。');})
+      .catch(function(err){showError('login-error',toJpError(err.code));});
   });
 
-  // ── ダッシュボード表示 ────────────────────────────────────
-  function showDashboard(user) {
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('authSection').style.display    = 'none';
-    document.getElementById('dashSection').style.display    = 'block';
+  // ── 注文履歴 ──
+  function getOrders() { return JSON.parse(localStorage.getItem('hinoka_orders')||'[]'); }
 
-    var avatarEl = document.getElementById('dashAvatar');
-    if (user.photoURL) {
-      avatarEl.innerHTML = '<img src="' + user.photoURL + '" alt="">';
-    } else {
-      avatarEl.textContent = (user.displayName || user.email || 'H')[0].toUpperCase();
+  function renderOrders() {
+    var orders=getOrders();
+    var el=document.getElementById('orderHistoryList');
+    if(!orders.length){
+      el.innerHTML='<div class="order-empty">注文履歴がありません。<br><a href="store.html" style="color:var(--black);text-decoration:underline;">ショッピングを始める →</a></div>';
+      return;
     }
-
-    document.getElementById('dashName').textContent    = user.displayName || 'ゲスト';
-    document.getElementById('dashEmail').textContent   = user.email || '';
-    document.getElementById('infoName').textContent    = user.displayName || '—';
-    document.getElementById('infoEmail').textContent   = user.email || '—';
-    document.getElementById('infoVerified').textContent = user.emailVerified ? '✅ 確認済み' : '⚠️ 未確認';
-
-    var providerLabel = { 'google.com': 'Google', 'line': 'LINE', 'password': 'メール / パスワード' };
-    var providerIds = user.providerData.map(function(p) { return p.providerId; });
-    document.getElementById('infoProvider').textContent =
-      providerIds.map(function(id) { return providerLabel[id] || id; }).join(', ') || '—';
-
-    var isEmailUser = providerIds.indexOf('password') !== -1;
-    document.getElementById('changePwRow').style.display = isEmailUser ? '' : 'none';
-
-    if (!user.emailVerified && isEmailUser) {
-      document.getElementById('verifyBanner').classList.add('show');
-    }
-
-    db.collection('users').doc(user.uid).get().then(function(snap) {
-      if (snap.exists) {
-        var data = snap.data();
-        var date = data.createdAt ? data.createdAt.toDate().toLocaleDateString('ja-JP') : '—';
-        document.getElementById('infoDate').textContent = date;
-        var mktToggle = document.getElementById('marketingToggle');
-        mktToggle.checked = data.marketingConsent || false;
-        document.getElementById('marketingLabel').textContent = mktToggle.checked ? '受信する' : '受信しない';
-      }
-    }).catch(function(e) { console.warn('Firestore読み込みエラー:', e); });
-
-    var wishCount = (JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]')).length;
-    var cartCount = (JSON.parse(localStorage.getItem('cartItems') || '[]')).reduce(function(s,i) { return s + (i.qty || 0); }, 0);
-    document.getElementById('dashWishCount').textContent = wishCount;
-    document.getElementById('dashCartCount').textContent = cartCount;
+    el.innerHTML='';
+    orders.slice().reverse().forEach(function(o){
+      var isPending=o.paymentMethod&&o.paymentMethod.indexOf('振込')!==-1;
+      var div=document.createElement('div');
+      div.className='order-card';
+      var itemsHtml=(o.items||[]).map(function(item){
+        return '<div class="order-item-line"><span>'+item.name+(item.size?' ['+item.size+']':'')+'  ×'+item.qty+'</span><span>¥'+(item.price*item.qty).toLocaleString()+'</span></div>';
+      }).join('');
+      div.innerHTML=
+        '<div class="order-card-head">'+
+          '<span class="order-id">注文番号：'+o.ref+'</span>'+
+          '<span class="order-date">'+o.date+'</span>'+
+          '<span class="order-status'+(isPending?' pending':'')+'">'+( isPending?'振込待ち':'完了')+'</span>'+
+        '</div>'+
+        '<div class="order-items-list">'+itemsHtml+'</div>'+
+        '<div class="order-card-foot">'+
+          '<span class="order-method">'+o.paymentMethod+'</span>'+
+          '<span class="order-total">合計 ¥'+o.total.toLocaleString()+'（税込）</span>'+
+        '</div>';
+      el.appendChild(div);
+    });
   }
 
-  // ── マーケティングメール設定 ──────────────────────────────
-  document.getElementById('marketingToggle').addEventListener('change', function() {
-    var user = auth.currentUser;
-    if (!user) return;
-    var checked = this.checked;
-    document.getElementById('marketingLabel').textContent = checked ? '受信する' : '受信しない';
-    db.collection('users').doc(user.uid).update({ marketingConsent: checked })
-      .then(function() { showToast('設定を保存しました'); })
-      .catch(function() { showToast('設定の保存に失敗しました'); });
-  });
+  // 最新注文をサマリーに表示
+  function renderRecentOrder() {
+    var orders=getOrders();
+    if(!orders.length) return;
+    var latest=orders[orders.length-1];
+    var sec=document.getElementById('recentOrderSection');
+    var cnt=document.getElementById('recentOrderContent');
+    sec.style.display='';
+    cnt.innerHTML=
+      '<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--gray-light);">'+
+        '<span>注文番号：'+latest.ref+'</span><span>'+latest.date+'</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 0 4px;">'+
+        '<span style="color:var(--gray-dark);">合計金額</span><span style="font-weight:500;">¥'+latest.total.toLocaleString()+'（税込）</span>'+
+      '</div>'+
+      '<div style="text-align:right;margin-top:8px;">'+
+        '<button onclick="switchDashTab(\'orders\')" style="font-size:11px;letter-spacing:0.1em;background:none;border:1px solid var(--black);padding:7px 16px;cursor:pointer;">注文履歴をすべて見る</button>'+
+      '</div>';
+  }
 
-  // ── パスワード変更 ────────────────────────────────────────
-  document.getElementById('changePwBtn').addEventListener('click', function() {
-    var user = auth.currentUser;
-    if (!user || !user.email) return;
-    auth.sendPasswordResetEmail(user.email)
-      .then(function() { showToast(user.email + ' にパスワード変更メールを送信しました'); })
-      .catch(function() { showToast('送信に失敗しました。しばらく経ってからお試しください。'); });
-  });
+  // ── ウィッシュリスト ──
+  function getWishlist(){ return JSON.parse(localStorage.getItem('hinoka_wishlist')||'[]'); }
+  function saveWishlist(l){ localStorage.setItem('hinoka_wishlist',JSON.stringify(l)); }
 
-  // ── 確認メール再送信 ──────────────────────────────────────
-  document.getElementById('resendVerifyBtn').addEventListener('click', function() {
-    var user = auth.currentUser;
-    if (!user) return;
-    user.sendEmailVerification()
-      .then(function() { showToast('確認メールを再送信しました'); })
-      .catch(function() { showToast('再送信に失敗しました。しばらく経ってからお試しください。'); });
-  });
-
-  // ── ログアウト ────────────────────────────────────────────
-  document.getElementById('logoutBtn').addEventListener('click', function() {
-    auth.signOut().then(function() {
-      window.dispatchEvent(new Event('hinoka_auth_logout'));
+  function renderWishlist(){
+    var grid=document.getElementById('wishlistGrid');
+    var wl=getWishlist();
+    var PMAP={};
+    (window.HINOKA_PRODUCTS||[]).forEach(function(p){PMAP[p.id]=p;});
+    grid.innerHTML='';
+    if(!wl.length){
+      grid.innerHTML='<div class="wish-empty" style="grid-column:1/-1;">ウィッシュリストは空です。<br><a href="store.html" style="color:var(--black);text-decoration:underline;">ショッピングを始める →</a></div>';
+      return;
+    }
+    wl.forEach(function(id){
+      var p=PMAP[id]; if(!p) return;
+      var img1=p.images?p.images[0]:(p.mainImg||'assets/images/placeholder.jpg');
+      var img2=p.images?(p.images[1]||p.images[0]):(p.subImg||img1);
+      var card=document.createElement('div');
+      card.className='wish-card';
+      card.innerHTML=
+        '<div class="wish-img-wrap">'+
+          '<img class="main-img" src="'+img1+'" alt="'+p.name+'" onerror="this.src=\'assets/images/placeholder.jpg\'">'+
+          '<img class="sub-img" src="'+img2+'" alt="'+p.name+'" onerror="this.src=\'assets/images/placeholder.jpg\'">'+
+          '<button class="wish-remove" data-id="'+id+'" title="削除">×</button>'+
+        '</div>'+
+        '<p class="wish-name">'+p.name+'</p>'+
+        '<p class="wish-price">¥'+p.price.toLocaleString()+'（税込）</p>'+
+        '<button class="wish-add-cart" data-id="'+id+'">カートに追加</button>';
+      card.querySelector('.wish-remove').addEventListener('click',function(e){
+        e.stopPropagation();
+        var l=getWishlist(); var i=l.indexOf(id); if(i!==-1)l.splice(i,1);
+        saveWishlist(l); renderWishlist();
+        document.getElementById('statWish').textContent=getWishlist().length;
+      });
+      card.querySelector('.wish-add-cart').addEventListener('click',function(e){
+        e.stopPropagation();
+        var items=JSON.parse(localStorage.getItem('cartItems')||'[]');
+        var found=items.find(function(i){return i.id===id;});
+        if(found){found.qty++;}else{items.push({id:id,name:p.name,price:p.price,img:img1,qty:1,color:'',size:''});}
+        localStorage.setItem('cartItems',JSON.stringify(items));
+        window.dispatchEvent(new Event('cartUpdated'));
+        showToast('カートに追加しました');
+      });
+      card.addEventListener('click',function(){location.href='product-detail.html?id='+id;});
+      grid.appendChild(card);
     });
+  }
+
+  // ── ダッシュボード表示 ──
+  function showDashboard(user, isNewLogin) {
+    document.getElementById('loadingSection').style.display='none';
+    document.getElementById('authSection').style.display='none';
+    document.getElementById('dashSection').style.display='block';
+
+    var avatarEl=document.getElementById('dashAvatar');
+    if(user.photoURL){ avatarEl.innerHTML='<img src="'+user.photoURL+'" alt="">'; }
+    else{ avatarEl.textContent=(user.displayName||user.email||'H')[0].toUpperCase(); }
+
+    document.getElementById('dashName').textContent   = user.displayName||'ゲスト';
+    document.getElementById('dashEmail').textContent  = user.email||'';
+    document.getElementById('infoName').textContent   = user.displayName||'—';
+    document.getElementById('infoEmail').textContent  = user.email||'—';
+    document.getElementById('infoVerified').textContent = user.emailVerified ? '✅ 確認済み' : '⚠️ 未確認';
+
+    var provLabel={'google.com':'Google','line':'LINE','password':'メール / パスワード'};
+    var provIds=user.providerData.map(function(p){return p.providerId;});
+    document.getElementById('infoProvider').textContent = provIds.map(function(id){return provLabel[id]||id;}).join(', ')||'—';
+
+    var isEmail=provIds.indexOf('password')!==-1;
+    document.getElementById('changePwRow').style.display=isEmail?'':'none';
+    if(!user.emailVerified&&isEmail) document.getElementById('verifyBanner').classList.add('show');
+
+    // カウント
+    var wishCount=getWishlist().length;
+    var cartCount=(JSON.parse(localStorage.getItem('cartItems')||'[]')).reduce(function(s,i){return s+(i.qty||0);},0);
+    var orderCount=getOrders().length;
+    document.getElementById('statWish').textContent=wishCount;
+    document.getElementById('statCart').textContent=cartCount;
+    document.getElementById('statOrders').textContent=orderCount;
+
+    renderOrders();
+    renderWishlist();
+    renderRecentOrder();
+
+    // Firestore
+    db.collection('users').doc(user.uid).get().then(function(snap){
+      if(snap.exists){
+        var data=snap.data();
+        document.getElementById('infoDate').textContent = data.createdAt ? data.createdAt.toDate().toLocaleDateString('ja-JP') : '—';
+        var mkt=document.getElementById('marketingToggle');
+        mkt.checked=data.marketingConsent||false;
+        document.getElementById('marketingLabel').textContent=mkt.checked?'受信する':'受信しない';
+      }
+    }).catch(function(e){console.warn('Firestore:',e);});
+
+    if(isNewLogin){ setTimeout(function(){showToast('ログインしました');},400); }
+  }
+
+  // ── 各種ボタン ──
+  document.getElementById('marketingToggle').addEventListener('change',function(){
+    var user=auth.currentUser; if(!user) return;
+    db.collection('users').doc(user.uid).update({marketingConsent:this.checked})
+      .then(function(){showToast('設定を保存しました');})
+      .catch(function(){showToast('保存に失敗しました');});
+    document.getElementById('marketingLabel').textContent=this.checked?'受信する':'受信しない';
+  });
+  document.getElementById('changePwBtn').addEventListener('click',function(){
+    var user=auth.currentUser; if(!user||!user.email) return;
+    auth.sendPasswordResetEmail(user.email)
+      .then(function(){showToast(user.email+' にパスワード変更メールを送信しました');})
+      .catch(function(){showToast('送信に失敗しました');});
+  });
+  document.getElementById('resendVerifyBtn').addEventListener('click',function(){
+    var user=auth.currentUser; if(!user) return;
+    user.sendEmailVerification()
+      .then(function(){showToast('確認メールを再送信しました');})
+      .catch(function(){showToast('再送信に失敗しました');});
+  });
+  document.getElementById('logoutBtn').addEventListener('click',function(){
+    auth.signOut().then(function(){ window.dispatchEvent(new Event('hinoka_auth_logout')); });
   });
 
-  // ── 認証状態監視（メイン） ────────────────────────────────
-  auth.onAuthStateChanged(function(user) {
-    if (user) {
+  // ── 認証フロー（メイン）──
+  // getRedirectResult と onAuthStateChanged を Promise で同期
+  var redirectResultPromise = auth.getRedirectResult().then(function(result){
+    return (result && result.user) ? result.user : null;
+  }).catch(function(err){
+    if(err.code && err.code.startsWith('auth/')){
+      window._authErrMsg = toJpError(err.code);
+    }
+    return null;
+  });
+
+  auth.onAuthStateChanged(function(user){
+    if(user){
       window.dispatchEvent(new Event('hinoka_auth_login'));
-      showDashboard(user);
+      redirectResultPromise.then(function(redirectUser){
+        showDashboard(user, !!redirectUser);
+        if(redirectUser){
+          createUserDoc(user,{provider:'google',marketingConsent:false}).catch(function(){});
+          doRedirect();
+        }
+      });
     } else {
-      // Googleリダイレクト処理中はローディングを維持
-      if (sessionStorage.getItem('google_login_pending')) return;
-      document.getElementById('loadingSection').style.display = 'none';
-      document.getElementById('authSection').style.display    = 'block';
-      document.getElementById('dashSection').style.display    = 'none';
+      redirectResultPromise.then(function(){
+        if(window._authErrMsg){
+          showLogin();
+          showError('login-error', window._authErrMsg);
+          window._authErrMsg=null;
+        } else {
+          showLogin();
+        }
+      });
     }
   });
 
-  // LINE コールバックの処理
-  handleLINECallback();
   </script>
 </body>
 </html>
