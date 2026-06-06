@@ -1,7 +1,4 @@
-// firebase-sync.js — カート・ウィッシュリスト Firestore 同期
-// ログイン中のユーザーのデータを複数端末で同期する
-// Firebase compat CDN の後に読み込む
-
+// firebase-sync.js — Firestore 同期（カート・ウィッシュリスト・注文・住所・閲覧履歴・レビュー・メッセージ）
 (function(){
   var CONFIG = {
     apiKey:            'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
@@ -16,77 +13,109 @@
   var auth = firebase.auth(app);
   var db   = firebase.firestore(app);
 
-  var CART_KEY  = 'cartItems';
-  var WISH_KEY  = 'hinoka_wishlist';
   var _uid      = null;
-  var _timer    = null;
+  var _timers   = {};
   var _listening = false;
 
-  // Firestoreへ保存（デバウンス800ms）
-  function scheduleSync(){
-    if(!_uid) return;
-    clearTimeout(_timer);
-    _timer = setTimeout(saveToFirestore, 800);
-  }
-
-  function saveToFirestore(){
-    if(!_uid) return;
-    var ref  = db.collection('users').doc(_uid).collection('sync');
-    var cart = JSON.parse(localStorage.getItem(CART_KEY)||'[]');
-    var wish = JSON.parse(localStorage.getItem(WISH_KEY)||'[]');
-    ref.doc('cart').set({ items: cart, ts: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
-    ref.doc('wishlist').set({ ids: wish, ts: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
-  }
-
-  // Firestoreから読み込み → ローカルとマージ
-  function loadFromFirestore(){
-    var ref = db.collection('users').doc(_uid).collection('sync');
-
-    ref.doc('cart').get().then(function(snap){
-      if(!snap.exists) return;
-      var remote = snap.data().items || [];
-      var local  = JSON.parse(localStorage.getItem(CART_KEY)||'[]');
-      var merged = local.slice();
-      remote.forEach(function(ri){
-        var found = merged.find(function(li){
-          return li.id===ri.id && (li.size||'')===(ri.size||'') && (li.color||'')===(ri.color||'');
-        });
-        if(found){ found.qty = Math.max(found.qty||1, ri.qty||1); }
-        else { merged.push(ri); }
+  // マージ戦略
+  function mergeCart(local, remote) {
+    var merged = local.slice();
+    remote.forEach(function(ri) {
+      var found = merged.find(function(li) {
+        return li.id === ri.id && (li.size||'') === (ri.size||'') && (li.color||'') === (ri.color||'');
       });
-      if(JSON.stringify(merged) !== JSON.stringify(local)){
-        localStorage.setItem(CART_KEY, JSON.stringify(merged));
-        window.dispatchEvent(new Event('cartUpdated'));
-      }
-    }).catch(function(){});
+      if (found) { found.qty = Math.max(found.qty||1, ri.qty||1); }
+      else { merged.push(ri); }
+    });
+    return merged;
+  }
 
-    ref.doc('wishlist').get().then(function(snap){
-      if(!snap.exists) return;
-      var remote = snap.data().ids || [];
-      var local  = JSON.parse(localStorage.getItem(WISH_KEY)||'[]');
-      var merged = local.slice();
-      remote.forEach(function(id){ if(merged.indexOf(id)===-1) merged.push(id); });
-      if(JSON.stringify(merged) !== JSON.stringify(local)){
-        localStorage.setItem(WISH_KEY, JSON.stringify(merged));
-        window.dispatchEvent(new Event('wishlistUpdated'));
+  function mergeUnique(local, remote) {
+    var merged = local.slice();
+    remote.forEach(function(id) { if (merged.indexOf(id) === -1) merged.push(id); });
+    return merged;
+  }
+
+  function mergeOrders(local, remote) {
+    var merged = local.slice();
+    remote.forEach(function(ri) {
+      var key = ri.ref || ri.id;
+      var exists = merged.some(function(li) { return (li.ref || li.id) === key; });
+      if (!exists) merged.push(ri);
+    });
+    return merged;
+  }
+
+  function mergeById(local, remote) {
+    var merged = local.slice();
+    remote.forEach(function(ri) {
+      var exists = merged.some(function(li) { return li.id === ri.id; });
+      if (!exists) merged.push(ri);
+    });
+    return merged;
+  }
+
+  function preferLocal(local) { return local; }
+
+  var SYNC_TARGETS = [
+    { key: 'cartItems',              doc: 'cart',      field: 'items', event: 'cartUpdated',     merge: mergeCart },
+    { key: 'hinoka_wishlist',        doc: 'wishlist',  field: 'ids',   event: 'wishlistUpdated', merge: mergeUnique },
+    { key: 'hinoka_orders',          doc: 'orders',    field: 'items', event: 'orderUpdated',    merge: mergeOrders },
+    { key: 'hinoka_addresses',       doc: 'addresses', field: 'items', event: 'addressUpdated',  merge: mergeById },
+    { key: 'hinoka_browsing_history',doc: 'history',   field: 'items', event: 'historyUpdated',  merge: preferLocal },
+    { key: 'hinoka_reviews',         doc: 'reviews',   field: 'items', event: 'reviewUpdated',   merge: mergeById },
+    { key: 'hinoka_messages',        doc: 'messages',  field: 'items', event: 'messageUpdated',  merge: mergeById }
+  ];
+
+  function readLocal(key) {
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
+  }
+
+  function scheduleSync(target) {
+    if (!_uid) return;
+    clearTimeout(_timers[target.doc]);
+    _timers[target.doc] = setTimeout(function() { saveTarget(target); }, 800);
+  }
+
+  function saveTarget(target) {
+    if (!_uid) return;
+    var data = readLocal(target.key);
+    var obj = { ts: firebase.firestore.FieldValue.serverTimestamp() };
+    obj[target.field] = data;
+    db.collection('users').doc(_uid).collection('sync').doc(target.doc).set(obj).catch(function(){});
+  }
+
+  function saveAll() {
+    SYNC_TARGETS.forEach(function(t) { saveTarget(t); });
+  }
+
+  function loadTarget(target) {
+    db.collection('users').doc(_uid).collection('sync').doc(target.doc).get().then(function(snap) {
+      if (!snap.exists) return;
+      var remote = snap.data()[target.field] || [];
+      var local  = readLocal(target.key);
+      var merged = target.merge(local, remote);
+      if (JSON.stringify(merged) !== JSON.stringify(local)) {
+        localStorage.setItem(target.key, JSON.stringify(merged));
+        window.dispatchEvent(new Event(target.event));
       }
     }).catch(function(){});
   }
 
-  auth.onAuthStateChanged(function(user){
-    if(user){
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
       _uid = user.uid;
-      loadFromFirestore();
-      if(!_listening){
+      SYNC_TARGETS.forEach(loadTarget);
+      if (!_listening) {
         _listening = true;
-        window.addEventListener('cartUpdated',    scheduleSync);
-        window.addEventListener('wishlistUpdated', scheduleSync);
+        SYNC_TARGETS.forEach(function(target) {
+          window.addEventListener(target.event, function() { scheduleSync(target); });
+        });
       }
     } else {
       _uid = null;
     }
   });
 
-  // 外部から手動保存を呼べるようにする
-  window.hinokaSyncSave = saveToFirestore;
+  window.hinokaSyncSave = saveAll;
 })();
