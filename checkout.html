@@ -353,6 +353,24 @@
       .postal-wrap { flex-direction: column; align-items: stretch; }
       .postal-wrap .form-input { max-width: 100%; }
     }
+
+    /* クーポン・ポイント割引セクション */
+    .discount-section { border: 1px solid #ede9e3; background: #fff; margin-bottom: 14px; }
+    .discount-section .card-title { font-family:'Cormorant Garamond',serif; font-size:14px; font-weight:400; letter-spacing:.12em; padding:14px 20px 10px; border-bottom:1px solid var(--gray-light); margin:0; display:block; }
+    .discount-row { padding: 10px 20px; border-bottom: 1px solid var(--gray-light); }
+    .discount-row:last-child { border-bottom: none; }
+    .discount-label { font-size: 10px; letter-spacing:.1em; color:var(--gray-dark); margin-bottom:6px; }
+    .discount-input-row { display:flex; gap:8px; align-items:center; }
+    .discount-input { flex:1; border:1px solid #ddd; padding:8px 10px; font-size:12px; font-family:inherit; outline:none; }
+    .discount-input:focus { border-color:#111; }
+    .discount-apply-btn { padding:8px 14px; background:#111; color:#fff; border:none; font-size:10px; letter-spacing:.08em; font-family:inherit; cursor:pointer; white-space:nowrap; transition:background .2s; }
+    .discount-apply-btn:hover { background:#333; }
+    .discount-applied { display:flex; align-items:center; justify-content:space-between; font-size:11px; }
+    .discount-applied-name { color:#2e7d32; font-weight:500; }
+    .discount-remove-btn { border:none; background:none; color:#999; font-size:11px; cursor:pointer; text-decoration:underline; }
+    .discount-avail { font-size:11px; color:var(--gray-dark); }
+    .pts-input { width:80px; border:1px solid #ddd; padding:6px 8px; font-size:12px; font-family:inherit; outline:none; text-align:right; }
+    .pts-input:focus { border-color:#111; }
   </style>
 </head>
 <body>
@@ -442,6 +460,46 @@
         </div>
       </div>
 
+      <!-- クーポン・ポイント割引 -->
+      <div class="discount-section" id="discountSection">
+        <div class="card-title">🎁 クーポン・ポイント・残高</div>
+
+        <!-- クーポン -->
+        <div class="discount-row" id="couponRow">
+          <div class="discount-label">クーポン</div>
+          <div id="couponApplied" style="display:none;" class="discount-applied">
+            <span class="discount-applied-name" id="couponAppliedName"></span>
+            <button class="discount-remove-btn" id="couponRemoveBtn">削除</button>
+          </div>
+          <div id="couponInput">
+            <select class="discount-input" id="couponSelect" style="appearance:auto;">
+              <option value="">クーポンを選択...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ポイント -->
+        <div class="discount-row" id="pointsRow">
+          <div class="discount-label">ポイント利用（1pt = ¥1）</div>
+          <div class="discount-input-row">
+            <input class="pts-input" type="number" id="pointsInput" min="0" placeholder="0">
+            <span id="pointsAvailLabel" class="discount-avail" style="font-size:10px;"></span>
+            <button class="discount-apply-btn" id="pointsApplyBtn">適用</button>
+          </div>
+        </div>
+
+        <!-- 残高 -->
+        <div class="discount-row" id="balanceRow">
+          <div class="discount-label">残高を使う</div>
+          <div class="discount-input-row">
+            <label style="font-size:12px;display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="balanceUseChk" style="accent-color:#111;">
+              <span id="balanceAvailLabel">利用可能残高：¥0</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <!-- お支払い方法 -->
       <div class="form-card">
         <div class="card-title">
@@ -522,6 +580,7 @@
           <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
           <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
           <div class="summary-row"><span>消費税（10% 内税）</span><span id="sumTax">¥0</span></div>
+          <div class="summary-row" id="sumDiscountRow" style="display:none;color:#2e7d32;"><span>割引合計</span><span id="sumDiscount">-¥0</span></div>
         </div>
 
         <!-- 合計 -->
@@ -791,6 +850,15 @@
     }
 
     // ════════════════════════════════
+    //  割引状態
+    // ════════════════════════════════
+    var appliedCoupon = null;
+    var appliedPoints = 0;
+    var useBalance = false;
+
+    function getLS_co(key, fb) { try { var r = localStorage.getItem(key); return r ? JSON.parse(r) : fb; } catch(e) { return fb; } }
+
+    // ════════════════════════════════
     //  サマリー描画
     // ════════════════════════════════
     function renderSummary() {
@@ -821,7 +889,6 @@
       document.getElementById('sumSubtotal').textContent = `¥${subtotal.toLocaleString()}`;
       document.getElementById('sumShipping').textContent = subtotal === 0 ? '−' : `¥${shipping.toLocaleString()}`;
       document.getElementById('sumTax').textContent      = `¥${tax.toLocaleString()}`;
-      document.getElementById('sumTotal').textContent    = `¥${total.toLocaleString()}`;
 
       const shippingNote = document.getElementById('shippingNote');
       if (shipping > 550) {
@@ -831,12 +898,97 @@
         shippingNote.innerHTML  = `🚚 通常送料：550円（税込）<br>※北海道・沖縄・離島は追加送料が発生する場合があります。`;
         shippingNote.style.color = '';
       }
-      return { cart, subtotal, shipping, total };
+
+      // 割引計算
+      var couponDiscount = 0;
+      if (appliedCoupon) {
+        var amt = appliedCoupon.amount;
+        if (amt.includes('%')) {
+          couponDiscount = Math.round(subtotal * parseInt(amt) / 100);
+        } else {
+          couponDiscount = parseInt(amt.replace(/[¥,]/g, '')) || 0;
+        }
+      }
+      var balDiscount = useBalance ? Math.min((getLS_co('hinoka_balance', {available:0}).available), subtotal + shipping - couponDiscount - appliedPoints) : 0;
+      if (balDiscount < 0) balDiscount = 0;
+      var totalDiscount = Math.min(couponDiscount + appliedPoints + balDiscount, subtotal + shipping);
+      var finalTotal = Math.max(0, subtotal + shipping - totalDiscount);
+
+      var discRow = document.getElementById('sumDiscountRow');
+      var discEl = document.getElementById('sumDiscount');
+      if (discRow && discEl) {
+        if (totalDiscount > 0) { discRow.style.display = ''; discEl.textContent = '-¥' + totalDiscount.toLocaleString(); }
+        else { discRow.style.display = 'none'; }
+      }
+      document.getElementById('sumTotal').textContent = '¥' + finalTotal.toLocaleString();
+
+      return { cart, subtotal, shipping, total: finalTotal, discount: totalDiscount };
     }
 
     document.getElementById('prefecture').addEventListener('change', renderSummary);
     document.getElementById('city').addEventListener('input', renderSummary);
     renderSummary();
+
+    // ════════════════════════════════
+    //  クーポン・ポイント・残高
+    // ════════════════════════════════
+    function initDiscounts() {
+      // クーポン
+      var coupons = getLS_co('hinoka_coupons', []).filter(function(c){ return !c.used; });
+      var sel = document.getElementById('couponSelect');
+      coupons.forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.title + ' (' + c.amount + ')';
+        opt.dataset.amount = c.amount;
+        opt.dataset.rule = c.rule || '';
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function() {
+        var id = sel.value;
+        if (!id) { appliedCoupon = null; renderSummary(); return; }
+        var c = coupons.find(function(x){ return x.id === id; });
+        if (c) {
+          appliedCoupon = c;
+          document.getElementById('couponAppliedName').textContent = c.title + ' (' + c.amount + ')';
+          document.getElementById('couponApplied').style.display = '';
+          document.getElementById('couponInput').style.display = 'none';
+        }
+        renderSummary();
+      });
+      document.getElementById('couponRemoveBtn').addEventListener('click', function() {
+        appliedCoupon = null;
+        sel.value = '';
+        document.getElementById('couponApplied').style.display = 'none';
+        document.getElementById('couponInput').style.display = '';
+        renderSummary();
+      });
+
+      // ポイント
+      var pts = getLS_co('hinoka_points_log', { available: 0 });
+      document.getElementById('pointsAvailLabel').textContent = '利用可能：' + Number(pts.available).toLocaleString() + ' pt';
+      document.getElementById('pointsInput').max = pts.available;
+      document.getElementById('pointsApplyBtn').addEventListener('click', function() {
+        var v = parseInt(document.getElementById('pointsInput').value) || 0;
+        appliedPoints = Math.min(v, pts.available);
+        document.getElementById('pointsInput').value = appliedPoints;
+        renderSummary();
+      });
+
+      // 残高
+      var bal = getLS_co('hinoka_balance', { available: 0 });
+      document.getElementById('balanceAvailLabel').textContent = '利用可能残高：¥' + Number(bal.available).toLocaleString();
+      document.getElementById('balanceUseChk').addEventListener('change', function() {
+        useBalance = this.checked;
+        renderSummary();
+      });
+      if (bal.available === 0) document.getElementById('balanceRow').style.display = 'none';
+      if (coupons.length === 0) {
+        var el = document.getElementById('couponSelect');
+        if (el) { el.disabled = true; el.options[0].textContent = 'クーポンなし'; }
+      }
+    }
+    initDiscounts();
 
     // ════════════════════════════════
     //  PayPal ボタン初期化
@@ -855,7 +1007,7 @@
         document.getElementById('paypal-error').style.display = 'none';
         return actions.order.create({
           purchase_units: [{
-            amount: { value: String(total), currency_code: 'JPY' },
+            amount: { value: String(renderSummary().total), currency_code: 'JPY' },
             description: 'HINOKA Order'
           }]
         });
@@ -863,7 +1015,7 @@
 
       onApprove: function(data, actions) {
         return actions.order.capture().then(function(details) {
-          const { cart, subtotal, shipping, total } = renderSummary();
+          const { cart, subtotal, shipping, total, discount } = renderSummary();
           const name  = `${document.getElementById('last-name').value} ${document.getElementById('first-name').value}`;
           const email = document.getElementById('email').value;
           const addr  = [
@@ -886,7 +1038,9 @@
           };
           localStorage.setItem('hinoka_pending_order', JSON.stringify({
             ref: orderRef, name, email, addr,
-            subtotal, shipping, total,
+            subtotal, shipping, total, discount,
+            appliedCoupon: appliedCoupon ? appliedCoupon.id : null,
+            appliedPoints,
             paymentMethod: METHOD_LABELS.credit, items: cart,
             defaultAddress
           }));
@@ -974,7 +1128,7 @@
     payBtn.addEventListener('click', async () => {
       if (!validate()) return;
 
-      const { cart, subtotal, shipping, total } = renderSummary();
+      const { cart, subtotal, shipping, total, discount } = renderSummary();
       if (cart.length === 0) {
         const e = document.getElementById('form-error');
         e.textContent = 'カートに商品がありません。';
@@ -1000,7 +1154,9 @@
       cart.forEach((item, i) => {
         invoice += `${i+1}. ${item.name}${item.size ? ` [${item.size}]` : ''} × ${item.qty}  ¥${(item.price * item.qty).toLocaleString()}\n`;
       });
-      invoice += `====================\n小計: ¥${subtotal.toLocaleString()} / 送料: ¥${shipping.toLocaleString()} / 合計: ¥${total.toLocaleString()}\n支払方法: ${METHOD_LABELS[currentMethod]}`;
+      invoice += `====================\n小計: ¥${subtotal.toLocaleString()} / 送料: ¥${shipping.toLocaleString()}`;
+      if (discount > 0) invoice += ` / 割引: -¥${discount.toLocaleString()}`;
+      invoice += ` / 合計: ¥${total.toLocaleString()}\n支払方法: ${METHOD_LABELS[currentMethod]}`;
 
       const commonData = {
         customer_name: name, customer_email: email,
@@ -1041,7 +1197,9 @@
         const bankOrders = JSON.parse(localStorage.getItem('hinoka_orders') || '[]');
         bankOrders.push({
           ref: bankOrderRef, id: bankOrderRef, name, email, addr,
-          subtotal, shipping, total,
+          subtotal, shipping, total, discount,
+          appliedCoupon: appliedCoupon ? appliedCoupon.id : null,
+          appliedPoints,
           paymentMethod: METHOD_LABELS[currentMethod], items: cart,
           status: 'pay', statusText: 'お支払い待ち',
           date: new Date().toLocaleDateString('ja-JP'),
