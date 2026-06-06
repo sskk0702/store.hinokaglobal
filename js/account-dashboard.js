@@ -357,11 +357,137 @@
     }).join('') + '</div>';
   }
 
+  // ══════════════════════════════════
+  //  ポイント・会員ランク ヘルパー
+  // ══════════════════════════════════
+  var RANK_TABLE = [
+    { name: 'BRONZE', label: 'ブロンズ', min: 0,       max: 9999,   rate: 1.0, discount: 0,    freeShip: 0 },
+    { name: 'SILVER', label: 'シルバー', min: 10000,  max: 49999,  rate: 1.2, discount: 3,    freeShip: 2 },
+    { name: 'GOLD',   label: 'ゴールド', min: 50000,  max: 149999, rate: 1.5, discount: 5,    freeShip: 5 },
+    { name: 'DIAMOND',label: 'ダイヤ',  min: 150000, max: Infinity,rate: 2.0, discount: 10,   freeShip: 999 }
+  ];
+
+  function calcTotalSpend() {
+    return getLS('hinoka_orders', []).reduce(function (s, o) {
+      return (['done','review','ship','receive'].indexOf(o.status) !== -1) ? s + Number(o.total || 0) : s;
+    }, 0);
+  }
+
+  function getMemberRank(spend) {
+    for (var i = RANK_TABLE.length - 1; i >= 0; i--) {
+      if (spend >= RANK_TABLE[i].min) return RANK_TABLE[i];
+    }
+    return RANK_TABLE[0];
+  }
+
+  function calcPoints() {
+    var stored = getLS('hinoka_points_log', null);
+    if (stored) return stored;
+    // 初回：過去注文から1%積算
+    var pts = getLS('hinoka_orders', []).reduce(function (s, o) {
+      return (['done','review'].indexOf(o.status) !== -1) ? s + Math.floor(Number(o.total || 0) * 0.01) : s;
+    }, 0);
+    return { total: pts, available: pts, expire: Math.floor(pts * 0.1) };
+  }
+
+  function addPoints(amount) {
+    var rank = getMemberRank(calcTotalSpend());
+    var earned = Math.floor(amount * 0.01 * rank.rate);
+    var pts = calcPoints();
+    pts.total += earned;
+    pts.available += earned;
+    setLS('hinoka_points_log', pts);
+    return earned;
+  }
+
+  // ══════════════════════════════════
+  //  月次クーポン自動生成
+  // ══════════════════════════════════
+  function getMonthCoupons() {
+    var now = new Date();
+    var ym = now.getFullYear() + '-' + (now.getMonth() + 1);
+    var stored = getLS('hinoka_coupons', []);
+    // 今月のクーポンがなければ生成
+    var hasThisMonth = stored.some(function (c) { return c.monthKey === ym; });
+    if (!hasThisMonth) {
+      var nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      var expiry = nextMonth.getFullYear() + '/' + (nextMonth.getMonth() + 1) + '/' + nextMonth.getDate();
+      var newCoupons = [
+        { id: 'MC-' + ym + '-1', monthKey: ym, amount: '¥30', title: '月間メンバークーポン 30円OFF', rule: '200円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false },
+        { id: 'MC-' + ym + '-2', monthKey: ym, amount: '5%', title: '今月限定 5%OFFクーポン', rule: '3,000円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false }
+      ];
+      stored = stored.concat(newCoupons);
+      setLS('hinoka_coupons', stored);
+    }
+    return stored.filter(function (c) { return !c.used; });
+  }
+
+  // ══════════════════════════════════
+  //  メッセージ自動生成（注文状態変化）
+  // ══════════════════════════════════
+  function autoGenerateMessages() {
+    var orders = getLS('hinoka_orders', []);
+    var msgs = getLS('hinoka_messages', []);
+    var existingIds = msgs.map(function (m) { return m.id; });
+    var added = false;
+    orders.forEach(function (o) {
+      var key = 'order-status-' + (o.ref || o.id) + '-' + o.status;
+      if (existingIds.indexOf(key) !== -1) return;
+      var templates = {
+        pay:     { type: 'order',     title: '【注文確認】お支払いをお待ちしています', body: '注文番号 ' + (o.ref || o.id) + ' のご注文が確定しました。3営業日以内に銀行振込をお願いします。\n合計金額：¥' + Number(o.total||0).toLocaleString() },
+        ship:    { type: 'logistics', title: '【発送完了】ご注文の商品が発送されました', body: '注文番号 ' + (o.ref || o.id) + ' の商品を発送しました。' + (o.trackingNumber ? '\n追跡番号：' + o.trackingNumber : '\n配送状況は追跡番号でご確認ください。') },
+        receive: { type: 'logistics', title: '【配達完了】商品が到着しました', body: '注文番号 ' + (o.ref || o.id) + ' の商品が到着しました。受け取り後は「受け取り確認」ボタンを押してください。' },
+        review:  { type: 'order',     title: '【レビュー依頼】商品はいかがでしたか？', body: '注文番号 ' + (o.ref || o.id) + ' のご購入ありがとうございました。ぜひレビューをお願いします！レビュー投稿で50ポイントプレゼント🎁' },
+        done:    { type: 'order',     title: '【注文完了】ご利用ありがとうございました', body: '注文番号 ' + (o.ref || o.id) + ' のお取引が完了しました。またのご利用をお待ちしております。' },
+        cancel:  { type: 'system',    title: '【注文キャンセル】ご注文をキャンセルしました', body: '注文番号 ' + (o.ref || o.id) + ' をキャンセルしました。ご不明な点はカスタマーサポートにお問い合わせください。' }
+      };
+      if (templates[o.status]) {
+        msgs.unshift({ id: key, type: templates[o.status].type, title: templates[o.status].title, body: templates[o.status].body, time: o.date || new Date().toLocaleString('ja-JP'), unread: true, orderId: o.ref || o.id });
+        added = true;
+      }
+    });
+    if (added) {
+      setLS('hinoka_messages', msgs);
+      window.dispatchEvent(new Event('messageUpdated'));
+    }
+  }
+
+  function isOver24h(dateStr) {
+    if (!dateStr) return false;
+    var d = new Date(dateStr.replace(/\//g, '-'));
+    return !isNaN(d.getTime()) && (Date.now() - d.getTime()) > 24 * 60 * 60 * 1000;
+  }
+
+  var CARRIER_URLS = {
+    yamato:    'https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.CRJZb001?id=',
+    sagawa:    'https://k2k.sagawa-exp.co.jp/p/sagawa/web/otoiawase.jsp?SearchNo=',
+    japanpost: 'https://trackings.post.japanpost.jp/services/srv/search/direct?reqCodeNo1=',
+    seino:     'https://track.seino.co.jp/kamotsu/denpyoNumber.do?DENPYO_NO='
+  };
+
+  function trackingLink(order) {
+    if (!order.trackingNumber) return '';
+    var carrier = order.carrier || 'yamato';
+    var url = (CARRIER_URLS[carrier] || CARRIER_URLS.yamato) + order.trackingNumber;
+    var labels = { yamato: 'ヤマト運輸', sagawa: '佐川急便', japanpost: '日本郵便', seino: '西濃運輸' };
+    return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#2b6cb0;padding:6px 12px;border:1px solid #bee3f8;background:#ebf8ff;margin-top:8px;text-decoration:none;">📦 ' + (labels[carrier] || '配送会社') + '　追跡番号：' + esc(order.trackingNumber) + ' →</a>';
+  }
+
   function orderCard(order) {
     var items = (order.items || []).map(function (item) {
       return '<div class="order-item"><img class="thumb" src="' + esc(item.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'"><div><div class="item-name">' + esc(item.name) + '</div><div class="item-spec">' + esc(item.spec || '') + '</div></div><div class="item-price">' + yen(item.price) + '<br>×' + Number(item.qty || 1) + '</div></div>';
     }).join('');
-    return '<article class="order-card"><div class="order-head"><span class="order-id">注文番号：' + esc(order.id) + '</span><span class="order-time">' + esc(order.date) + '</span><span class="status ' + esc(order.status) + '">' + esc(order.statusText) + '</span></div><div class="order-body">' + items + '</div><div class="order-foot"><div class="order-total">合計 <strong>' + yen(order.total) + '</strong></div><div class="action-row">' + orderActions(order) + '</div></div></article>';
+    var extra = '';
+    if (order.status === 'ship' || order.status === 'receive') extra += trackingLink(order);
+    if (order.status === 'receive' && isOver24h(order.shipDate || order.date)) {
+      extra += '<div style="margin-top:8px;padding:8px 12px;background:#fffaf0;border:1px solid #ffe0b2;font-size:11px;color:#b7791f;">⏰ 商品が届いていたら「受け取りを確認」ボタンを押してください。ご不明な点はカスタマーサポートへ。</div>';
+    }
+    if (order.status === 'review') {
+      var pendingCount = (order.items || []).length;
+      extra += '<div style="margin-top:8px;padding:8px 12px;background:#f0fff4;border:1px solid #9ae6b4;font-size:11px;color:#276749;">⭐ ' + pendingCount + '点の商品のレビューをお待ちしています。レビュー投稿で50ポイントプレゼント！</div>';
+    }
+    if (extra) extra = '<div style="padding:0 16px 12px;">' + extra + '</div>';
+    return '<article class="order-card"><div class="order-head"><span class="order-id">注文番号：' + esc(order.id) + '</span><span class="order-time">' + esc(order.date) + '</span><span class="status ' + esc(order.status) + '">' + esc(order.statusText) + '</span></div><div class="order-body">' + items + '</div>' + extra + '<div class="order-foot"><div class="order-total">合計 <strong>' + yen(order.total) + '</strong></div><div class="action-row">' + orderActions(order) + '</div></div></article>';
   }
 
   var BANK_INFO = {
@@ -375,12 +501,12 @@
     var status = order.status;
     var map = {
       pay:     [['今すぐ支払う','pay-now'], ['注文をキャンセル','cancel-order']],
-      ship:    [['発送状況を確認','track-order'], ['返金を申請','request-refund']],
+      ship:    [['追跡する','track-order'], ['返金を申請','request-refund']],
       receive: [['受け取りを確認','confirm-received'], ['問い合わせる','contact-support']],
       review:  [['レビューを書く','write-review'], ['もう一度購入','rebuy']],
       done:    [['もう一度購入','rebuy'], ['アフターサービス','after-service']],
       cancel:  [['もう一度購入','rebuy'], ['削除','delete-order']],
-      refund:  [['進捗を確認','track-refund'], ['問い合わせる','contact-support']]
+      refund:  [['サポートへ','contact-support']]
     };
     var actions = map[status] || [['詳細を見る','detail']];
     return actions.map(function (a, i) {
@@ -391,75 +517,93 @@
   function handleOrderAction(action, orderId) {
     var orders = getOrders();
     var order = orders.find(function (o) { return o.id === orderId; });
-    if (!order) return;
+    if (!order && action !== 'delete-order') return;
 
     if (action === 'pay-now') {
-      showBankModal(order);
-    } else if (action === 'cancel-order') {
-      if (!confirm('注文をキャンセルしますか？')) return;
-      var stored = getLS('hinoka_orders', []);
-      stored.forEach(function (o) { if ((o.ref || o.id) === orderId) { o.status = 'cancel'; o.statusText = 'キャンセル'; } });
-      setLS('hinoka_orders', stored);
-      window.dispatchEvent(new Event('orderUpdated'));
-      renderOrders(); showToast('注文をキャンセルしました');
-    } else if (action === 'confirm-received') {
-      var stored2 = getLS('hinoka_orders', []);
-      stored2.forEach(function (o) { if ((o.ref || o.id) === orderId) { o.status = 'review'; o.statusText = 'レビュー待ち'; } });
-      setLS('hinoka_orders', stored2);
-      window.dispatchEvent(new Event('orderUpdated'));
-      renderOrders(); showToast('受け取りを確認しました。レビューをお願いします。');
-    } else if (action === 'write-review') {
-      state.reviewFilter = 'pending';
-      switchView('reviews');
-    } else if (action === 'rebuy') {
+      // カートに注文商品を戻してcheckout.htmlへ
       var cart = getLS('cartItems', []);
       (order.items || []).forEach(function (item) {
         var found = cart.find(function (c) { return c.id === item.id; });
-        if (found) found.qty += Number(item.qty || 1);
+        if (found) found.qty = Math.max(found.qty, Number(item.qty || 1));
         else cart.push({ id: item.id, name: item.name, price: item.price, img: item.img || 'assets/images/placeholder.jpg', qty: Number(item.qty || 1), color: '', size: item.spec || '' });
       });
       setLS('cartItems', cart);
+      setLS('hinoka_repay_ref', orderId);
+      window.dispatchEvent(new Event('cartUpdated'));
+      location.href = 'checkout.html';
+
+    } else if (action === 'cancel-order') {
+      if (!confirm('注文をキャンセルしますか？\nキャンセル後は元に戻せません。')) return;
+      var stored = getLS('hinoka_orders', []);
+      stored.forEach(function (o) {
+        if ((o.ref || o.id) === orderId) { o.status = 'cancel'; o.statusText = 'キャンセル'; o.cancelDate = new Date().toLocaleString('ja-JP'); }
+      });
+      setLS('hinoka_orders', stored);
+      // カートからも該当商品を削除
+      if (order) {
+        var itemIds = (order.items || []).map(function (i) { return i.id; });
+        var newCart = getLS('cartItems', []).filter(function (c) { return itemIds.indexOf(c.id) === -1; });
+        setLS('cartItems', newCart);
+        window.dispatchEvent(new Event('cartUpdated'));
+      }
+      window.dispatchEvent(new Event('orderUpdated'));
+      autoGenerateMessages();
+      buildNavigation();
+      renderOrders();
+      showToast('注文をキャンセルしました。ご注文履歴のキャンセルタブよりご確認いただけます。');
+
+    } else if (action === 'confirm-received') {
+      var stored2 = getLS('hinoka_orders', []);
+      stored2.forEach(function (o) {
+        if ((o.ref || o.id) === orderId) { o.status = 'review'; o.statusText = 'レビュー待ち'; o.receivedDate = new Date().toLocaleString('ja-JP'); }
+      });
+      setLS('hinoka_orders', stored2);
+      // ポイント付与
+      if (order) {
+        var earned = addPoints(order.total || 0);
+        var rank = getMemberRank(calcTotalSpend());
+        showToast('受け取りを確認しました！' + earned + 'ポイントを獲得（' + rank.label + '会員 ' + rank.rate + '倍）');
+      }
+      window.dispatchEvent(new Event('orderUpdated'));
+      autoGenerateMessages();
+      buildNavigation();
+      renderOrders();
+
+    } else if (action === 'write-review') {
+      state.reviewFilter = 'pending';
+      switchView('reviews');
+
+    } else if (action === 'rebuy') {
+      var cart2 = getLS('cartItems', []);
+      (order.items || []).forEach(function (item) {
+        var found = cart2.find(function (c) { return c.id === item.id; });
+        if (found) found.qty += Number(item.qty || 1);
+        else cart2.push({ id: item.id, name: item.name, price: item.price, img: item.img || 'assets/images/placeholder.jpg', qty: Number(item.qty || 1), color: '', size: item.spec || '' });
+      });
+      setLS('cartItems', cart2);
       window.dispatchEvent(new Event('cartUpdated'));
       location.href = 'cart.html';
-    } else if (action === 'after-service' || action === 'contact-support') {
+
+    } else if (action === 'after-service' || action === 'contact-support' || action === 'request-refund') {
       switchView('service');
+
     } else if (action === 'track-order') {
-      showToast('配送状況：配送センターから発送中です。');
-    } else if (action === 'track-refund') {
-      showToast('返金申請を受け付けました。3〜5営業日以内に処理いたします。');
-    } else if (action === 'request-refund') {
-      switchView('service');
+      if (order && order.trackingNumber) {
+        var carrier = order.carrier || 'yamato';
+        var url = (CARRIER_URLS[carrier] || CARRIER_URLS.yamato) + order.trackingNumber;
+        window.open(url, '_blank');
+      } else {
+        showToast('追跡番号は発送後にメールでお知らせします。しばらくお待ちください。');
+      }
+
     } else if (action === 'delete-order') {
-      if (!confirm('この注文を削除しますか？')) return;
+      if (!confirm('この注文を履歴から削除しますか？')) return;
       var stored3 = getLS('hinoka_orders', []).filter(function (o) { return (o.ref || o.id) !== orderId; });
       setLS('hinoka_orders', stored3);
       window.dispatchEvent(new Event('orderUpdated'));
-      renderOrders(); showToast('注文を削除しました');
+      renderOrders();
+      showToast('注文を削除しました');
     }
-  }
-
-  function showBankModal(order) {
-    var existing = document.getElementById('bankInfoModal');
-    if (existing) existing.remove();
-    var div = document.createElement('div');
-    div.id = 'bankInfoModal';
-    div.className = 'modal-mask show';
-    div.innerHTML = '<div class="modal"><div class="modal-head"><h3 class="modal-title">銀行振込のご案内</h3><button class="close-btn" id="closeBankModal">&times;</button></div>' +
-      '<div style="font-size:13px;line-height:2.2;">' +
-      '<p style="margin-bottom:12px;color:#777;">注文番号：<strong style="color:#111;">' + esc(order ? order.id : '') + '</strong>　合計：<strong style="color:#bf0000;">' + yen(order ? order.total : 0) + '</strong></p>' +
-      '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
-      '<tr><td style="color:#777;padding:6px 0;width:90px;">銀行名</td><td>' + esc(BANK_INFO.name) + '</td></tr>' +
-      '<tr><td style="color:#777;padding:6px 0;">支店名</td><td>' + esc(BANK_INFO.branch) + '</td></tr>' +
-      '<tr><td style="color:#777;padding:6px 0;">口座種別</td><td>普通　' + esc(BANK_INFO.number) + '</td></tr>' +
-      '<tr><td style="color:#777;padding:6px 0;">口座名義</td><td>' + esc(BANK_INFO.holder) + '</td></tr>' +
-      '</table>' +
-      '<p style="margin-top:14px;font-size:11px;color:#b7791f;background:#fffaf0;padding:10px 14px;border:1px solid #ffe0b2;">⏰ お振込期限：ご注文日より3営業日以内<br>振込手数料はお客様ご負担となります。</p>' +
-      '</div>' +
-      '<button class="auth-btn" id="closeBankOk" style="margin-top:8px;">閉じる</button></div>';
-    document.body.appendChild(div);
-    document.getElementById('closeBankModal').addEventListener('click', function () { div.remove(); });
-    document.getElementById('closeBankOk').addEventListener('click', function () { div.remove(); });
-    div.addEventListener('click', function (e) { if (e.target === div) div.remove(); });
   }
 
   function renderOrders() {
@@ -473,16 +617,94 @@
 
   function renderAssets() {
     var html = head('MY ASSETS', 'クーポン、ポイント、残高、ギフトカードをまとめて管理します。') + tabsHtml(assetTabs, state.assetFilter, 'data-asset-tab');
+
     if (state.assetFilter === 'coupons') {
-      html += '<div class="coupon-grid">' + fallbackCoupons.map(function (c) {
-        return '<article class="coupon-card"><div class="coupon-face"><div class="coupon-amount">' + c.amount + '</div><div>COUPON</div></div><div class="coupon-info"><div class="message-title">' + c.title + '</div><div class="message-body">' + c.rule + '<br>' + c.date + '</div></div></article>';
-      }).join('') + '</div>';
+      var coupons = getMonthCoupons();
+      if (coupons.length) {
+        html += '<p style="font-size:11px;color:var(--muted);margin-bottom:12px;">毎月1日に新しいクーポンが自動配布されます。</p>';
+        html += '<div class="coupon-grid">' + coupons.map(function (c) {
+          return '<article class="coupon-card"><div class="coupon-face"><div class="coupon-amount">' + esc(c.amount) + '</div><div style="font-size:10px;letter-spacing:.1em;">COUPON</div></div><div class="coupon-info"><div class="message-title">' + esc(c.title) + '</div><div class="message-body">' + esc(c.rule) + '<br>' + esc(c.date) + '</div><button class="mini-btn primary" style="margin-top:10px;" data-coupon-use="' + esc(c.id) + '">このクーポンを使う</button></div></article>';
+        }).join('') + '</div>';
+      } else {
+        html += empty('現在利用可能なクーポンはありません。<br>毎月1日に新しいクーポンが配布されます。');
+      }
     }
-    if (state.assetFilter === 'points') html += '<div class="asset-grid">' + dataBlock('現在のポイント', '3,280') + dataBlock('累計ポイント', '18,920') + dataBlock('失効予定ポイント', '460') + dataBlock('利用可能額', '¥328') + '</div>';
-    if (state.assetFilter === 'balance') html += '<div class="asset-grid">' + dataBlock('アカウント残高', '¥8,600') + dataBlock('凍結中残高', '¥0') + dataBlock('累計チャージ', '¥20,000') + dataBlock('累計利用', '¥25,860') + '</div>';
-    if (state.assetFilter === 'giftcards') html += empty('ギフトカードはありません。');
+
+    if (state.assetFilter === 'points') {
+      var pts = calcPoints();
+      var spend = calcTotalSpend();
+      var rank = getMemberRank(spend);
+      html += '<div class="summary-card" style="padding:20px;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
+        '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;margin:0;">ポイント残高</h3>' +
+        '<span style="font-family:\'Cormorant Garamond\',serif;font-size:36px;color:#8b6f47;">' + Number(pts.available).toLocaleString() + '<span style="font-size:14px;"> pt</span></span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--muted);line-height:2;">100ポイント = ¥100として次回のお会計でご利用いただけます。</div>' +
+        '</div>' +
+        '<div class="stat-grid">' +
+        dataBlock('利用可能ポイント', Number(pts.available).toLocaleString() + ' pt') +
+        dataBlock('利用可能額', '¥' + Number(pts.available).toLocaleString()) +
+        dataBlock('失効予定ポイント', Number(pts.expire).toLocaleString() + ' pt') +
+        dataBlock('ポイント倍率', rank.rate + '倍（' + rank.label + '）') +
+        '</div>' +
+        '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">ポイント制度について</h3></div>' +
+        '<div style="font-size:12px;line-height:2.2;color:var(--muted);">' +
+        '● 購入金額の1%（ランクに応じて最大2%）をポイント付与<br>' +
+        '● 受け取り確認後、翌日に反映されます<br>' +
+        '● 有効期限：最終利用日より1年間<br>' +
+        '● レビュー投稿ボーナス：1件につき50ポイント' +
+        '</div></div>';
+    }
+
+    if (state.assetFilter === 'balance') {
+      var bal = getLS('hinoka_balance', { available: 0, frozen: 0, totalCharged: 0, totalUsed: 0 });
+      html += '<div class="summary-card" style="padding:20px;margin-bottom:16px;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;margin:0;">アカウント残高</h3>' +
+        '<span style="font-family:\'Cormorant Garamond\',serif;font-size:36px;">¥' + Number(bal.available).toLocaleString() + '</span>' +
+        '</div></div>' +
+        '<div class="stat-grid">' +
+        dataBlock('利用可能残高', '¥' + Number(bal.available).toLocaleString()) +
+        dataBlock('凍結中残高', '¥' + Number(bal.frozen).toLocaleString()) +
+        dataBlock('累計チャージ', '¥' + Number(bal.totalCharged).toLocaleString()) +
+        dataBlock('累計利用', '¥' + Number(bal.totalUsed).toLocaleString()) +
+        '</div>' +
+        '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">残高のご利用方法</h3></div>' +
+        '<div style="font-size:12px;line-height:2.2;color:var(--muted);">' +
+        '● チャージ：銀行振込でアカウントにチャージ可能<br>' +
+        '● お会計時にポイントと併用してご利用可能<br>' +
+        '● 返金は残高として返却（入金まで3〜5営業日）<br>' +
+        '● チャージご希望は <a href="mailto:sun_hua@hinokaglobal.com" style="color:#111;">sun_hua@hinokaglobal.com</a> までご連絡ください' +
+        '</div></div>';
+    }
+
+    if (state.assetFilter === 'giftcards') {
+      var cards = getLS('hinoka_giftcards', []);
+      if (cards.length) {
+        html += '<div class="coupon-grid">' + cards.map(function (g) {
+          return '<article class="coupon-card"><div class="coupon-face" style="background:#6b4f3a;"><div class="coupon-amount">¥' + Number(g.amount).toLocaleString() + '</div><div style="font-size:10px;">GIFT CARD</div></div><div class="coupon-info"><div class="message-title">ギフトカード残高：¥' + Number(g.balance).toLocaleString() + '</div><div class="message-body">コード：' + esc(g.code) + '<br>有効期限：' + esc(g.expiry) + '</div></div></article>';
+        }).join('') + '</div>';
+      } else {
+        html += empty('ギフトカードはありません。') +
+          '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">ギフトカードについて</h3></div>' +
+          '<div style="font-size:12px;line-height:2.2;color:var(--muted);">' +
+          '● ¥1,000 / ¥3,000 / ¥5,000 / ¥10,000の4種類<br>' +
+          '● 購入・受け取り後、コードを入力して使用<br>' +
+          '● 有効期限：発行日より1年間<br>' +
+          '● ギフトカードのご購入は <a href="mailto:sun_hua@hinokaglobal.com" style="color:#111;">sun_hua@hinokaglobal.com</a> までご連絡ください' +
+          '</div></div>';
+      }
+    }
+
     document.getElementById('view-assets').innerHTML = html;
     document.querySelectorAll('[data-asset-tab]').forEach(function (b) { b.addEventListener('click', function () { state.assetFilter = b.dataset.assetTab; renderAssets(); }); });
+    document.querySelectorAll('[data-coupon-use]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        showToast('クーポンをコピーしました。お会計時に適用されます。');
+        b.textContent = '✓ 適用済み';
+        b.disabled = true;
+      });
+    });
   }
 
   function productCard(p, meta) {
@@ -697,11 +919,69 @@
   }
 
   function messageCard(m) {
-    return '<article class="message-row"><div class="message-top"><div class="message-title">' + esc(m.title) + '</div>' + (m.unread ? '<span class="unread-tag">未読</span>' : '') + '</div><div class="message-body">' + esc(m.body) + '<br><span style="font-size:11px;">' + esc(m.time || '') + '</span></div></article>';
+    var typeIcons = { order: '🛍️', logistics: '📦', promo: '🎁', system: '🔔' };
+    var icon = typeIcons[m.type] || '📩';
+    return '<article class="message-row" style="cursor:pointer;" data-msg-id="' + esc(m.id) + '">' +
+      '<div class="message-top">' +
+      '<div class="message-title">' + icon + ' ' + esc(m.title) + '</div>' +
+      (m.unread ? '<span class="unread-tag">未読</span>' : '') +
+      '</div>' +
+      '<div class="message-body" style="white-space:pre-line;">' + esc((m.body || '').substring(0, 60)) + (m.body && m.body.length > 60 ? '...' : '') + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin-top:4px;">' + esc(m.time || '') + '</div>' +
+      '</article>';
   }
+
+  function showMessageDetail(msgId) {
+    var msgs = getMessages();
+    var m = msgs.find(function (x) { return x.id === msgId; });
+    if (!m) return;
+    // 既読にする
+    var stored = getLS('hinoka_messages', []);
+    stored.forEach(function (x) { if (x.id === msgId) x.unread = false; });
+    setLS('hinoka_messages', stored);
+    window.dispatchEvent(new Event('messageUpdated'));
+    buildNavigation();
+
+    var existing = document.getElementById('msgDetailModal');
+    if (existing) existing.remove();
+    var typeLabels = { order: '注文', logistics: '配送', promo: 'キャンペーン', system: 'お知らせ' };
+    var div = document.createElement('div');
+    div.id = 'msgDetailModal';
+    div.className = 'modal-mask show';
+    div.innerHTML = '<div class="modal"><div class="modal-head">' +
+      '<h3 class="modal-title">' + esc(m.title) + '</h3>' +
+      '<button class="close-btn" id="closeMsgModal">&times;</button>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:16px;">' +
+      '<span style="background:var(--soft);border:1px solid var(--line);padding:3px 8px;margin-right:8px;">' + esc(typeLabels[m.type] || 'お知らせ') + '</span>' +
+      esc(m.time || '') +
+      '</div>' +
+      '<div style="font-size:13px;line-height:2;white-space:pre-line;min-height:80px;">' + esc(m.body || '') + '</div>' +
+      (m.orderId ? '<a class="mini-btn primary" style="display:inline-block;margin-top:16px;" href="#orders" id="msgGoOrder">注文を確認する</a>' : '') +
+      '</div>';
+    document.body.appendChild(div);
+    document.getElementById('closeMsgModal').addEventListener('click', function () { div.remove(); renderMessages(); });
+    div.addEventListener('click', function (e) { if (e.target === div) { div.remove(); renderMessages(); } });
+    if (m.orderId && document.getElementById('msgGoOrder')) {
+      document.getElementById('msgGoOrder').addEventListener('click', function (e) {
+        e.preventDefault(); div.remove(); switchView('orders');
+      });
+    }
+  }
+
   function renderMessages() {
-    var list = getMessages().filter(function (m) { return state.messageFilter === 'all' || m.type === state.messageFilter; });
-    document.getElementById('view-messages').innerHTML = head('MESSAGE CENTER', '注文、配送、キャンペーン、システム通知を確認できます。', '<button class="outline-btn" id="markReadBtn" type="button">すべて既読</button>') + tabsHtml(messageTabs, state.messageFilter, 'data-message-tab') + '<div class="message-list">' + (list.length ? list.map(messageCard).join('') : empty('メッセージはありません。')) + '</div>';
+    autoGenerateMessages();
+    var allMsgs = getMessages();
+    var list = allMsgs.filter(function (m) { return state.messageFilter === 'all' || m.type === state.messageFilter; });
+    var promoList = list.filter(function (m) { return m.type === 'promo'; });
+
+    document.getElementById('view-messages').innerHTML = head('MESSAGE CENTER', '注文、配送、キャンペーン、システム通知を確認できます。', '<button class="outline-btn" id="markReadBtn" type="button">すべて既読</button>') +
+      tabsHtml(messageTabs, state.messageFilter, 'data-message-tab') +
+      (state.messageFilter === 'promo' && promoList.length === 0 ?
+        empty('現在配信中のキャンペーンはありません。') :
+        '<div class="message-list">' + (list.length ? list.map(messageCard).join('') : empty('メッセージはありません。')) + '</div>'
+      );
+
     document.querySelectorAll('[data-message-tab]').forEach(function (b) { b.addEventListener('click', function () { state.messageFilter = b.dataset.messageTab; renderMessages(); }); });
     document.getElementById('markReadBtn').addEventListener('click', function () {
       setLS('hinoka_messages', getMessages().map(function (m) { m.unread = false; return m; }));
@@ -709,12 +989,69 @@
       buildNavigation();
       renderMessages();
     });
+    document.querySelectorAll('[data-msg-id]').forEach(function (card) {
+      card.addEventListener('click', function () { showMessageDetail(card.dataset.msgId); });
+    });
   }
 
   function renderMember() {
+    var spend = calcTotalSpend();
+    var rank = getMemberRank(spend);
+    var nextRankIdx = RANK_TABLE.findIndex(function (r) { return r.name === rank.name; }) + 1;
+    var nextRank = RANK_TABLE[nextRankIdx];
+    var progress = nextRank ? Math.min(100, Math.round((spend - rank.min) / (nextRank.min - rank.min) * 100)) : 100;
+    var rankColors = { BRONZE: '#cd7f32', SILVER: '#aaa', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
+    var rankColor = rankColors[rank.name] || '#8b6f47';
+
     document.getElementById('view-member').innerHTML = head('MEMBER CENTER', '会員ランク、アップグレード条件、特典を確認できます。') +
-      '<div class="summary-card"><div class="section-title-row"><h3 class="section-title">GOLD MEMBER</h3><span class="badge gold">現在のランク</span></div><p class="view-desc">ダイヤモンド会員まで、あと ¥14,140 または 4,200 成長ポイントです。</p></div>' +
-      '<div class="member-grid">' + dataBlock('送料無料特典', '3回') + dataBlock('会員割引', '10%') + dataBlock('誕生日特典', '1件') + dataBlock('ポイント倍率', '1.5x') + '</div>';
+      '<div class="summary-card hero-summary">' +
+        '<div class="profile-hero">' +
+          '<div class="avatar" style="background:' + rankColor + ';font-size:20px;">★</div>' +
+          '<div>' +
+            '<div style="font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:4px;">現在のランク</div>' +
+            '<h2 class="hero-name" style="color:' + rankColor + ';">' + rank.label + ' MEMBER</h2>' +
+            '<div class="hero-meta">累計購入金額：¥' + Number(spend).toLocaleString() + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div>' +
+          (nextRank ?
+            '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">' + nextRank.label + 'まで ¥' + Number(nextRank.min - spend).toLocaleString() + '</div>' +
+            '<div style="background:var(--line);height:8px;border-radius:4px;overflow:hidden;">' +
+            '<div style="height:100%;width:' + progress + '%;background:' + rankColor + ';transition:width .6s;"></div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;"><span>¥' + Number(rank.min).toLocaleString() + '</span><span>¥' + Number(nextRank.min).toLocaleString() + '</span></div>' :
+            '<div style="font-size:12px;color:' + rankColor + ';">最高ランク達成！全ての特典をご利用いただけます。</div>'
+          ) +
+        '</div>' +
+      '</div>' +
+      '<div class="member-grid">' +
+        dataBlock('ポイント倍率', rank.rate + 'x') +
+        dataBlock('会員割引', rank.discount + '%') +
+        dataBlock('送料無料回数/月', rank.freeShip === 999 ? '無制限' : rank.freeShip + '回') +
+        dataBlock('誕生日特典', rank.name === 'BRONZE' ? 'なし' : 'クーポン配布') +
+      '</div>' +
+      '<div class="section-block"><div class="section-title-row"><h3 class="section-title">ランク別特典一覧</h3></div>' +
+      '<div style="overflow-x:auto;">' +
+      '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+      '<thead><tr style="background:var(--soft);">' +
+        '<th style="padding:10px;text-align:left;font-weight:400;color:var(--muted);">ランク</th>' +
+        '<th style="padding:10px;text-align:center;">昇格条件</th>' +
+        '<th style="padding:10px;text-align:center;">割引</th>' +
+        '<th style="padding:10px;text-align:center;">ポイント倍率</th>' +
+        '<th style="padding:10px;text-align:center;">送料無料</th>' +
+      '</tr></thead><tbody>' +
+      RANK_TABLE.map(function (r) {
+        var isCurrent = r.name === rank.name;
+        var color = rankColors[r.name] || '#8b6f47';
+        return '<tr style="border-bottom:1px solid var(--line);' + (isCurrent ? 'background:#fffaf0;' : '') + '">' +
+          '<td style="padding:10px;color:' + color + ';font-weight:' + (isCurrent ? '500' : '400') + ';">' + r.label + (isCurrent ? ' ◀ 現在' : '') + '</td>' +
+          '<td style="padding:10px;text-align:center;color:var(--muted);">¥' + Number(r.min).toLocaleString() + '〜</td>' +
+          '<td style="padding:10px;text-align:center;">' + r.discount + '%</td>' +
+          '<td style="padding:10px;text-align:center;">' + r.rate + 'x</td>' +
+          '<td style="padding:10px;text-align:center;">' + (r.freeShip === 999 ? '無制限' : r.freeShip + '回/月') + '</td>' +
+          '</tr>';
+      }).join('') +
+      '</tbody></table></div></div>';
   }
 
   function renderService() {
