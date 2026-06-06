@@ -188,11 +188,33 @@
     var order;
     try { order = JSON.parse(raw); } catch(e) { return; }
 
-    // 注文履歴に保存
+    // ステータスを設定
+    var isBankTransfer = order.paymentMethod && order.paymentMethod.indexOf('銀行振込') !== -1;
+    order.status     = isBankTransfer ? 'pay' : 'done';
+    order.statusText = isBankTransfer ? 'お支払い待ち' : '注文完了';
+    order.date       = new Date().toLocaleDateString('ja-JP');
+    if (!order.id) order.id = order.ref || ('HNK-' + Date.now().toString().slice(-8));
+
+    // 注文履歴に保存（重複除去）
     var orders = JSON.parse(localStorage.getItem('hinoka_orders') || '[]');
-    order.date = new Date().toLocaleDateString('ja-JP');
-    orders.push(order);
+    var key = order.ref || order.id;
+    var exists = orders.some(function(o) { return (o.ref || o.id) === key; });
+    if (!exists) orders.push(order);
     localStorage.setItem('hinoka_orders', JSON.stringify(orders));
+
+    // デフォルト住所を保存
+    if (order.defaultAddress) {
+      var addresses = JSON.parse(localStorage.getItem('hinoka_addresses') || '[]');
+      var da = order.defaultAddress;
+      da.id = da.id || ('addr-' + Date.now());
+      if (da.isDefault) {
+        addresses.forEach(function(a) { a.isDefault = false; });
+      }
+      var addrIdx = addresses.findIndex(function(a) { return a.id === da.id; });
+      if (addrIdx >= 0) addresses[addrIdx] = da; else addresses.push(da);
+      localStorage.setItem('hinoka_addresses', JSON.stringify(addresses));
+      window.dispatchEvent(new Event('addressUpdated'));
+    }
 
     // Show order card
     document.getElementById('orderCard').style.display = '';
@@ -215,11 +237,13 @@
       '<div class="order-row"><span>お届け先</span><span style="font-size:11px;text-align:right;max-width:300px;">'+(order.addr||'')+'</span></div>'+
       '<div class="total-row"><span>合計（税込）</span><span>¥'+(order.total||0).toLocaleString()+'</span></div>';
 
-    // Clear pending order
+    // Clear pending order and cart
     localStorage.removeItem('hinoka_pending_order');
     localStorage.removeItem('cartItems');
     localStorage.removeItem('hinoka_cart');
     window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new Event('orderUpdated'));
+    if (window.hinokaSyncSave) window.hinokaSyncSave();
   })();
   </script>
 </body>
