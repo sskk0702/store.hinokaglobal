@@ -9,7 +9,6 @@
   <style>
     body { padding-top: var(--nav-height); }
 
-    /* サイドナビ */
     .legal-layout {
       display: grid;
       grid-template-columns: 220px 1fr;
@@ -27,28 +26,26 @@
       padding: 24px;
     }
     .footer-shipping-badge {
-  font-size: 8px;
-  color: #777;
-  display: block;
-  margin-top: 4px;
-  line-height: 1.5;
-}
+      font-size: 8px; color: #777;
+      display: block; margin-top: 4px; line-height: 1.5;
+    }
     .legal-nav h4 {
       font-size: 10px; letter-spacing: 0.2em;
       text-transform: uppercase; color: var(--gray-dark);
       margin-bottom: 16px;
     }
     .legal-nav a {
-      display: block; font-size: 12px;
-      letter-spacing: 0.05em; color: var(--gray-dark);
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 12px; letter-spacing: 0.04em; color: var(--gray-dark);
+      padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
       transition: color var(--transition);
+    }
+    .legal-nav a .nav-num {
+      font-size: 10px; color: #aaa; min-width: 14px; flex-shrink: 0;
     }
     .legal-nav a:hover { color: var(--black); }
     .legal-nav a.active { color: var(--black); font-weight: 500; }
 
-    /* コンテンツ */
     .legal-section {
       padding-bottom: 64px;
       border-bottom: 1px solid var(--gray-light);
@@ -92,6 +89,40 @@
       white-space: nowrap;
     }
 
+    /* ── アコーディオン ── */
+    .acc-list { margin-top: 8px; }
+    .acc-item {
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .acc-item:first-child { border-top: 1px solid var(--gray-light); }
+    .acc-btn {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      padding: 16px 4px; background: none; border: none;
+      cursor: pointer; text-align: left; font-family: inherit;
+      transition: background .15s;
+    }
+    .acc-btn:hover { background: rgba(0,0,0,.02); }
+    .acc-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px; color: #b8a98a;
+      min-width: 22px; text-align: right; flex-shrink: 0;
+    }
+    .acc-label {
+      flex: 1; font-size: 13px; font-weight: 500;
+      letter-spacing: 0.05em; color: var(--black);
+    }
+    .acc-icon {
+      font-size: 18px; color: #aaa; transition: transform .25s; flex-shrink: 0;
+    }
+    .acc-item.open .acc-icon { transform: rotate(45deg); }
+    .acc-body {
+      display: none; padding: 4px 4px 20px 34px;
+    }
+    .acc-item.open .acc-body { display: block; }
+    .acc-body p, .acc-body li { font-size: 13px; color: #444; line-height: 2; }
+    .acc-body ul, .acc-body ol { padding-left: 18px; margin: 6px 0; }
+    .acc-body li { margin-bottom: 4px; }
+
     @media (max-width: 768px) {
       .legal-layout { grid-template-columns: 1fr; padding: 24px 16px; gap: 24px; }
       .legal-nav { position: static; }
@@ -105,20 +136,41 @@
     <!-- サイドナビ -->
     <nav class="legal-nav">
       <h4>目次</h4>
-      <a href="#company">特定商取引法に基づく表記</a>
-      <a href="#terms">利用規約</a>
-      <a href="#privacy">プライバシーポリシー</a>
-      <a href="#cookie">Cookieポリシー</a>
-      <a href="#faq">よくある質問</a>
-      <a href="#shipping">配送について</a>
-      <a href="#return">返品・交換ポリシー</a>
-      <a href="#gift">ギフトサービス</a>
+      <a href="#company"><span class="nav-num">1</span>特定商取引法に基づく表記</a>
+      <a href="#terms"><span class="nav-num">2</span>利用規約</a>
+      <a href="#privacy"><span class="nav-num">3</span>プライバシーポリシー</a>
+      <a href="#cookie"><span class="nav-num">4</span>Cookieポリシー</a>
+      <a href="#faq"><span class="nav-num">5</span>よくある質問（FAQ）</a>
+      <a href="#shipping"><span class="nav-num">6</span>配送について</a>
+      <a href="#return"><span class="nav-num">7</span>返品・交換ポリシー</a>
     </nav>
 
     <!-- コンテンツ -->
     <div>
 
-      <!-- ① 利用規約 -->
+      <!-- 1. 特定商取引法 -->
+      <div class="legal-section" id="company">
+        <h2>特定商取引法に基づく表記</h2>
+        <p class="legal-updated">最終更新日：2026年5月1日</p>
+        <table class="company-table">
+          <tr><td>販売事業者</td><td>株式会社HINOKA（HINOKA Co., Ltd.）</td></tr>
+          <tr><td>運営責任者</td><td>孫華</td></tr>
+          <tr><td>所在地</td><td>大阪府（詳細はお問い合わせください）</td></tr>
+          <tr><td>電話番号</td><td>お問い合わせはメールにてお願いいたします</td></tr>
+          <tr><td>メールアドレス</td><td><a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a></td></tr>
+          <tr><td>ホームページ</td><td><a href="https://hinokaglobal.com/" target="_blank" rel="noopener" style="color:var(--black);">https://hinokaglobal.com/</a></td></tr>
+          <tr><td>販売価格</td><td>各商品ページに税込価格を表示しております</td></tr>
+          <tr><td>商品代金以外の費用</td><td>消費税・送料（通常550円）・銀行振込手数料（振込の場合）</td></tr>
+          <tr><td>お支払い方法</td><td>PayPal・クレジットカード・銀行振込</td></tr>
+          <tr><td>お支払い時期</td><td>注文確定時（PayPal・クレジットカード）／注文後3営業日以内（銀行振込）</td></tr>
+          <tr><td>商品の引渡時期</td><td>ご注文確定後、最短翌々日にお届けいたします。受注生産品は個別にご案内いたします。</td></tr>
+          <tr><td>返品・交換について</td><td>商品到着後30日以内にご連絡ください。不良品・誤送品の送料は当社負担。お客様都合による返品は原則不可。</td></tr>
+          <tr><td>申込有効期限</td><td>ご注文後7日以内にお支払いが確認できない場合、ご注文をキャンセルさせていただく場合があります。</td></tr>
+          <tr><td>販売数量</td><td>各商品ページに記載しております</td></tr>
+        </table>
+      </div>
+
+      <!-- 2. 利用規約 -->
       <div class="legal-section" id="terms">
         <h2>利用規約</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
@@ -157,7 +209,7 @@
         <p>本規約は日本法に準拠し、本サイトに関する紛争については当社所在地を管轄する裁判所を専属的合意管轄裁判所とします。</p>
       </div>
 
-      <!-- ② プライバシーポリシー -->
+      <!-- 3. プライバシーポリシー -->
       <div class="legal-section" id="privacy">
         <h2>プライバシーポリシー</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
@@ -178,7 +230,7 @@
         </ul>
 
         <h3>3. 個人情報の第三者提供</h3>
-        <p>当社は、法令に基づく場合を除き、ご本人の同意なく第三者へ個人情報を提供いたしません。ただし、配送業者・決済事業者（PayPal・Formspree）へのサービス提供に必要な情報共有を除きます。</p>
+        <p>当社は、法令に基づく場合を除き、ご本人の同意なく第三者へ個人情報を提供いたしません。ただし、配送業者・決済事業者（PayPal）へのサービス提供に必要な情報共有を除きます。</p>
 
         <h3>4. 個人情報の管理</h3>
         <p>当社は、個人情報の漏えい、紛失、改ざん等を防止するため、適切な安全管理措置を講じます。</p>
@@ -194,7 +246,7 @@
         📧 <a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a></p>
       </div>
 
-      <!-- ③ Cookieポリシー -->
+      <!-- 4. Cookieポリシー -->
       <div class="legal-section" id="cookie">
         <h2>Cookieポリシー</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
@@ -213,191 +265,343 @@
         <p>ブラウザの設定からCookieを無効にすることができますが、一部機能が利用できなくなる場合があります。</p>
       </div>
 
-      <!-- ④ 配送について -->
-      <div class="legal-section" id="shipping">
-        <h2>配送について</h2>
-        <p class="legal-updated">最終更新日：2026年5月1日</p>
-
-        <h3>お届け目安</h3>
-        <p>最短でのお届けはご注文日の翌々日となります。</p>
-        <ul>
-          <li>※着荷日は交通事情や天候状況、遠隔地や離島などお届け場所等により若干遅れが生じる場合がございます。</li>
-          <li>※一部出荷が遅れる商品や受注生産商品等につきましては、別途納期のご連絡をいたします。</li>
-          <li>※配送は日本国内のみに限らせていただきます。</li>
-          <li>配送業者：ヤマト運輸</li>
-        </ul>
-
-        <h3>配送状況の確認</h3>
-        <p>商品発送後の配送状況につきましては、発送完了メール、またはマイアカウントの「ご注文履歴」からご確認いただけます。</p>
-        <p>「マイアカウント」より「ご注文履歴」に進み、ご注文の状況を追跡することができます。ご注文番号をクリックすると、配送追跡番号を含むご注文の詳細が表示されます。配送追跡番号をクリックすると、ヤマト運輸のウェブサイトに誘導されますので、そちらで配送の状況をご確認ください。</p>
-
-        <h3>送料</h3>
-        <ul>
-          <li>全国一律 <strong>550円（税込）</strong></li>
-          <li>北海道・沖縄・離島、一部大型商品は追加送料が発生する場合がございます。</li>
-        </ul>
-
-        <h3>長期不在により商品が受け取れなかった場合</h3>
-        <p>商品お届け時にご不在の場合、ポストに不在通知票を投函いたします。不在通知に記載の連絡先（ヤマト運輸）にご連絡していただき、次回の受け取り日時をお申し付けください。</p>
-        <p>ヤマト運輸での保管期限は、最初にご不在通知票を投函させていただいた日を含めて<strong>7日間</strong>となっております。この期間内にお受け取りいただけなかった場合には、自動的に返品となりますのでご注意ください。</p>
-        <ul>
-          <li>住所が不明の場合</li>
-          <li>長期不在により保管期限7日を経過した場合</li>
-        </ul>
-        <p>※返送された商品は弊社判断によりキャンセルとして処理をさせていただきます。再発送はお受けいたしかねますので、お早めにご連絡をお願いいたします。</p>
-
-        <h3>海外への発送について</h3>
-        <p>日本国外への配送は承っておりません。あらかじめご了承ください。<br>
-        <em>Please note that we do not ship outside of Japan.</em></p>
-      </div>
-
-      <!-- ④-b 返品・交換ポリシー -->
-      <div class="legal-section" id="return">
-        <h2>返品・交換ポリシー</h2>
-        <p class="legal-updated">最終更新日：2026年5月1日</p>
-
-        <h3>返品・交換について</h3>
-        <p>ご注文いただいた商品をお受け取りになられてから<strong>30日以内</strong>に返品または交換をお申し込みいただくことで、お受け付けをいたしております。</p>
-        <p>返品される商品は、新品であることを条件としています。商品は未着用、未洗濯であり、再販売可能な状態である必要があります。返品する商品には、請求書の原本、すべての梱包、タグ、関連する付属品が同封されている必要があります。不完全、破損、または汚れのある商品が返品された場合、返金は行われません。</p>
-
-        <h3>返品・交換をお受けできない商品</h3>
-        <p>注文内容や商品状態等により注文取り消し・返品をお受けできない場合がございます。次のような特定の商品は返品または交換は承ることができません。</p>
-        <ul>
-          <li>受注生産・カスタマイズ商品</li>
-          <li>予約販売商品</li>
-          <li>衛生上の理由により返品不可と指定された商品</li>
-          <li>ご購入時にセール価格または「返品不可」と記載されていた商品</li>
-          <li>その他、マイアカウントのご注文履歴に「返品リクエスト」が表示されない商品</li>
-        </ul>
-
-        <h3>返品時の送料</h3>
-        <p>お届けした商品が不良品であった場合や注文内容と異なる商品が届いた場合を除き、返品時の送料はお客様のご負担となります。</p>
-        <p>お客様都合による返品が度重なる場合、当社の裁量によりお取引をお断りする場合がございます。</p>
-
-        <h3>返品するにはどうすればいいですか？</h3>
-        <ol>
-          <li>マイアカウントの「ご注文履歴」より、返品対象の注文を選択し「返品リクエスト」をご申請ください。またはカスタマーサービス（<a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a>）にご連絡ください。</li>
-          <li>商品を返送する際には、商品到着時と同様の丈夫な箱に梱包してください。</li>
-          <li>弊社にて返品商品を受領・確認後、ご登録のお支払い方法に返金いたします（最大2週間を要する場合があります）。</li>
-        </ol>
-
-        <h3>注文のキャンセルについて</h3>
-        <p>ご注文後は、発送手続きが開始されるまでの間のみキャンセルを承ります。マイアカウントの「ご注文履歴」にてキャンセルオプションが表示される場合はそちらからお手続きください。発送後のキャンセルは返品手続きとなります。</p>
-        <p>返品・交換についてご質問がある場合は、HINOKAカスタマーサービス（<a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a>）までお気軽にお問い合わせください。</p>
-      </div>
-
-      <!-- ④-c FAQセクション -->
+      <!-- 5. よくある質問（FAQ） -->
       <div class="legal-section" id="faq">
         <h2>よくある質問（FAQ）</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
 
-        <h3>掲載商品のカラーについて</h3>
-        <p>公式オンラインストアで利用している商品画像は、実際のカラーにできるだけ近づけるように撮影しております。また、同じカラー名でも商品によって色味が異なる場合がございますので、商品画像で色味を確認された上で、ご注文へお進みください。モニター・ブラウザの設定により、多少の色味の違いが生じる場合がございますので、予めご了承ください。</p>
+        <div class="acc-list">
 
-        <h3>ログインできません</h3>
-        <p>ログイン情報や、パスワードのご入力にお間違いございませんか。半角英数の入力間違いやスペースが入力されている場合もログインができません。ご確認のうえ、再度お試しください。</p>
-        <p>ログイン情報・パスワードをお忘れの場合は、パスワードの再設定をお願いいたします。ログインページの「パスワードを忘れた場合」よりお手続きいただけます。</p>
-        <p>上記をお試しいただいてもログインできない場合は、以下の方法もお試しください。</p>
-        <ol>
-          <li>メモ帳等にパスワードを直接入力します。</li>
-          <li>入力したパスワードをコピーします。</li>
-          <li>ログイン画面のパスワード入力欄にコピーしたパスワードを貼り付けます。</li>
-          <li>ログインをお試しください。</li>
-        </ol>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">1</span>
+              <span class="acc-label">掲載商品のカラーについて</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>公式オンラインストアで利用している商品画像は、実際のカラーにできるだけ近づけるように撮影しております。また、同じカラー名でも商品によって色味が異なる場合がございますので、商品画像で色味を確認された上で、ご注文へお進みください。モニター・ブラウザの設定により、多少の色味の違いが生じる場合がございますので、予めご了承ください。</p>
+            </div>
+          </div>
 
-        <h3>「登録済のメールアドレス」のエラーが出ます</h3>
-        <p>会員登録に使用するメールアドレスがすでに使用されている可能性がございます。別のメールアドレスでお試しいただくか、パスワードの再設定をお願いいたします。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">2</span>
+              <span class="acc-label">ログインできません</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>ログイン情報や、パスワードのご入力にお間違いございませんか。半角英数の入力間違いやスペースが入力されている場合もログインができません。ご確認のうえ、再度お試しください。</p>
+              <p>ログイン情報・パスワードをお忘れの場合は、パスワードの再設定をお願いいたします。ログインページの「パスワードを忘れた場合」よりお手続きいただけます。</p>
+              <p>上記をお試しいただいてもログインできない場合は、以下の方法もお試しください。</p>
+              <ol>
+                <li>メモ帳等にパスワードを直接入力します。</li>
+                <li>入力したパスワードをコピーします。</li>
+                <li>ログイン画面のパスワード入力欄にコピーしたパスワードを貼り付けます。</li>
+                <li>ログインをお試しください。</li>
+              </ol>
+            </div>
+          </div>
 
-        <h3>会員情報の変更方法を教えてください</h3>
-        <p><a href="account.html" style="color:var(--black);">マイアカウント</a>よりログインいただき、「アカウント設定」からご登録情報をご変更ください。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">3</span>
+              <span class="acc-label">「登録済のメールアドレス」のエラーが出ます</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>会員登録に使用するメールアドレスがすでに使用されている可能性がございます。別のメールアドレスでお試しいただくか、パスワードの再設定をお願いいたします。</p>
+            </div>
+          </div>
 
-        <h3>会員登録を解除するにはどうすればよいですか？</h3>
-        <p>会員登録の解除をご希望の場合は、<a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a> までご連絡ください。一度登録を解除されますと、元の登録内容は復元できませんのでご注意ください。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">4</span>
+              <span class="acc-label">会員情報の変更方法を教えてください</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p><a href="account.html" style="color:var(--black);">マイアカウント</a>よりログインいただき、「アカウント設定」からご登録情報をご変更ください。</p>
+            </div>
+          </div>
 
-        <h3>メールが届きません</h3>
-        <p>会員登録やご注文手続き時にメールが届かない場合は、メール配信の遅延や入力の誤り、または正常に送信されていない可能性がございます。</p>
-        <p>メールアドレスに誤りがない場合、迷惑メール対策（セキュリティ設定など）によりメールが届かない場合があります。以下のドメインを受信リストに追加してください。</p>
-        <ul>
-          <li><code>hinokaglobal.com</code></li>
-          <li><code>sun_hua@hinokaglobal.com</code></li>
-        </ul>
-        <p>上記設定後もメールが届かない場合は、入力アドレスに誤りがあった可能性がございますので、お手数ですが再度お申込みをお願いします。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">5</span>
+              <span class="acc-label">会員登録を解除するにはどうすればよいですか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>会員登録の解除をご希望の場合は、<a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a> までご連絡ください。一度登録を解除されますと、元の登録内容は復元できませんのでご注意ください。</p>
+            </div>
+          </div>
 
-        <h3>注文した商品はいつ届きますか？</h3>
-        <p>最短でのお届けはご注文日の翌々日となります。配送業者はヤマト運輸です。</p>
-        <ul>
-          <li>※着荷日は交通事情や天候状況、遠隔地や離島などお届け場所等により若干遅れが生じる場合がございます。</li>
-          <li>※受注生産商品等につきましては、別途納期のご連絡をいたします。</li>
-          <li>※配送は日本国内のみに限らせていただきます。</li>
-        </ul>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">6</span>
+              <span class="acc-label">メールが届きません</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>会員登録やご注文手続き時にメールが届かない場合は、メール配信の遅延や入力の誤り、または正常に送信されていない可能性がございます。</p>
+              <p>メールアドレスに誤りがない場合、迷惑メール対策（セキュリティ設定など）によりメールが届かない場合があります。以下のドメインを受信リストに追加してください。</p>
+              <ul>
+                <li><code>hinokaglobal.com</code></li>
+              </ul>
+              <p>上記設定後もメールが届かない場合は、入力アドレスに誤りがあった可能性がございますので、お手数ですが再度お申込みをお願いします。</p>
+            </div>
+          </div>
 
-        <h3>配送料はいくらですか？</h3>
-        <p>全国一律 <strong>550円（税込）</strong>となります。北海道・沖縄・離島、一部大型商品は追加送料が発生する場合がございます。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">7</span>
+              <span class="acc-label">注文した商品はいつ届きますか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>最短でのお届けはご注文日の翌々日となります。配送業者はヤマト運輸です。</p>
+              <ul>
+                <li>※着荷日は交通事情や天候状況、遠隔地や離島などお届け場所等により若干遅れが生じる場合がございます。</li>
+                <li>※受注生産商品等につきましては、別途納期のご連絡をいたします。</li>
+                <li>※配送は日本国内のみに限らせていただきます。</li>
+              </ul>
+            </div>
+          </div>
 
-        <h3>海外へ発送できますか？</h3>
-        <p>海外への発送はいたしかねます。国内の発送のみとなっておりますので、予めご了承ください。<br>
-        <em>Please note that we do not ship outside of Japan.</em></p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">8</span>
+              <span class="acc-label">配送料はいくらですか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>全国一律 <strong>550円（税込）</strong>となります。北海道・沖縄・離島、一部大型商品は追加送料が発生する場合がございます。</p>
+            </div>
+          </div>
 
-        <h3>別々の注文をまとめて発送できますか？</h3>
-        <p>複数注文をおまとめするサービスは対応しておりません。ご注文ごとに発送いたしますので、予めご了承ください。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">9</span>
+              <span class="acc-label">海外へ発送できますか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>海外への発送はいたしかねます。国内の発送のみとなっておりますので、予めご了承ください。<br>
+              <em>Please note that we do not ship outside of Japan.</em></p>
+            </div>
+          </div>
 
-        <h3>長期不在により商品が戻ってしまいました</h3>
-        <p>商品お届け時にご不在の場合、ポストに不在通知票を投函いたします。不在通知に記載のヤマト運輸連絡先にご連絡していただき、次回の受け取り日時をお申し付けください。ヤマト運輸での保管期限は、最初にご不在通知票を投函させていただいた日を含めて<strong>7日間</strong>となっております。この期間内にお受け取りいただけなかった場合には、自動的に返品となりますのでご注意ください。</p>
-        <p>返送された商品の再発送はお受けいたしかねますので、お早めにご連絡をお願いいたします（<a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a>）。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">10</span>
+              <span class="acc-label">別々の注文をまとめて発送できますか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>複数注文をおまとめするサービスは対応しておりません。ご注文ごとに発送いたしますので、予めご了承ください。</p>
+            </div>
+          </div>
 
-        <h3>推奨環境はありますか？</h3>
-        <p>以下の環境でのご利用を推奨しております。</p>
-        <ul>
-          <li><strong>PC（Windows）：</strong>Google Chrome（最新版）、Mozilla Firefox（最新版）、Microsoft Edge（最新版）</li>
-          <li><strong>PC（Mac）：</strong>Safari（最新版）、Google Chrome（最新版）</li>
-          <li><strong>スマートフォン（iPhone）：</strong>Safari（最新版）、Google Chrome（最新版）</li>
-          <li><strong>スマートフォン（Android）：</strong>Google Chrome（最新版）</li>
-        </ul>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">11</span>
+              <span class="acc-label">長期不在により商品が戻ってしまいました</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>商品お届け時にご不在の場合、ポストに不在通知票を投函いたします。不在通知に記載のヤマト運輸連絡先にご連絡していただき、次回の受け取り日時をお申し付けください。ヤマト運輸での保管期限は、最初にご不在通知票を投函させていただいた日を含めて<strong>7日間</strong>となっております。この期間内にお受け取りいただけなかった場合には、自動的に返品となりますのでご注意ください。</p>
+              <p>返送された商品の再発送はお受けいたしかねますので、お早めにご連絡をお願いいたします（<a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a>）。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">12</span>
+              <span class="acc-label">推奨環境はありますか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>以下の環境でのご利用を推奨しております。</p>
+              <ul>
+                <li><strong>PC（Windows）：</strong>Google Chrome（最新版）、Mozilla Firefox（最新版）、Microsoft Edge（最新版）</li>
+                <li><strong>PC（Mac）：</strong>Safari（最新版）、Google Chrome（最新版）</li>
+                <li><strong>スマートフォン（iPhone）：</strong>Safari（最新版）、Google Chrome（最新版）</li>
+                <li><strong>スマートフォン（Android）：</strong>Google Chrome（最新版）</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- ④-d ギフトサービスについて -->
-      <div class="legal-section" id="gift">
-        <h2>ギフトサービスについて</h2>
+      <!-- 6. 配送について -->
+      <div class="legal-section" id="shipping">
+        <h2>配送について</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
 
-        <h3>ギフトカードについて</h3>
-        <p>HINOKAでは、大切な方への贈り物としてギフトカードをご用意しております。</p>
-        <ul>
-          <li>金額：¥1,000 / ¥3,000 / ¥5,000 / ¥10,000の4種類</li>
-          <li>有効期限：発行日より1年間</li>
-          <li>ご購入・ご利用はオンラインストアのみとなります</li>
-          <li>複数枚のギフトカードを1回のお会計でご利用いただけます</li>
-          <li>ギフトカードでのお支払い分は返金対象外となります（残高は返却されます）</li>
-        </ul>
-        <p>ギフトカードのご購入・お問い合わせは <a href="mailto:sun_hua@hinokaglobal.com" style="color:var(--black);">sun_hua@hinokaglobal.com</a> までご連絡ください。</p>
+        <div class="acc-list">
 
-        <h3>ギフト包装について</h3>
-        <p>現在、ギフト包装サービスは準備中です。ご希望の場合はカスタマーサービスまでお問い合わせください。対応可能な場合はご案内いたします。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">1</span>
+              <span class="acc-label">お届け目安</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>最短でのお届けはご注文日の翌々日となります。配送業者はヤマト運輸です。</p>
+              <ul>
+                <li>※着荷日は交通事情や天候状況、遠隔地や離島などお届け場所等により若干遅れが生じる場合がございます。</li>
+                <li>※一部出荷が遅れる商品や受注生産商品等につきましては、別途納期のご連絡をいたします。</li>
+                <li>※配送は日本国内のみに限らせていただきます。</li>
+              </ul>
+            </div>
+          </div>
 
-        <h3>ギフトとしてのご注文について</h3>
-        <p>贈り物としてのご注文の場合、お届け先に受取人様のご住所をご入力ください。納品書・明細書のご同封有無についてはご注文時の備考欄にご記入いただくか、カスタマーサービスまでご連絡ください。</p>
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">2</span>
+              <span class="acc-label">配送状況の確認</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>商品発送後の配送状況につきましては、発送完了メール、またはマイアカウントの「ご注文履歴」からご確認いただけます。</p>
+              <p>「マイアカウント」より「ご注文履歴」に進み、ご注文の状況を追跡することができます。ご注文番号をクリックすると、配送追跡番号を含むご注文の詳細が表示されます。配送追跡番号をクリックすると、ヤマト運輸のウェブサイトに誘導されますので、そちらで配送の状況をご確認ください。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">3</span>
+              <span class="acc-label">送料</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <ul>
+                <li>全国一律 <strong>550円（税込）</strong></li>
+                <li>北海道・沖縄・離島、一部大型商品は追加送料が発生する場合がございます。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">4</span>
+              <span class="acc-label">長期不在により商品が受け取れなかった場合</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>商品お届け時にご不在の場合、ポストに不在通知票を投函いたします。不在通知に記載の連絡先（ヤマト運輸）にご連絡していただき、次回の受け取り日時をお申し付けください。</p>
+              <p>ヤマト運輸での保管期限は、最初にご不在通知票を投函させていただいた日を含めて<strong>7日間</strong>となっております。この期間内にお受け取りいただけなかった場合には、自動的に返品となりますのでご注意ください。</p>
+              <ul>
+                <li>住所が不明の場合</li>
+                <li>長期不在により保管期限7日を経過した場合</li>
+              </ul>
+              <p>※返送された商品は弊社判断によりキャンセルとして処理をさせていただきます。再発送はお受けいたしかねますので、お早めにご連絡をお願いいたします。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">5</span>
+              <span class="acc-label">海外への発送について</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>日本国外への配送は承っておりません。あらかじめご了承ください。<br>
+              <em>Please note that we do not ship outside of Japan.</em></p>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- ⑤ 会社情報（特商法） -->
-      <div class="legal-section" id="company">
-        <h2>特定商取引法に基づく表記</h2>
+      <!-- 7. 返品・交換ポリシー -->
+      <div class="legal-section" id="return">
+        <h2>返品・交換ポリシー</h2>
         <p class="legal-updated">最終更新日：2026年5月1日</p>
-        <table class="company-table">
-          <tr><td>販売事業者</td><td>株式会社HINOKA（HINOKA Co., Ltd.）</td></tr>
-          <tr><td>運営責任者</td><td>孫華</td></tr>
-          <tr><td>所在地</td><td>神奈川県（詳細はお問い合わせください）</td></tr>
-          <tr><td>電話番号</td><td>お問い合わせはメールにてお願いいたします</td></tr>
-          <tr><td>メールアドレス</td><td><a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a></td></tr>
-          <tr><td>ホームページ</td><td><a href="https://hinokaglobal.com/" target="_blank" rel="noopener" style="color:var(--black);">https://hinokaglobal.com/</a></td></tr>
-          <tr><td>販売価格</td><td>各商品ページに税込価格を表示しております</td></tr>
-          <tr><td>商品代金以外の費用</td><td>消費税・送料（通常550円）・銀行振込手数料（振込の場合）</td></tr>
-          <tr><td>お支払い方法</td><td>PayPal・クレジットカード・銀行振込</td></tr>
-          <tr><td>お支払い時期</td><td>注文確定時（PayPal・クレジットカード）／注文後3営業日以内（銀行振込）</td></tr>
-          <tr><td>商品の引渡時期</td><td>ご注文確定後、最短翌々日にお届けいたします。受注生産品は個別にご案内いたします。</td></tr>
-          <tr><td>返品・交換について</td><td>商品到着後7日以内にご連絡ください。不良品・誤送品の送料は当社負担。お客様都合による返品は原則不可。</td></tr>
-          <tr><td>申込有効期限</td><td>ご注文後7日以内にお支払いが確認できない場合、ご注文をキャンセルさせていただく場合があります。</td></tr>
-          <tr><td>販売数量</td><td>各商品ページに記載しております</td></tr>
-        </table>
+
+        <div class="acc-list">
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">1</span>
+              <span class="acc-label">返品・交換について</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>ご注文いただいた商品をお受け取りになられてから<strong>30日以内</strong>に返品または交換をお申し込みいただくことで、お受け付けをいたしております。</p>
+              <p>返品される商品は、新品であることを条件としています。商品は未着用、未洗濯であり、再販売可能な状態である必要があります。返品する商品には、請求書の原本、すべての梱包、タグ、関連する付属品が同封されている必要があります。不完全、破損、または汚れのある商品が返品された場合、返金は行われません。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">2</span>
+              <span class="acc-label">返品・交換をお受けできない商品</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>注文内容や商品状態等により注文取り消し・返品をお受けできない場合がございます。次のような特定の商品は返品または交換は承ることができません。</p>
+              <ul>
+                <li>受注生産・カスタマイズ商品</li>
+                <li>予約販売商品</li>
+                <li>衛生上の理由により返品不可と指定された商品</li>
+                <li>ご購入時にセール価格または「返品不可」と記載されていた商品</li>
+                <li>その他、マイアカウントのご注文履歴に「返品リクエスト」が表示されない商品</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">3</span>
+              <span class="acc-label">返品時の送料</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>お届けした商品が不良品であった場合や注文内容と異なる商品が届いた場合を除き、返品時の送料はお客様のご負担となります。</p>
+              <p>お客様都合による返品が度重なる場合、当社の裁量によりお取引をお断りする場合がございます。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">4</span>
+              <span class="acc-label">返品するにはどうすればいいですか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <ol>
+                <li>マイアカウントの「ご注文履歴」より、返品対象の注文を選択し「返品リクエスト」をご申請ください。またはカスタマーサービス（<a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a>）にご連絡ください。</li>
+                <li>商品を返送する際には、商品到着時と同様の丈夫な箱に梱包してください。</li>
+                <li>弊社にて返品商品を受領・確認後、ご登録のお支払い方法に返金いたします。</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">5</span>
+              <span class="acc-label">返品にはどのくらいの時間がかかりますか？</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>商品の受取と返品処理を行うために、最大2週間を要する場合がございます。返品処理が完了しましたら、Eメールにて通知いたします。お客様がお送りになった返品商品の受取と処理が完了するまで、払い戻しは行われません。別途明記されない限り、ご購入時のお支払い方法に対して返金を行います。</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-btn" type="button">
+              <span class="acc-num">6</span>
+              <span class="acc-label">注文のキャンセルについて</span>
+              <span class="acc-icon">+</span>
+            </button>
+            <div class="acc-body">
+              <p>ご注文後は、発送手続きが開始されるまでの間のみキャンセルを承ります。マイアカウントの「ご注文履歴」にてキャンセルオプションが表示される場合はそちらからお手続きください。発送後のキャンセルは返品手続きとなります。</p>
+              <p>返品・交換についてご質問がある場合は、HINOKAカスタマーサービス（<a href="mailto:info@hinokaglobal.com" style="color:var(--black);">info@hinokaglobal.com</a>）までお気軽にお問い合わせください。</p>
+            </div>
+          </div>
+
+        </div>
       </div>
 
     </div>
@@ -437,8 +641,7 @@
         <a href="#faq">よくある質問（FAQ）</a>
         <a href="#shipping">配送について</a>
         <a href="#return">返品ポリシー</a>
-        <a href="#gift">ギフトサービスについて</a>
-        <a href="mailto:sun_hua@hinokaglobal.com">お問い合わせ</a>
+        <a href="mailto:info@hinokaglobal.com">お問い合わせ</a>
       </div>
     </div>
     <div class="store-footer-bottom">
@@ -449,16 +652,25 @@
 
   <script src="js/nav.js"></script>
   <script>
+    // アコーディオン
+    document.querySelectorAll('.acc-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.acc-item');
+        var isOpen = item.classList.contains('open');
+        item.classList.toggle('open', !isOpen);
+      });
+    });
+
     // アクティブナビ
-    const sections = document.querySelectorAll('.legal-section');
-    const navLinks  = document.querySelectorAll('.legal-nav a');
-    window.addEventListener('scroll', () => {
-      let current = '';
-      sections.forEach(s => {
+    var sections = document.querySelectorAll('.legal-section');
+    var navLinks  = document.querySelectorAll('.legal-nav a');
+    window.addEventListener('scroll', function() {
+      var current = '';
+      sections.forEach(function(s) {
         if (window.scrollY >= s.offsetTop - 120) current = s.id;
       });
-      navLinks.forEach(a => {
-        a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
+      navLinks.forEach(function(a) {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
       });
     });
   </script>
