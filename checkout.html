@@ -630,6 +630,41 @@
     document.getElementById('bank-number-display').textContent = CONFIG.bank.number;
     document.getElementById('bank-holder-display').textContent = CONFIG.bank.holder;
 
+    // デフォルト住所の自動入力
+    function fillDefaultAddress() {
+      try {
+        var addresses = JSON.parse(localStorage.getItem('hinoka_addresses') || '[]');
+        var def = addresses.find(function(a) { return a.isDefault; }) || addresses[0];
+        if (!def) return;
+        if (def.name) {
+          var parts = def.name.split(/\s+/);
+          document.getElementById('last-name').value  = parts[0] || '';
+          document.getElementById('first-name').value = parts[1] || '';
+        }
+        if (def.phone) document.getElementById('phone').value = def.phone;
+        if (def.zip) {
+          var z = def.zip.replace(/\D/g, '');
+          document.getElementById('postal').value = z.length > 3 ? z.slice(0,3)+'-'+z.slice(3,7) : z;
+        }
+        if (def.pref) {
+          var sel = document.getElementById('prefecture');
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === def.pref || sel.options[i].text === def.pref) {
+              sel.selectedIndex = i; break;
+            }
+          }
+        }
+        if (def.city)   document.getElementById('city').value    = def.city;
+        if (def.detail) {
+          var parts2 = def.detail.split(' ');
+          document.getElementById('address').value  = parts2[0] || '';
+          document.getElementById('address2').value = parts2.slice(1).join(' ') || '';
+        }
+        renderSummary();
+      } catch(e) {}
+    }
+    fillDefaultAddress();
+
     // ════════════════════════════════
     //  郵便番号 → 住所自動入力
     // ════════════════════════════════
@@ -834,10 +869,21 @@
             document.getElementById('address2').value
           ].filter(Boolean).join(' ');
           const orderRef = details.id || ('HNK-' + Date.now().toString().slice(-8));
+          const defaultAddress = {
+            id: 'addr-' + Date.now(),
+            name,
+            phone: document.getElementById('phone').value,
+            zip:   document.getElementById('postal').value,
+            pref:  document.getElementById('prefecture').value,
+            city:  document.getElementById('city').value,
+            detail: [document.getElementById('address').value, document.getElementById('address2').value].filter(Boolean).join(' '),
+            isDefault: true
+          };
           localStorage.setItem('hinoka_pending_order', JSON.stringify({
             ref: orderRef, name, email, addr,
             subtotal, shipping, total,
-            paymentMethod: METHOD_LABELS.credit, items: cart
+            paymentMethod: METHOD_LABELS.credit, items: cart,
+            defaultAddress
           }));
           localStorage.removeItem('cartItems');
           localStorage.removeItem('hinoka_cart');
@@ -975,8 +1021,39 @@
           });
         }
 
+        // 銀行振込注文を履歴に保存
+        const bankOrderRef = 'HNK-' + Date.now().toString().slice(-8);
+        const bankDefaultAddress = {
+          id: 'addr-' + Date.now(),
+          name,
+          phone: document.getElementById('phone').value,
+          zip:   document.getElementById('postal').value,
+          pref:  document.getElementById('prefecture').value,
+          city:  document.getElementById('city').value,
+          detail: [document.getElementById('address').value, document.getElementById('address2').value].filter(Boolean).join(' '),
+          isDefault: true
+        };
+        const bankOrders = JSON.parse(localStorage.getItem('hinoka_orders') || '[]');
+        bankOrders.push({
+          ref: bankOrderRef, id: bankOrderRef, name, email, addr,
+          subtotal, shipping, total,
+          paymentMethod: METHOD_LABELS[currentMethod], items: cart,
+          status: 'pay', statusText: 'お支払い待ち',
+          date: new Date().toLocaleDateString('ja-JP'),
+          defaultAddress: bankDefaultAddress
+        });
+        localStorage.setItem('hinoka_orders', JSON.stringify(bankOrders));
+        const bankAddresses = JSON.parse(localStorage.getItem('hinoka_addresses') || '[]');
+        bankAddresses.forEach(function(a) { a.isDefault = false; });
+        bankAddresses.push(bankDefaultAddress);
+        localStorage.setItem('hinoka_addresses', JSON.stringify(bankAddresses));
+        window.dispatchEvent(new Event('orderUpdated'));
+        window.dispatchEvent(new Event('addressUpdated'));
+        if (window.hinokaSyncSave) window.hinokaSyncSave();
+
         localStorage.removeItem('cartItems');
         localStorage.removeItem('hinoka_cart');
+        window.dispatchEvent(new Event('cartUpdated'));
         document.getElementById('pay-loading').style.display = 'none';
         document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[currentMethod] || '';
         document.getElementById('successModal').classList.add('open');
