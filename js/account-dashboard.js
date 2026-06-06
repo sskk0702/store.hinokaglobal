@@ -20,7 +20,8 @@
       '.hero-logo-area span:first-child{display:block;font-size:8px;letter-spacing:.25em;color:rgba(255,255,255,.35);}',
       '.hero-logo-area span:last-child{font-family:"Cormorant Garamond",serif;font-size:13px;color:rgba(255,255,255,.55);}',
       '.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}',
-      '.hero-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;text-align:center;backdrop-filter:blur(8px);}',
+      '.hero-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;text-align:center;backdrop-filter:blur(8px);cursor:pointer;transition:background .2s,border-color .2s;}',
+      '.hero-stat:hover{background:rgba(255,255,255,.13);border-color:rgba(201,169,110,.4);}',
       '.hero-stat-num{font-family:"Cormorant Garamond",serif;font-size:26px;color:#c9a96e;line-height:1;}',
       '.hero-stat-label{font-size:9px;letter-spacing:.15em;color:rgba(255,255,255,.45);margin-top:6px;}',
       '.quick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}',
@@ -89,12 +90,6 @@
     ['coupons', 'クーポン'],
     ['points',  'ポイント'],
     ['balance', '残高']
-  ];
-
-  var reviewTabs = [
-    ['pending', 'レビュー待ち'],
-    ['done',    '投稿済み'],
-    ['photo',   '写真付き']
   ];
 
   var messageTabs = [
@@ -283,6 +278,16 @@
     document.getElementById('sideAvatar').innerHTML = photo ? '<img src="' + esc(photo) + '" alt="">' : esc(initial);
     document.getElementById('sideName').textContent  = name;
     document.getElementById('sideEmail').textContent = user.email || '';
+
+    // Update rank chip if it exists
+    var chip = document.getElementById('sideRankChip');
+    if (chip) {
+      var rank = getMemberRank(calcTotalSpend());
+      var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
+      chip.textContent = rank.label.toUpperCase() + ' MEMBER';
+      chip.style.color = rankColors[rank.name] || '#8b6f47';
+      chip.style.borderColor = rankColors[rank.name] || '#8b6f47';
+    }
   }
 
   function biHead(en, ja) {
@@ -557,8 +562,8 @@
           '<div class="hero-logo-area"><span>HINOKA</span><span>MEMBER CARD</span></div>' +
         '</div>' +
         '<div class="hero-stats">' +
-          '<div class="hero-stat"><div class="hero-stat-num">' + Number(pts.available).toLocaleString() + '</div><div class="hero-stat-label">POINTS</div></div>' +
-          '<div class="hero-stat"><div class="hero-stat-num">' + coupons.length + '</div><div class="hero-stat-label">COUPONS</div></div>' +
+          '<div class="hero-stat" style="cursor:pointer;" data-hero-go="assets" data-asset-filter="points"><div class="hero-stat-num">' + Number(pts.available).toLocaleString() + '</div><div class="hero-stat-label">POINTS</div></div>' +
+          '<div class="hero-stat" style="cursor:pointer;" data-hero-go="assets" data-asset-filter="coupons"><div class="hero-stat-num">' + coupons.length + '</div><div class="hero-stat-label">COUPONS</div></div>' +
           '<div class="hero-stat"><div class="hero-stat-num">' + (state.user.emailVerified ? '✓' : '!') + '</div><div class="hero-stat-label">' + (state.user.emailVerified ? 'VERIFIED' : 'UNVERIFIED') + '</div></div>' +
         '</div>' +
       '</div>';
@@ -577,10 +582,10 @@
 
     var statsRow =
       '<div class="stat-grid">' +
-        dataBlock('累計注文数', orders.length + ' 件') +
-        dataBlock('累計購入金額', yen(spend)) +
-        dataBlock('お気に入り', wish.length + ' 件') +
-        dataBlock('未読メッセージ', msgs.filter(function (m) { return m.unread; }).length + ' 件') +
+        dataBlock('累計注文数', orders.length + ' 件', 'orders') +
+        dataBlock('累計購入金額', yen(spend), 'orders') +
+        dataBlock('お気に入り', wish.length + ' 件', 'wishlist') +
+        dataBlock('未読メッセージ', msgs.filter(function (m) { return m.unread; }).length + ' 件', 'messages') +
       '</div>';
 
     var recentOrder = orders[0] ? orderCard(orders[0]) : empty('ご注文履歴はありません。');
@@ -588,12 +593,12 @@
 
     var sections =
       '<div class="section-grid">' +
-        '<div class="section-block">' +
+        '<div class="section-block" style="box-shadow:0 4px 20px rgba(0,0,0,.07);border-radius:12px;">' +
           '<div class="section-title-row"><h3 class="section-title">RECENT ORDER <span style="font-size:10px;color:var(--muted);font-family:sans-serif;">最新のご注文</span></h3>' +
           '<button class="text-btn" type="button" data-go="orders">すべて見る</button></div>' +
           recentOrder +
         '</div>' +
-        '<div class="section-block">' +
+        '<div class="section-block" style="box-shadow:0 4px 20px rgba(0,0,0,.07);border-radius:12px;">' +
           '<div class="section-title-row"><h3 class="section-title">MESSAGE <span style="font-size:10px;color:var(--muted);font-family:sans-serif;">メッセージ</span></h3>' +
           '<button class="text-btn" type="button" data-go="messages">すべて見る</button></div>' +
           recentMsgs +
@@ -604,17 +609,36 @@
       head(biHead('OVERVIEW', 'ホーム'), '会員情報、ご注文状況、保有資産をまとめて確認できます。') +
       hero + quickGrid + statsRow + sections;
 
+    // bind hero stat clicks
+    document.querySelectorAll('[data-hero-go]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var v = el.dataset.heroGo;
+        if (el.dataset.assetFilter) state.assetFilter = el.dataset.assetFilter;
+        switchView(v);
+      });
+    });
+
     document.querySelectorAll('[data-order-filter]').forEach(function (b) {
       b.addEventListener('click', function () { state.orderFilter = b.dataset.orderFilter; switchView('orders'); });
     });
-    document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { switchView(b.dataset.go); }); });
+    document.querySelectorAll('[data-go]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (b.dataset.assetFilter) state.assetFilter = b.dataset.assetFilter;
+        switchView(b.dataset.go);
+      });
+    });
     document.querySelectorAll('[data-order-action]').forEach(function (b) {
       b.addEventListener('click', function () { handleOrderAction(b.dataset.orderAction, b.dataset.orderId); });
     });
   }
 
-  function dataBlock(label, value) {
-    return '<div class="data-card"><div class="data-label">' + label + '</div><div class="data-value">' + value + '</div></div>';
+  function dataBlock(label, value, goView, assetTab) {
+    var attrs = '';
+    if (goView) {
+      attrs += ' data-go="' + esc(goView) + '"';
+      if (assetTab) attrs += ' data-asset-filter="' + esc(assetTab) + '"';
+    }
+    return '<div class="data-card"' + attrs + '><div class="data-label">' + label + '</div><div class="data-value">' + value + '</div></div>';
   }
   function empty(text) { return '<div class="empty">' + text + '</div>'; }
 
@@ -640,7 +664,7 @@
   }
 
   // ══════════════════════════════════
-  //  MY ASSETS（ギフトカード削除済み）
+  //  MY ASSETS（プレミアムUI）
   // ══════════════════════════════════
   function renderAssets() {
     var html = head(biHead('MY ASSETS', '資産管理'), 'クーポン、ポイント、残高をまとめて管理します。') + tabsHtml(assetTabs, state.assetFilter, 'data-asset-tab');
@@ -661,19 +685,19 @@
       var pts   = calcPoints();
       var spend = calcTotalSpend();
       var rank  = getMemberRank(spend);
+      // Premium dark gradient card
       html +=
-        '<div class="summary-card" style="padding:20px;">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">' +
-            '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;margin:0;">ポイント残高</h3>' +
-            '<span style="font-family:\'Cormorant Garamond\',serif;font-size:36px;color:#8b6f47;">' + Number(pts.available).toLocaleString() + '<span style="font-size:14px;"> pt</span></span>' +
-          '</div>' +
-          '<div style="font-size:11px;color:var(--muted);line-height:2;">100ポイント = ¥100として次回のお会計でご利用いただけます。</div>' +
+        '<div style="background:linear-gradient(135deg,#1a1a2e,#0f2040);border-radius:20px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:20px;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);">' +
+          '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;"></div>' +
+          '<div style="font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.45);margin-bottom:8px;">AVAILABLE POINTS</div>' +
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:56px;color:#c9a96e;line-height:1;margin-bottom:4px;">' + Number(pts.available).toLocaleString() + '<span style="font-size:20px;margin-left:6px;">pt</span></div>' +
+          '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;">1ポイント = ¥1 としてご利用いただけます</div>' +
         '</div>' +
         '<div class="stat-grid">' +
           dataBlock('利用可能ポイント', Number(pts.available).toLocaleString() + ' pt') +
           dataBlock('利用可能額', '¥' + Number(pts.available).toLocaleString()) +
           dataBlock('失効予定ポイント', Number(pts.expire).toLocaleString() + ' pt') +
-          dataBlock('ポイント倍率', rank.rate + '倍（' + rank.label + '）') +
+          dataBlock('ポイント倍率', rank.rate + '倍（' + rank.label + '）', 'member') +
         '</div>' +
         '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">ポイント制度について</h3></div>' +
           '<div style="font-size:11px;line-height:2.2;color:var(--muted);">' +
@@ -712,6 +736,12 @@
 
     document.getElementById('view-assets').innerHTML = html;
     document.querySelectorAll('[data-asset-tab]').forEach(function (b) { b.addEventListener('click', function () { state.assetFilter = b.dataset.assetTab; renderAssets(); }); });
+    document.querySelectorAll('[data-go]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (b.dataset.assetFilter) state.assetFilter = b.dataset.assetFilter;
+        switchView(b.dataset.go);
+      });
+    });
     document.querySelectorAll('[data-coupon-use]').forEach(function (b) {
       b.addEventListener('click', function () {
         showToast('クーポンをコピーしました。お会計時に適用されます。');
@@ -894,7 +924,19 @@
   //  レビュー管理
   // ══════════════════════════════════
   function renderReviews() {
-    var list = getReviews().filter(function (r) {
+    var allReviews = getReviews();
+    var pendingCnt = allReviews.filter(function(r){ return r.status === 'pending'; }).length;
+    var doneCnt = allReviews.filter(function(r){ return r.status === 'done'; }).length;
+    var photoCnt = allReviews.filter(function(r){ return r.hasPhoto; }).length;
+    var reviewTabs = [['pending', 'レビュー待ち（' + pendingCnt + '）']];
+    if (doneCnt > 0) reviewTabs.push(['done', '投稿済み（' + doneCnt + '）']);
+    if (photoCnt > 0) reviewTabs.push(['photo', '写真付き（' + photoCnt + '）']);
+    // reset filter if invalid
+    if (state.reviewFilter !== 'pending' && !(state.reviewFilter === 'done' && doneCnt > 0) && !(state.reviewFilter === 'photo' && photoCnt > 0)) {
+      state.reviewFilter = 'pending';
+    }
+
+    var list = allReviews.filter(function (r) {
       return state.reviewFilter === 'pending' ? r.status === 'pending' : state.reviewFilter === 'photo' ? r.hasPhoto : r.status === 'done';
     });
     document.getElementById('view-reviews').innerHTML = head(biHead('REVIEWS', 'レビュー管理'), 'レビュー待ち、投稿済み、写真付きレビューを管理します。') +
@@ -966,7 +1008,10 @@
   function messageCard(m) {
     var typeIcons = { order: '🛍️', logistics: '📦', promo: '🎁', system: '🔔' };
     var icon = typeIcons[m.type] || '📩';
-    return '<article class="message-row" style="cursor:pointer;" data-msg-id="' + esc(m.id) + '">' +
+    var unreadStyle = m.unread
+      ? ' msg-unread" style="border-left:3px solid #8b6f47;background:#fff;'
+      : ' msg-read" style="border-left:3px solid transparent;background:var(--soft);opacity:0.85;';
+    return '<article class="message-row' + unreadStyle + 'cursor:pointer;" data-msg-id="' + esc(m.id) + '">' +
       '<div class="message-top">' +
       '<div class="message-title">' + icon + ' ' + esc(m.title) + '</div>' +
       (m.unread ? '<span class="unread-tag">未読</span>' : '') +
@@ -1029,7 +1074,7 @@
   }
 
   // ══════════════════════════════════
-  //  会員ランク
+  //  会員ランク（プレミアムUI）
   // ══════════════════════════════════
   function renderMember() {
     var spend        = calcTotalSpend();
@@ -1039,27 +1084,24 @@
     var progress     = nextRank ? Math.min(100, Math.round((spend - rank.min) / (nextRank.min - rank.min) * 100)) : 100;
     var rankColors   = { BRONZE: '#cd7f32', SILVER: '#aaa', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
     var rankColor    = rankColors[rank.name] || '#8b6f47';
+    var rankMedals   = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
+    var rankMedal    = rankMedals[rank.name] || '⭐';
+
+    var heroCard =
+      '<div class="member-hero-card">' +
+        '<div class="member-rank-badge">' + rankMedal + '</div>' +
+        '<div class="member-rank-label">' + rank.label.toUpperCase() + ' MEMBER</div>' +
+        '<div class="member-rank-sub">累計購入金額：¥' + Number(spend).toLocaleString() + '</div>' +
+        (nextRank ?
+          '<div class="member-progress-track"><div class="member-progress-fill" style="width:' + progress + '%"></div></div>' +
+          '<div class="member-progress-labels"><span>¥' + Number(rank.min).toLocaleString() + '</span><span>' + nextRank.label + 'まで ¥' + Number(nextRank.min - spend).toLocaleString() + '</span><span>¥' + Number(nextRank.min).toLocaleString() + '</span></div>' :
+          '<div style="font-size:12px;color:#c9a96e;">✨ 最高ランク達成！全ての特典をご利用いただけます。</div>'
+        ) +
+      '</div>';
 
     document.getElementById('view-member').innerHTML =
       head(biHead('MEMBER CENTER', '会員ランク'), '会員ランク、アップグレード条件、特典を確認できます。') +
-      '<div class="summary-card hero-summary">' +
-        '<div class="profile-hero">' +
-          '<div class="avatar" style="background:' + rankColor + ';font-size:20px;">★</div>' +
-          '<div>' +
-            '<div style="font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:4px;">現在のランク</div>' +
-            '<h2 class="hero-name" style="color:' + rankColor + ';">' + rank.label + ' MEMBER</h2>' +
-            '<div class="hero-meta">累計購入金額：¥' + Number(spend).toLocaleString() + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div>' +
-          (nextRank ?
-            '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">' + nextRank.label + 'まで ¥' + Number(nextRank.min - spend).toLocaleString() + '</div>' +
-            '<div style="background:var(--line);height:8px;border-radius:4px;overflow:hidden;"><div style="height:100%;width:' + progress + '%;background:' + rankColor + ';transition:width .6s;"></div></div>' +
-            '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;"><span>¥' + Number(rank.min).toLocaleString() + '</span><span>¥' + Number(nextRank.min).toLocaleString() + '</span></div>' :
-            '<div style="font-size:12px;color:' + rankColor + ';">最高ランク達成！全ての特典をご利用いただけます。</div>'
-          ) +
-        '</div>' +
-      '</div>' +
+      heroCard +
       '<div class="member-grid">' +
         dataBlock('ポイント倍率', rank.rate + 'x') +
         dataBlock('会員割引', rank.discount + '%') +
@@ -1093,44 +1135,92 @@
   }
 
   // ══════════════════════════════════
-  //  カスタマーサポート
+  //  カスタマーサポート（プレミアムUI）
   // ══════════════════════════════════
   function renderService() {
     var services = [
-      { title: 'メールサポート', desc: 'ご注文、配送、返品・返金についてメールでご相談いただけます。通常24時間以内にご返答します。', href: 'mailto:info@hinokaglobal.com', btnText: 'メールを送る' },
-      { title: 'お問い合わせ', desc: '件名・注文番号・お問い合わせ内容をご記入の上、メールでお送りください。', href: 'mailto:info@hinokaglobal.com', btnText: 'メールを送る' },
-      { title: 'ヘルプセンター', desc: 'ご利用ガイド、配送・支払い方法をご確認いただけます。', href: 'legal.html#shipping', btnText: 'ページを開く' },
-      { title: 'よくある質問', desc: 'クーポン、ポイント、会員ランクなどの質問をまとめています。', href: 'legal.html', btnText: 'ページを開く' }
+      { icon: '✉️', title: 'メールサポート', desc: 'ご注文・配送・返品のご相談はメールで。通常24時間以内にご返答します。', href: 'mailto:info@hinokaglobal.com', btn: 'メールを送る →' },
+      { icon: '📋', title: 'お問い合わせ', desc: '注文番号・お問い合わせ内容をご記入の上お送りください。', href: 'mailto:info@hinokaglobal.com', btn: 'メールを送る →' },
+      { icon: '📚', title: 'ヘルプセンター', desc: 'ご利用ガイド・配送・支払い方法はこちら。', href: 'legal.html#shipping', btn: 'ページを開く →' },
+      { icon: '❓', title: 'よくある質問', desc: 'クーポン・ポイント・会員ランクなど。', href: 'legal.html', btn: 'FAQを見る →' }
     ];
     document.getElementById('view-service').innerHTML =
       head(biHead('CUSTOMER SERVICE', 'サポート'), 'サポート、ヘルプ、返品・返金ポリシーはこちらです。') +
       '<div class="service-grid">' + services.map(function (s) {
-        return '<article class="service-card"><div class="section-title-row"><h3 class="section-title">' + esc(s.title) + '</h3></div><p class="view-desc">' + esc(s.desc) + '</p><a class="mini-btn primary" href="' + esc(s.href) + '">' + esc(s.btnText) + '</a></article>';
+        return '<article class="service-card-v2">' +
+          '<div class="service-icon-lg">' + s.icon + '</div>' +
+          '<h3>' + esc(s.title) + '</h3>' +
+          '<p>' + esc(s.desc) + '</p>' +
+          '<a class="service-cta-link" href="' + esc(s.href) + '">' + esc(s.btn) + '</a>' +
+        '</article>';
       }).join('') + '</div>';
   }
 
   // ══════════════════════════════════
-  //  アカウント設定
+  //  アカウント設定（プレミアムUI）
   // ══════════════════════════════════
   function renderSettings() {
     var user = state.user;
     var logs = getLS('hinoka_login_log', []);
-    var loginLogHtml = logs.length
-      ? logs.map(function (l) {
-          return messageCard({ id: l.time, type: 'system', title: 'ログイン記録', body: l.ua, time: l.time, unread: false });
-        }).join('')
+    var name    = user.displayName || (user.email ? user.email.split('@')[0] : 'MEMBER');
+    var initial = (name || 'H').charAt(0).toUpperCase();
+    var spend   = calcTotalSpend();
+    var rank    = getMemberRank(spend);
+    var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
+    var rankColor  = rankColors[rank.name] || '#8b6f47';
+
+    function parseDevice(ua) {
+      if (!ua) return 'パソコン';
+      if (/iPhone/i.test(ua)) return 'iPhone';
+      if (/Android/i.test(ua)) return 'Android';
+      if (/Mobile/i.test(ua)) return 'モバイル端末';
+      return 'パソコン';
+    }
+    function deviceIcon(ua) {
+      var d = parseDevice(ua);
+      if (d === 'iPhone') return '📱';
+      if (d === 'Android') return '📱';
+      if (d === 'モバイル端末') return '📱';
+      return '💻';
+    }
+
+    var loginTimelineHtml = logs.length
+      ? '<div class="login-timeline">' + logs.map(function(l) {
+          return '<div class="login-entry">' +
+            '<div class="login-entry-icon">' + deviceIcon(l.ua) + '</div>' +
+            '<div><div class="login-entry-time">' + esc(l.time) + '</div>' +
+            '<div class="login-entry-device">' + esc(parseDevice(l.ua)) + '</div></div>' +
+          '</div>';
+        }).join('') + '</div>'
       : empty('ログイン記録はありません。');
+
+    var profileCard =
+      '<div class="settings-profile-card">' +
+        '<div class="settings-avatar-ring">' + esc(initial) + '</div>' +
+        '<div class="settings-profile-info">' +
+          '<div class="settings-profile-name">' + esc(name) + '</div>' +
+          '<div class="settings-profile-email">' + esc(user.email || '') + '</div>' +
+          '<div class="settings-profile-badge" style="color:' + rankColor + ';">▲ ' + rank.label.toUpperCase() + ' MEMBER</div>' +
+        '</div>' +
+      '</div>';
 
     document.getElementById('view-settings').innerHTML =
       head(biHead('ACCOUNT SETTINGS', 'アカウント設定'), 'プロフィール、安全設定、ログイン履歴を管理します。') +
-      '<div class="section-block"><div class="section-title-row"><h3 class="section-title">PROFILE <span style="font-size:10px;color:var(--muted);font-weight:400;">プロフィール</span></h3></div><div class="info-table">' +
-        infoRow('ニックネーム',     esc(user.displayName || '未設定'), '') +
-        infoRow('メールアドレス',   esc(user.email || ''), '') +
-        infoRow('メール確認',       user.emailVerified ? '確認済み' : '未確認', '<button class="mini-btn" id="resendVerifyBtn" type="button">再送信</button>') +
-        infoRow('パスワード',       '再設定メールを送信します', '<button class="mini-btn" id="changePwBtn" type="button">変更</button>') +
-        infoRow('メールマガジン',   '<span id="marketingLabel">受信しない</span>', '<label><input id="marketingToggle" type="checkbox" style="accent-color:#111;"></label>') +
-      '</div></div>' +
-      '<div class="section-block"><div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div><div class="message-list">' + loginLogHtml + '</div></div>';
+      profileCard +
+      '<div class="section-block" style="margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
+        '<div class="section-title-row"><h3 class="section-title">プロフィール・セキュリティ</h3></div>' +
+        '<div class="info-table">' +
+          infoRow('ニックネーム',     esc(user.displayName || '未設定'), '') +
+          infoRow('メールアドレス',   esc(user.email || ''), '') +
+          infoRow('メール確認',       user.emailVerified ? '確認済み ✓' : '未確認', '<button class="mini-btn" id="resendVerifyBtn" type="button">再送信</button>') +
+          infoRow('パスワード',       '再設定メールを送信します', '<button class="mini-btn" id="changePwBtn" type="button">変更</button>') +
+          infoRow('メールマガジン',   '<span id="marketingLabel">受信しない</span>', '<label><input id="marketingToggle" type="checkbox" style="accent-color:#111;"></label>') +
+        '</div>' +
+      '</div>' +
+      '<div class="section-block" style="box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
+        '<div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div>' +
+        loginTimelineHtml +
+      '</div>';
 
     document.getElementById('resendVerifyBtn').addEventListener('click', function () {
       if (auth.currentUser) auth.currentUser.sendEmailVerification().then(function () { showToast('確認メールを再送信しました'); }).catch(function () { showToast('送信に失敗しました'); });
