@@ -107,11 +107,11 @@
 
   var fallbackHistory = [
     { date: '今日', items: [
-      { id: 'h1', name: 'Relax Jacket', price: 14800, time: '21:08', img: 'assets/images/placeholder.jpg' },
-      { id: 'h2', name: 'Cotton Wide Pants', price: 15860, time: '19:42', img: 'assets/images/placeholder.jpg' }
+      { id: 'B001', name: 'プロ用ラベルプリンター', price: 12800, time: '21:08', img: 'assets/images/b001-1.jpg' },
+      { id: 'L001', name: 'ナチュラルコットンエコバッグ', price: 2800, time: '19:42', img: 'assets/images/l001-1.jpg' }
     ]},
     { date: '昨日', items: [
-      { id: 'h3', name: 'Minimal Tote Bag', price: 8600, time: '16:20', img: 'assets/images/placeholder.jpg' }
+      { id: 'P001', name: 'プレミアム ドッグフード 小粒 2kg', price: 3850, time: '16:20', img: 'assets/images/p001-1.jpg' }
     ]}
   ];
 
@@ -195,8 +195,8 @@
       });
     }
     return [
-      { id: 'w1', name: 'HINOKA Linen Shirt', price: 12800, oldPrice: 14800, img: 'assets/images/placeholder.jpg', stock: '在庫あり' },
-      { id: 'w2', name: 'Cotton Wide Pants', price: 15860, oldPrice: 17800, img: 'assets/images/placeholder.jpg', stock: '残りわずか' }
+      { id: 'B001', name: 'プロ用ラベルプリンター', price: 12800, oldPrice: 14800, img: 'assets/images/b001-1.jpg', stock: '在庫あり' },
+      { id: 'L001', name: 'ナチュラルコットンエコバッグ', price: 2800, oldPrice: null, img: 'assets/images/l001-1.jpg', stock: '残りわずか' }
     ];
   }
 
@@ -341,6 +341,9 @@
       b.addEventListener('click', function () { state.orderFilter = b.dataset.orderFilter; switchView('orders'); });
     });
     document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { switchView(b.dataset.go); }); });
+    document.querySelectorAll('[data-order-action]').forEach(function (b) {
+      b.addEventListener('click', function () { handleOrderAction(b.dataset.orderAction, b.dataset.orderId); });
+    });
   }
 
   function dataBlock(label, value) {
@@ -358,28 +361,114 @@
     var items = (order.items || []).map(function (item) {
       return '<div class="order-item"><img class="thumb" src="' + esc(item.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'"><div><div class="item-name">' + esc(item.name) + '</div><div class="item-spec">' + esc(item.spec || '') + '</div></div><div class="item-price">' + yen(item.price) + '<br>×' + Number(item.qty || 1) + '</div></div>';
     }).join('');
-    return '<article class="order-card"><div class="order-head"><span class="order-id">注文番号：' + esc(order.id) + '</span><span class="order-time">' + esc(order.date) + '</span><span class="status ' + esc(order.status) + '">' + esc(order.statusText) + '</span></div><div class="order-body">' + items + '</div><div class="order-foot"><div class="order-total">合計 <strong>' + yen(order.total) + '</strong></div><div class="action-row">' + orderActions(order.status) + '</div></div></article>';
+    return '<article class="order-card"><div class="order-head"><span class="order-id">注文番号：' + esc(order.id) + '</span><span class="order-time">' + esc(order.date) + '</span><span class="status ' + esc(order.status) + '">' + esc(order.statusText) + '</span></div><div class="order-body">' + items + '</div><div class="order-foot"><div class="order-total">合計 <strong>' + yen(order.total) + '</strong></div><div class="action-row">' + orderActions(order) + '</div></div></article>';
   }
 
-  function orderActions(status) {
+  var BANK_INFO = {
+    name:   'GMOあおぞらネット銀行（金融機関コード0310）',
+    branch: '法人営業部（支店コード101）',
+    number: '2569980',
+    holder: 'カ）ヒノカ'
+  };
+
+  function orderActions(order) {
+    var status = order.status;
     var map = {
-      pay: ['今すぐ支払う', '注文をキャンセル'],
-      ship: ['発送を確認', '返金を申請'],
-      receive: ['配送状況を見る', '受け取りを確認'],
-      review: ['レビューを書く', 'もう一度購入'],
-      done: ['もう一度購入', 'アフターサービス'],
-      cancel: ['もう一度購入', '削除'],
-      refund: ['進捗を見る', '問い合わせる']
+      pay:     [['今すぐ支払う','pay-now'], ['注文をキャンセル','cancel-order']],
+      ship:    [['発送状況を確認','track-order'], ['返金を申請','request-refund']],
+      receive: [['受け取りを確認','confirm-received'], ['問い合わせる','contact-support']],
+      review:  [['レビューを書く','write-review'], ['もう一度購入','rebuy']],
+      done:    [['もう一度購入','rebuy'], ['アフターサービス','after-service']],
+      cancel:  [['もう一度購入','rebuy'], ['削除','delete-order']],
+      refund:  [['進捗を確認','track-refund'], ['問い合わせる','contact-support']]
     };
-    return (map[status] || ['詳細を見る']).map(function (label, i) {
-      return '<button class="mini-btn ' + (i === 0 ? 'primary' : '') + '" type="button">' + label + '</button>';
+    var actions = map[status] || [['詳細を見る','detail']];
+    return actions.map(function (a, i) {
+      return '<button class="mini-btn ' + (i === 0 ? 'primary' : '') + '" type="button" data-order-action="' + a[1] + '" data-order-id="' + esc(order.id) + '">' + a[0] + '</button>';
     }).join('');
+  }
+
+  function handleOrderAction(action, orderId) {
+    var orders = getOrders();
+    var order = orders.find(function (o) { return o.id === orderId; });
+    if (!order) return;
+
+    if (action === 'pay-now') {
+      showBankModal(order);
+    } else if (action === 'cancel-order') {
+      if (!confirm('注文をキャンセルしますか？')) return;
+      var stored = getLS('hinoka_orders', []);
+      stored.forEach(function (o) { if ((o.ref || o.id) === orderId) { o.status = 'cancel'; o.statusText = 'キャンセル'; } });
+      setLS('hinoka_orders', stored);
+      window.dispatchEvent(new Event('orderUpdated'));
+      renderOrders(); showToast('注文をキャンセルしました');
+    } else if (action === 'confirm-received') {
+      var stored2 = getLS('hinoka_orders', []);
+      stored2.forEach(function (o) { if ((o.ref || o.id) === orderId) { o.status = 'review'; o.statusText = 'レビュー待ち'; } });
+      setLS('hinoka_orders', stored2);
+      window.dispatchEvent(new Event('orderUpdated'));
+      renderOrders(); showToast('受け取りを確認しました。レビューをお願いします。');
+    } else if (action === 'write-review') {
+      state.reviewFilter = 'pending';
+      switchView('reviews');
+    } else if (action === 'rebuy') {
+      var cart = getLS('cartItems', []);
+      (order.items || []).forEach(function (item) {
+        var found = cart.find(function (c) { return c.id === item.id; });
+        if (found) found.qty += Number(item.qty || 1);
+        else cart.push({ id: item.id, name: item.name, price: item.price, img: item.img || 'assets/images/placeholder.jpg', qty: Number(item.qty || 1), color: '', size: item.spec || '' });
+      });
+      setLS('cartItems', cart);
+      window.dispatchEvent(new Event('cartUpdated'));
+      location.href = 'cart.html';
+    } else if (action === 'after-service' || action === 'contact-support') {
+      switchView('service');
+    } else if (action === 'track-order') {
+      showToast('配送状況：配送センターから発送中です。');
+    } else if (action === 'track-refund') {
+      showToast('返金申請を受け付けました。3〜5営業日以内に処理いたします。');
+    } else if (action === 'request-refund') {
+      switchView('service');
+    } else if (action === 'delete-order') {
+      if (!confirm('この注文を削除しますか？')) return;
+      var stored3 = getLS('hinoka_orders', []).filter(function (o) { return (o.ref || o.id) !== orderId; });
+      setLS('hinoka_orders', stored3);
+      window.dispatchEvent(new Event('orderUpdated'));
+      renderOrders(); showToast('注文を削除しました');
+    }
+  }
+
+  function showBankModal(order) {
+    var existing = document.getElementById('bankInfoModal');
+    if (existing) existing.remove();
+    var div = document.createElement('div');
+    div.id = 'bankInfoModal';
+    div.className = 'modal-mask show';
+    div.innerHTML = '<div class="modal"><div class="modal-head"><h3 class="modal-title">銀行振込のご案内</h3><button class="close-btn" id="closeBankModal">&times;</button></div>' +
+      '<div style="font-size:13px;line-height:2.2;">' +
+      '<p style="margin-bottom:12px;color:#777;">注文番号：<strong style="color:#111;">' + esc(order ? order.id : '') + '</strong>　合計：<strong style="color:#bf0000;">' + yen(order ? order.total : 0) + '</strong></p>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+      '<tr><td style="color:#777;padding:6px 0;width:90px;">銀行名</td><td>' + esc(BANK_INFO.name) + '</td></tr>' +
+      '<tr><td style="color:#777;padding:6px 0;">支店名</td><td>' + esc(BANK_INFO.branch) + '</td></tr>' +
+      '<tr><td style="color:#777;padding:6px 0;">口座種別</td><td>普通　' + esc(BANK_INFO.number) + '</td></tr>' +
+      '<tr><td style="color:#777;padding:6px 0;">口座名義</td><td>' + esc(BANK_INFO.holder) + '</td></tr>' +
+      '</table>' +
+      '<p style="margin-top:14px;font-size:11px;color:#b7791f;background:#fffaf0;padding:10px 14px;border:1px solid #ffe0b2;">⏰ お振込期限：ご注文日より3営業日以内<br>振込手数料はお客様ご負担となります。</p>' +
+      '</div>' +
+      '<button class="auth-btn" id="closeBankOk" style="margin-top:8px;">閉じる</button></div>';
+    document.body.appendChild(div);
+    document.getElementById('closeBankModal').addEventListener('click', function () { div.remove(); });
+    document.getElementById('closeBankOk').addEventListener('click', function () { div.remove(); });
+    div.addEventListener('click', function (e) { if (e.target === div) div.remove(); });
   }
 
   function renderOrders() {
     var list = getOrders().filter(function (o) { return state.orderFilter === 'all' || o.status === state.orderFilter; });
     document.getElementById('view-orders').innerHTML = head('MY ORDERS', 'ご注文状況の確認、配送確認、レビュー、返品・返金申請ができます。') + tabsHtml(orderTabs, state.orderFilter, 'data-order-tab') + '<div class="order-list">' + (list.length ? list.map(orderCard).join('') : empty('該当するご注文はありません。')) + '</div>';
     document.querySelectorAll('[data-order-tab]').forEach(function (b) { b.addEventListener('click', function () { state.orderFilter = b.dataset.orderTab; renderOrders(); }); });
+    document.querySelectorAll('[data-order-action]').forEach(function (b) {
+      b.addEventListener('click', function () { handleOrderAction(b.dataset.orderAction, b.dataset.orderId); });
+    });
   }
 
   function renderAssets() {
@@ -441,8 +530,47 @@
   function renderCart() {
     var items = getCartItems();
     var total = items.reduce(function (s, i) { return s + Number(i.price || 0) * Number(i.qty || 1); }, 0);
-    var body = items.length ? orderCard({ id: 'SHOPPING BAG', date: '現在のバッグ内容', status: 'done', statusText: 'お会計前', total: total, items: items.map(function (i) { return { name: i.name, spec: [i.color, i.size].filter(Boolean).join(' / '), price: i.price, qty: i.qty, img: i.img }; }) }) : empty('ショッピングバッグは空です。');
-    document.getElementById('view-cart').innerHTML = head('SHOPPING BAG', '個人ページからバッグの内容を確認できます。', '<button class="outline-btn" type="button" onclick="location.href=\'cart.html\'">バッグへ進む</button>') + '<div class="order-list">' + body + '</div>';
+    var cartRows = items.length ? items.map(function (item, idx) {
+      return '<div class="order-item" style="padding:12px 16px;border-bottom:1px solid var(--line);">' +
+        '<img class="thumb" src="' + esc(item.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'">' +
+        '<div><div class="item-name">' + esc(item.name) + '</div>' +
+        '<div class="item-spec">' + esc([item.color, item.size].filter(Boolean).join(' / ')) + '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">' +
+        '<button class="mini-btn" data-cart-dec="' + idx + '">−</button>' +
+        '<span style="font-size:13px;min-width:24px;text-align:center;">' + Number(item.qty || 1) + '</span>' +
+        '<button class="mini-btn" data-cart-inc="' + idx + '">+</button>' +
+        '<button class="mini-btn" style="margin-left:8px;color:#b33a2f;border-color:#d9aaa4;" data-cart-del="' + idx + '">削除</button>' +
+        '</div></div>' +
+        '<div class="item-price">' + yen(item.price * Number(item.qty || 1)) + '</div></div>';
+    }).join('') : '';
+    var checkoutBtn = items.length ? '<button class="auth-btn" type="button" id="cartToCheckoutBtn" style="margin-top:16px;">お会計へ進む (' + yen(total) + ')</button>' : '';
+    document.getElementById('view-cart').innerHTML = head('SHOPPING BAG', '現在のバッグ内容を確認・編集できます。', '<button class="outline-btn" type="button" onclick="location.href=\'store.html\'">買い物を続ける</button>') +
+      '<div class="summary-card" style="padding:0;overflow:hidden;">' +
+      (items.length ? cartRows : '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">ショッピングバッグは空です。</div>') +
+      '</div>' + checkoutBtn;
+
+    if (document.getElementById('cartToCheckoutBtn')) {
+      document.getElementById('cartToCheckoutBtn').addEventListener('click', function () { location.href = 'checkout.html'; });
+    }
+    document.querySelectorAll('[data-cart-inc]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var cart = getLS('cartItems', []); cart[Number(b.dataset.cartInc)].qty = Number(cart[Number(b.dataset.cartInc)].qty || 1) + 1;
+        setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart();
+      });
+    });
+    document.querySelectorAll('[data-cart-dec]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var idx = Number(b.dataset.cartDec); var cart = getLS('cartItems', []);
+        if (cart[idx].qty > 1) cart[idx].qty--; else cart.splice(idx, 1);
+        setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart();
+      });
+    });
+    document.querySelectorAll('[data-cart-del]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var cart = getLS('cartItems', []); cart.splice(Number(b.dataset.cartDel), 1);
+        setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart();
+      });
+    });
   }
 
   function renderAddresses() {
@@ -509,9 +637,63 @@
   function renderReviews() {
     var list = getReviews().filter(function (r) { return state.reviewFilter === 'pending' ? r.status === 'pending' : state.reviewFilter === 'photo' ? r.hasPhoto : r.status === 'done'; });
     document.getElementById('view-reviews').innerHTML = head('REVIEWS', 'レビュー待ち、投稿済み、写真付きレビューを管理します。') + tabsHtml(reviewTabs, state.reviewFilter, 'data-review-tab') + '<div class="review-list">' + (list.length ? list.map(function (r) {
-      return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body) + '</div><div class="action-row" style="margin-top:12px;"><button class="mini-btn primary" type="button">' + (r.status === 'pending' ? 'レビューを書く' : 'レビューを見る') + '</button></div></article>';
+      return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body) + '</div><div class="action-row" style="margin-top:12px;"><button class="mini-btn primary" type="button" data-review-id="' + esc(r.id) + '">' + (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') + '</button></div></article>';
     }).join('') : empty('レビューはありません。')) + '</div>';
     document.querySelectorAll('[data-review-tab]').forEach(function (b) { b.addEventListener('click', function () { state.reviewFilter = b.dataset.reviewTab; renderReviews(); }); });
+    document.querySelectorAll('[data-review-id]').forEach(function (b) {
+      b.addEventListener('click', function () { openReviewModal(b.dataset.reviewId); });
+    });
+  }
+
+  function openReviewModal(reviewId) {
+    var reviews = getReviews();
+    var r = reviews.find(function (x) { return x.id === reviewId; }) || { id: reviewId, product: '', rating: 0, body: '' };
+    var existing = document.getElementById('reviewModal');
+    if (existing) existing.remove();
+    var div = document.createElement('div');
+    div.id = 'reviewModal';
+    div.className = 'modal-mask show';
+    div.innerHTML = '<div class="modal"><div class="modal-head"><h3 class="modal-title">レビューを書く</h3><button class="close-btn" id="closeReviewModal">&times;</button></div>' +
+      '<p style="font-size:13px;margin-bottom:16px;color:#555;">' + esc(r.product) + '</p>' +
+      '<div style="margin-bottom:14px;"><label class="form-label">評価</label>' +
+      '<div id="reviewStars" style="display:flex;gap:6px;font-size:28px;cursor:pointer;">' +
+      [1,2,3,4,5].map(function(i){ return '<span data-star="'+i+'" style="color:'+(i<=(r.rating||0)?'#8b6f47':'#ddd')+'">★</span>'; }).join('') +
+      '</div></div>' +
+      '<label class="form-label" for="reviewBody">レビュー内容</label>' +
+      '<textarea class="form-input form-textarea" id="reviewBody" placeholder="商品の使い心地、品質などをご記入ください。">' + esc(r.body === 'まだレビューされていません。' ? '' : r.body) + '</textarea>' +
+      '<button class="auth-btn" id="submitReviewBtn">レビューを投稿する</button></div>';
+    document.body.appendChild(div);
+    var selectedRating = r.rating || 0;
+    div.querySelectorAll('[data-star]').forEach(function (s) {
+      s.addEventListener('click', function () {
+        selectedRating = Number(s.dataset.star);
+        div.querySelectorAll('[data-star]').forEach(function (x) { x.style.color = Number(x.dataset.star) <= selectedRating ? '#8b6f47' : '#ddd'; });
+      });
+      s.addEventListener('mouseenter', function () {
+        div.querySelectorAll('[data-star]').forEach(function (x) { x.style.color = Number(x.dataset.star) <= Number(s.dataset.star) ? '#8b6f47' : '#ddd'; });
+      });
+      s.addEventListener('mouseleave', function () {
+        div.querySelectorAll('[data-star]').forEach(function (x) { x.style.color = Number(x.dataset.star) <= selectedRating ? '#8b6f47' : '#ddd'; });
+      });
+    });
+    document.getElementById('closeReviewModal').addEventListener('click', function () { div.remove(); });
+    div.addEventListener('click', function (e) { if (e.target === div) div.remove(); });
+    document.getElementById('submitReviewBtn').addEventListener('click', function () {
+      var body = document.getElementById('reviewBody').value.trim();
+      if (!selectedRating) return showToast('評価を選択してください');
+      if (!body) return showToast('レビュー内容を入力してください');
+      var list = getLS('hinoka_reviews', getReviews());
+      var idx = list.findIndex(function (x) { return x.id === reviewId; });
+      var updated = { id: reviewId, product: r.product, rating: selectedRating, body: body, status: 'done', hasPhoto: false };
+      if (idx >= 0) list[idx] = updated; else list.push(updated);
+      setLS('hinoka_reviews', list);
+      window.dispatchEvent(new Event('reviewUpdated'));
+      div.remove();
+      state.reviewFilter = 'done';
+      renderReviews();
+      buildNavigation();
+      showToast('レビューを投稿しました！');
+    });
   }
 
   function messageCard(m) {
