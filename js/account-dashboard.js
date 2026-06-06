@@ -2,16 +2,50 @@
   var auth = firebase.auth();
   var db = firebase.firestore();
 
-  // inject bilingual title styles
+  // inject styles
   (function () {
     var s = document.createElement('style');
     s.textContent = [
-      '.view-title .title-ja{display:block;font-size:11px;letter-spacing:.15em;color:var(--muted);font-family:"Noto Serif JP",serif;font-weight:400;margin-top:2px;}',
+      /* ── タイトル書式 ── */
+      '.view-title{font-size:20px!important;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}',
+      '.title-ja-prefix{font-size:11px;letter-spacing:.14em;color:var(--muted);font-family:"Noto Sans JP",sans-serif;font-weight:300;}',
+      /* ── ナビ二言語 ── */
+      '.nav-en{display:block;font-size:8px;letter-spacing:.12em;color:var(--muted);font-weight:300;margin-top:1px;line-height:1;}',
+      '.nav-btn.active .nav-en{color:rgba(255,255,255,.5);}',
+      /* ── ヘッダーアクションボタン ── */
+      '.view-action-btn,.view-action-link{font-size:11px;letter-spacing:.08em;color:#8b6f47;background:none;border:none;border-bottom:1px solid rgba(139,111,71,.35);padding:2px 0;cursor:pointer;text-decoration:none;transition:color .2s,border-color .2s;white-space:nowrap;}',
+      '.view-action-btn:hover,.view-action-link:hover{color:#111;border-color:#111;}',
+      '.add-action-btn{font-size:11px;letter-spacing:.1em;color:#fff;background:linear-gradient(135deg,#8b6f47,#c9a96e);border:none;padding:9px 18px;border-radius:6px;cursor:pointer;box-shadow:0 4px 12px rgba(139,111,71,.25);transition:transform .2s,box-shadow .2s;}',
+      '.add-action-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(139,111,71,.35);}',
+      /* ── 会員特典カード 3D ── */
+      '.member-benefit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}',
+      '.mbc{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:14px;padding:18px 12px;text-align:center;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .2s,box-shadow .2s;}',
+      '.mbc:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(0,0,0,.35);}',
+      '.mbc-icon{font-size:22px;margin-bottom:8px;}',
+      '.mbc-label{font-size:9px;letter-spacing:.14em;color:rgba(255,255,255,.45);margin-bottom:6px;}',
+      '.mbc-val{font-family:"Cormorant Garamond",serif;font-size:28px;color:#c9a96e;line-height:1;}',
+      '.mbc-sub{font-size:9px;color:rgba(255,255,255,.35);margin-top:5px;}',
+      /* ── ランク表 premium ── */
+      '.rank-table-wrap{border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08);}',
+      '.rank-table-wrap table{width:100%;border-collapse:collapse;font-size:11px;}',
+      '.rank-table-wrap thead tr{background:linear-gradient(90deg,#1e293b,#0f2040);}',
+      '.rank-table-wrap th{padding:12px 10px;color:#c9a96e;font-weight:500;letter-spacing:.1em;font-size:10px;}',
+      '.rank-table-wrap td{padding:10px;border-bottom:1px solid var(--line);}',
+      '.rank-table-wrap tr.current-rank{background:linear-gradient(90deg,rgba(139,111,71,.07),rgba(201,169,110,.04));}',
+      /* ── サービスCTAボタン ── */
+      '.service-cta-link{display:inline-block;padding:11px 22px;margin-top:10px;background:linear-gradient(135deg,#8b6f47,#c9a96e);color:#fff!important;font-size:11px;letter-spacing:.1em;text-decoration:none;border-radius:6px;box-shadow:0 4px 12px rgba(139,111,71,.3);transition:transform .2s,box-shadow .2s;}',
+      '.service-cta-link:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(139,111,71,.4);}',
+      '.service-card-v2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:6px;transition:transform .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.04);}',
+      '.service-card-v2:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.09);}',
+      '.service-icon-lg{font-size:30px;margin-bottom:2px;}',
+      '.service-card-v2 h3{font-family:"Cormorant Garamond",serif;font-size:17px;font-weight:400;letter-spacing:.06em;margin:0;}',
+      '.service-card-v2 p{font-size:11px;color:var(--muted);line-height:1.8;flex:1;}',
+      /* ── ヒーローカード ── */
       '.overview-hero{background:linear-gradient(135deg,#111827 0%,#1e293b 45%,#0f2040 100%);border-radius:20px;padding:28px 32px;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.45),0 8px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.08);margin-bottom:24px;color:#fff;}',
       '.overview-hero::before{content:"";position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;}',
       '.overview-hero::after{content:"";position:absolute;bottom:-80px;left:-30px;width:280px;height:280px;border-radius:50%;background:rgba(139,111,71,.07);pointer-events:none;}',
       '.hero-profile{display:flex;align-items:center;gap:20px;margin-bottom:24px;}',
-      '.hero-avatar-ring{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8b6f47,#c9a96e);display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(139,111,71,.45);flex-shrink:0;}',
+      '.hero-avatar-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;color:#fff;box-shadow:0 4px 16px rgba(139,111,71,.45);flex-shrink:0;}',
       '.hero-info{flex:1;}',
       '.hero-info-sub{font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.45);margin-bottom:4px;}',
       '.hero-info-name{font-family:"Cormorant Garamond",serif;font-size:22px;color:#fff;line-height:1.2;}',
@@ -30,7 +64,9 @@
       '.quick-icon{font-size:22px;margin-bottom:6px;}',
       '.quick-label{font-size:9px;color:var(--muted);letter-spacing:.05em;margin-bottom:4px;}',
       '.quick-count{font-family:"Cormorant Garamond",serif;font-size:22px;color:#111;font-weight:600;}',
-      '.member-benefits-table th{font-size:11px;color:#8b6f47;font-weight:600;}'
+      /* ── データカード数値 小さく ── */
+      '.data-value{font-family:"Cormorant Garamond",serif;font-size:22px!important;line-height:1;}',
+      '.data-label{color:var(--muted);font-size:10px;letter-spacing:.1em;margin-top:5px;}'
     ].join('');
     document.head.appendChild(s);
   })();
@@ -61,18 +97,18 @@
   };
 
   var navItems = [
-    { id: 'overview',   label: 'ホーム' },
-    { id: 'orders',     label: 'ご注文履歴',         countKey: 'ordersTodo' },
-    { id: 'assets',     label: 'クーポン・ポイント' },
-    { id: 'wishlist',   label: 'お気に入り',          countKey: 'wishlist' },
-    { id: 'history',    label: '閲覧履歴' },
-    { id: 'cart',       label: 'ショッピングバッグ',  countKey: 'cart' },
-    { id: 'addresses',  label: 'お届け先住所' },
-    { id: 'reviews',    label: 'レビュー管理',        countKey: 'reviews' },
-    { id: 'messages',   label: 'メッセージ',          countKey: 'messages' },
-    { id: 'member',     label: '会員ランク' },
-    { id: 'service',    label: 'カスタマーサポート' },
-    { id: 'settings',   label: 'アカウント設定' }
+    { id: 'overview',   label: 'ホーム',               en: 'HOME' },
+    { id: 'orders',     label: 'ご注文履歴',            en: 'ORDERS',    countKey: 'ordersTodo' },
+    { id: 'assets',     label: 'クーポン・ポイント',    en: 'ASSETS' },
+    { id: 'wishlist',   label: 'お気に入り',            en: 'WISHLIST',  countKey: 'wishlist' },
+    { id: 'history',    label: '閲覧履歴',              en: 'HISTORY' },
+    { id: 'cart',       label: 'ショッピングバッグ',    en: 'CART',      countKey: 'cart' },
+    { id: 'addresses',  label: 'お届け先住所',          en: 'ADDRESS' },
+    { id: 'reviews',    label: 'レビュー管理',          en: 'REVIEWS',   countKey: 'reviews' },
+    { id: 'messages',   label: 'メッセージ',            en: 'MESSAGES',  countKey: 'messages' },
+    { id: 'member',     label: '会員ランク',            en: 'MEMBER' },
+    { id: 'service',    label: 'カスタマーサポート',    en: 'SUPPORT' },
+    { id: 'settings',   label: 'アカウント設定',        en: 'SETTINGS' }
   ];
 
   var orderTabs = [
@@ -254,7 +290,8 @@
     var html = navItems.map(function (item) {
       var badge = item.countKey && c[item.countKey] ? '<span class="nav-count">' + c[item.countKey] + '</span>' : '';
       var icon  = NAV_ICONS[item.id] ? '<span class="nav-icon">' + NAV_ICONS[item.id] + '</span>' : '';
-      return '<button class="nav-btn" type="button" data-view="' + item.id + '">' + icon + '<span class="nav-label">' + item.label + '</span>' + badge + '</button>';
+      var enSpan = item.en ? '<span class="nav-en">' + item.en + '</span>' : '';
+      return '<button class="nav-btn" type="button" data-view="' + item.id + '">' + icon + '<span class="nav-label">' + item.label + enSpan + '</span>' + badge + '</button>';
     }).join('');
     document.getElementById('sideNav').innerHTML   = html;
     document.getElementById('mobileNav').innerHTML = html;
@@ -291,7 +328,7 @@
   }
 
   function biHead(en, ja) {
-    return en + '<span class="title-ja">' + ja + '</span>';
+    return '<span class="title-ja-prefix">（' + ja + '）</span>' + en;
   }
 
   function head(title, desc, action) {
@@ -582,10 +619,10 @@
 
     var statsRow =
       '<div class="stat-grid">' +
-        dataBlock('累計注文数', orders.length + ' 件', 'orders') +
+        dataBlock('累計注文数', orders.length, 'orders') +
         dataBlock('累計購入金額', yen(spend), 'orders') +
-        dataBlock('お気に入り', wish.length + ' 件', 'wishlist') +
-        dataBlock('未読メッセージ', msgs.filter(function (m) { return m.unread; }).length + ' 件', 'messages') +
+        dataBlock('お気に入り', wish.length, 'wishlist') +
+        dataBlock('未読メッセージ', msgs.filter(function (m) { return m.unread; }).length, 'messages') +
       '</div>';
 
     var recentOrder = orders[0] ? orderCard(orders[0]) : empty('ご注文履歴はありません。');
@@ -760,13 +797,13 @@
 
   function renderWishlist() {
     var list = getWishlistProducts();
-    document.getElementById('view-wishlist').innerHTML = head(biHead('WISHLIST', 'お気に入り'), 'お気に入り商品を確認し、ショッピングバッグに追加できます。', '<button class="outline-btn" type="button" onclick="location.href=\'store.html\'">商品を見る</button>') + '<div class="product-grid">' + (list.length ? list.map(productCard).join('') : empty('お気に入り商品はありません。')) + '</div>';
+    document.getElementById('view-wishlist').innerHTML = head(biHead('WISHLIST', 'お気に入り'), 'お気に入り商品を確認し、ショッピングバッグに追加できます。', '<a class="view-action-link" href="store.html">商品を見る</a>') + '<div class="product-grid">' + (list.length ? list.map(productCard).join('') : empty('お気に入り商品はありません。')) + '</div>';
     bindProductActions();
   }
 
   function renderHistory() {
     var groups = getHistory();
-    document.getElementById('view-history').innerHTML = head(biHead('BROWSING HISTORY', '閲覧履歴'), '最近閲覧した商品を日付別に表示します。', '<button class="outline-btn" id="clearHistoryBtn" type="button">履歴を削除</button>') + (groups.length ? groups.map(function (group) {
+    document.getElementById('view-history').innerHTML = head(biHead('BROWSING HISTORY', '閲覧履歴'), '最近閲覧した商品を日付別に表示します。', '<button class="view-action-btn" id="clearHistoryBtn" type="button">履歴を削除</button>') + (groups.length ? groups.map(function (group) {
       return '<div class="section-title-row" style="margin-top:18px;"><h3 class="section-title">' + esc(group.date) + '</h3></div><div class="product-grid">' + group.items.map(function (p) { return productCard(p, '閲覧時間 ' + p.time); }).join('') + '</div>';
     }).join('') : empty('閲覧履歴はありません。'));
     var clearBtn = document.getElementById('clearHistoryBtn');
@@ -836,7 +873,7 @@
   // ══════════════════════════════════
   function renderAddresses() {
     var list = getAddresses();
-    document.getElementById('view-addresses').innerHTML = head(biHead('ADDRESS', 'お届け先住所'), '最大20件までお届け先住所を登録できます。', '<button class="outline-btn" id="addAddressBtn" type="button">住所を追加</button>') +
+    document.getElementById('view-addresses').innerHTML = head(biHead('ADDRESS', 'お届け先住所'), '最大20件までお届け先住所を登録できます。', '<button class="add-action-btn" id="addAddressBtn" type="button">＋ 住所を追加</button>') +
       '<div class="address-list">' + (list.length ? list.map(function (a) {
         return '<article class="address-card"><div class="address-top"><div class="address-name">' + esc(a.name) + ' / ' + esc(a.phone) + '</div>' + (a.isDefault ? '<span class="default-tag">既定</span>' : '') + '</div><div class="address-detail">〒' + esc(a.zip) + ' ' + esc(a.pref) + esc(a.city) + ' ' + esc(a.detail) + '</div><div class="action-row" style="margin-top:12px;"><button class="mini-btn" data-edit-address="' + a.id + '" type="button">編集</button><button class="mini-btn" data-default-address="' + a.id + '" type="button">既定にする</button><button class="danger-btn" data-delete-address="' + a.id + '" type="button">削除</button></div></article>';
       }).join('') : empty('お届け先住所が登録されていません。<br>「住所を追加」ボタンから登録できます。')) + '</div>';
@@ -1060,7 +1097,7 @@
     var list    = allMsgs.filter(function (m) { return state.messageFilter === 'all' || m.type === state.messageFilter; });
 
     document.getElementById('view-messages').innerHTML =
-      head(biHead('MESSAGE CENTER', 'メッセージ'), '注文、配送、キャンペーン、システム通知を確認できます。', '<button class="outline-btn" id="markReadBtn" type="button">すべて既読</button>') +
+      head(biHead('MESSAGE CENTER', 'メッセージ'), '注文、配送、キャンペーン、システム通知を確認できます。', '<button class="view-action-btn" id="markReadBtn" type="button">すべて既読</button>') +
       tabsHtml(messageTabs, state.messageFilter, 'data-message-tab') +
       (list.length ? '<div class="message-list">' + list.map(messageCard).join('') + '</div>' : empty('メッセージはありません。'));
 
@@ -1102,31 +1139,31 @@
     document.getElementById('view-member').innerHTML =
       head(biHead('MEMBER CENTER', '会員ランク'), '会員ランク、アップグレード条件、特典を確認できます。') +
       heroCard +
-      '<div class="member-grid">' +
-        dataBlock('ポイント倍率', rank.rate + 'x') +
-        dataBlock('会員割引', rank.discount + '%') +
-        dataBlock('送料無料回数/月', rank.freeShip === 999 ? '無制限' : rank.freeShip + '回') +
-        dataBlock('誕生日特典', rank.name === 'BRONZE' ? 'なし' : 'クーポン配布') +
+      '<div class="member-benefit-grid">' +
+        '<div class="mbc"><div class="mbc-icon">✦</div><div class="mbc-val">' + rank.rate + 'x</div><div class="mbc-label">ポイント倍率</div></div>' +
+        '<div class="mbc"><div class="mbc-icon">◈</div><div class="mbc-val">' + rank.discount + '%</div><div class="mbc-label">会員割引</div></div>' +
+        '<div class="mbc"><div class="mbc-icon">◉</div><div class="mbc-val">' + (rank.freeShip === 999 ? '∞' : rank.freeShip) + '</div><div class="mbc-label">送料無料回数/月</div></div>' +
+        '<div class="mbc"><div class="mbc-icon">❋</div><div class="mbc-val">' + (rank.name === 'BRONZE' ? '—' : '🎁') + '</div><div class="mbc-label">誕生日特典</div></div>' +
       '</div>' +
-      '<div class="section-block"><div class="section-title-row"><h3 class="section-title">ランク別特典一覧</h3></div>' +
+      '<div class="rank-table-wrap"><div class="section-title-row"><h3 class="section-title" style="color:#c9a96e;letter-spacing:.12em;">ランク別特典一覧</h3></div>' +
         '<div style="overflow-x:auto;">' +
-          '<table class="member-benefits-table" style="width:100%;border-collapse:collapse;font-size:11px;">' +
-            '<thead><tr style="background:var(--soft);">' +
-              '<th style="padding:10px;text-align:left;font-weight:600;color:#8b6f47;">ランク</th>' +
-              '<th style="padding:10px;text-align:center;font-weight:600;color:#8b6f47;">昇格条件</th>' +
-              '<th style="padding:10px;text-align:center;font-weight:600;color:#8b6f47;">会員割引</th>' +
-              '<th style="padding:10px;text-align:center;font-weight:600;color:#8b6f47;">ポイント倍率</th>' +
-              '<th style="padding:10px;text-align:center;font-weight:600;color:#8b6f47;">送料無料</th>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+            '<thead><tr style="background:linear-gradient(135deg,#1e293b,#0f172a);">' +
+              '<th style="padding:12px 14px;text-align:left;font-weight:600;color:#c9a96e;letter-spacing:.08em;">ランク</th>' +
+              '<th style="padding:12px 14px;text-align:center;font-weight:600;color:#c9a96e;letter-spacing:.08em;">昇格条件</th>' +
+              '<th style="padding:12px 14px;text-align:center;font-weight:600;color:#c9a96e;letter-spacing:.08em;">会員割引</th>' +
+              '<th style="padding:12px 14px;text-align:center;font-weight:600;color:#c9a96e;letter-spacing:.08em;">ポイント倍率</th>' +
+              '<th style="padding:12px 14px;text-align:center;font-weight:600;color:#c9a96e;letter-spacing:.08em;">送料無料</th>' +
             '</tr></thead><tbody>' +
             RANK_TABLE.map(function (r) {
               var isCurrent = r.name === rank.name;
               var color = rankColors[r.name] || '#8b6f47';
-              return '<tr style="border-bottom:1px solid var(--line);' + (isCurrent ? 'background:#fffaf0;' : '') + '">' +
-                '<td style="padding:8px 10px;color:' + color + ';font-weight:' + (isCurrent ? '600' : '400') + ';">' + r.label + (isCurrent ? ' ◀ 現在' : '') + '</td>' +
-                '<td style="padding:8px 10px;text-align:center;color:var(--muted);">¥' + Number(r.min).toLocaleString() + '〜</td>' +
-                '<td style="padding:8px 10px;text-align:center;">' + r.discount + '%</td>' +
-                '<td style="padding:8px 10px;text-align:center;">' + r.rate + 'x</td>' +
-                '<td style="padding:8px 10px;text-align:center;">' + (r.freeShip === 999 ? '無制限' : r.freeShip + '回/月') + '</td>' +
+              return '<tr style="border-bottom:1px solid rgba(201,169,110,.12);' + (isCurrent ? 'background:rgba(201,169,110,.07);' : '') + '">' +
+                '<td style="padding:10px 14px;color:' + color + ';font-weight:' + (isCurrent ? '700' : '400') + ';font-size:13px;">' + r.label + (isCurrent ? ' <span style="font-size:10px;background:' + color + ';color:#fff;padding:1px 6px;border-radius:20px;vertical-align:middle;">現在</span>' : '') + '</td>' +
+                '<td style="padding:10px 14px;text-align:center;color:#aaa;">¥' + Number(r.min).toLocaleString() + '〜</td>' +
+                '<td style="padding:10px 14px;text-align:center;font-weight:600;">' + r.discount + '%</td>' +
+                '<td style="padding:10px 14px;text-align:center;font-weight:600;">' + r.rate + 'x</td>' +
+                '<td style="padding:10px 14px;text-align:center;">' + (r.freeShip === 999 ? '無制限' : r.freeShip + '回/月') + '</td>' +
               '</tr>';
             }).join('') +
             '</tbody></table>' +
