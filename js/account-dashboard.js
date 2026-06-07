@@ -1420,12 +1420,16 @@
     var validViews = navItems.map(function (n) { return n.id; });
     switchView(validViews.indexOf(state.activeView) !== -1 ? state.activeView : 'overview');
 
-    // When firebase-sync pulls profile from Firestore (other device), re-check birthday coupon
-    window.addEventListener('profileUpdated', function () {
-      checkBirthdayCoupon();
-      buildNavigation();
-      if (state.activeView === 'settings') renderSettings();
-      if (state.activeView === 'assets')   renderAssets();
+    // Re-render current view whenever firebase-sync downloads remote data
+    var syncEvents = ['cartUpdated','orderUpdated','wishlistUpdated','addressUpdated',
+                      'reviewUpdated','messageUpdated','couponUpdated','pointsUpdated',
+                      'balanceUpdated','historyUpdated','profileUpdated'];
+    syncEvents.forEach(function (evt) {
+      window.addEventListener(evt, function () {
+        buildNavigation();
+        renderCurrentView();
+        if (evt === 'profileUpdated') { checkBirthdayCoupon(); renderUser(state.user); }
+      });
     });
   }
 
