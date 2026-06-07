@@ -1312,6 +1312,7 @@
       var profile = getLS('hinoka_profile', {});
       profile.birthday = val;
       setLS('hinoka_profile', profile);
+      window.dispatchEvent(new Event('profileUpdated')); // triggers firebase-sync upload
       showToast('生年月日を保存しました 🎂');
       checkBirthdayCoupon();
       renderSettings();
@@ -1397,6 +1398,14 @@
     renderUser(user);
     var validViews = navItems.map(function (n) { return n.id; });
     switchView(validViews.indexOf(state.activeView) !== -1 ? state.activeView : 'overview');
+
+    // When firebase-sync pulls profile from Firestore (other device), re-check birthday coupon
+    window.addEventListener('profileUpdated', function () {
+      checkBirthdayCoupon();
+      buildNavigation();
+      if (state.activeView === 'settings') renderSettings();
+      if (state.activeView === 'assets')   renderAssets();
+    });
   }
 
   function bindAuthUi() {
