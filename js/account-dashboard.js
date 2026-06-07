@@ -830,9 +830,30 @@
     return '<article class="product-card"><div class="product-img-wrap"><img src="' + esc(p.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'"></div><div class="product-body"><p class="product-name">' + esc(p.name) + '</p><div class="product-price">' + yen(p.price) + (p.oldPrice ? '<span class="old-price">' + yen(p.oldPrice) + '</span>' : '') + '</div><div class="stock">' + esc(meta || p.stock || '在庫あり') + '</div><div class="action-row"><button class="mini-btn primary" type="button" data-product-id="' + esc(p.id) + '" data-product-action="cart">バッグに追加</button><button class="mini-btn" type="button" data-product-id="' + esc(p.id) + '" data-product-action="detail">詳細を見る</button></div></div></article>';
   }
 
+  function wishlistCard(p) {
+    return '<article class="product-card" style="position:relative;">' +
+      '<button type="button" data-wishlist-remove="' + esc(p.id) + '" style="position:absolute;top:8px;right:8px;z-index:2;background:rgba(255,255,255,.88);border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);" title="削除">×</button>' +
+      '<div class="product-img-wrap"><img src="' + esc(p.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'"></div>' +
+      '<div class="product-body"><p class="product-name">' + esc(p.name) + '</p>' +
+      '<div class="product-price">' + yen(p.price) + (p.oldPrice ? '<span class="old-price">' + yen(p.oldPrice) + '</span>' : '') + '</div>' +
+      '<div class="stock">' + esc(p.stock || '在庫あり') + '</div>' +
+      '<div class="action-row"><button class="mini-btn primary" type="button" data-product-id="' + esc(p.id) + '" data-product-action="cart">バッグに追加</button><button class="mini-btn" type="button" data-product-id="' + esc(p.id) + '" data-product-action="detail">詳細を見る</button></div>' +
+      '</div></article>';
+  }
+
   function renderWishlist() {
     var list = getWishlistProducts();
-    document.getElementById('view-wishlist').innerHTML = head(biHead('WISHLIST', 'お気に入り'), 'お気に入り商品を確認し、ショッピングバッグに追加できます。', '<a class="view-action-link" href="store.html">商品を見る</a>') + '<div class="product-grid">' + (list.length ? list.map(productCard).join('') : empty('お気に入り商品はありません。')) + '</div>';
+    document.getElementById('view-wishlist').innerHTML = head(biHead('WISHLIST', 'お気に入り'), 'お気に入り商品を確認し、ショッピングバッグに追加できます。', '<a class="view-action-link" href="store.html">商品を見る</a>') + '<div class="product-grid">' + (list.length ? list.map(wishlistCard).join('') : empty('お気に入り商品はありません。')) + '</div>';
+    document.querySelectorAll('[data-wishlist-remove]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id  = btn.dataset.wishlistRemove;
+        var ids = getLS('hinoka_wishlist', []).filter(function (x) { return x !== id; });
+        setLS('hinoka_wishlist', ids);
+        window.dispatchEvent(new Event('wishlistUpdated'));
+        renderWishlist();
+        showToast('お気に入りから削除しました');
+      });
+    });
     bindProductActions();
   }
 
