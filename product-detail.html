@@ -517,6 +517,34 @@
     document.getElementById('breadName').textContent    = product.name;
     document.title = `HINOKA | ${product.name}`;
 
+    // ── 閲覧履歴に保存（最大10件・クロスデバイス同期）──
+    (function saveHistory() {
+      try {
+        const now   = new Date();
+        const dateStr = now.toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' });
+        const timeStr = now.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+        const entry = {
+          id:    product.id,
+          name:  product.name,
+          price: product.price,
+          img:   product.images[0] || '',
+          stock: product.stock,
+          category: product.category,
+          date:  dateStr,
+          time:  timeStr,
+          ts:    Date.now()
+        };
+        let history = [];
+        try { history = JSON.parse(localStorage.getItem('hinoka_browsing_history') || '[]'); } catch(e) {}
+        // 同一商品の重複を削除して先頭に追加、最大10件
+        history = history.filter(function(h) { return h.id !== entry.id; });
+        history.unshift(entry);
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem('hinoka_browsing_history', JSON.stringify(history));
+        window.dispatchEvent(new Event('historyUpdated'));
+      } catch(e) {}
+    })();
+
     // Stock display
     if (product.stock !== undefined && product.stock !== null) {
       const s = product.stock;
