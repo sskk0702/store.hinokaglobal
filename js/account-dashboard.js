@@ -774,12 +774,12 @@
           '<div class="mbc"><div class="mbc-icon">⏳</div><div class="mbc-val">' + Number(pts.expire).toLocaleString() + '</div><div class="mbc-label">失効予定ポイント</div></div>' +
           '<div class="mbc" data-nav-view="member" style="cursor:pointer;"><div class="mbc-icon">✦</div><div class="mbc-val">' + rank.rate + 'x</div><div class="mbc-label">ポイント倍率</div></div>' +
         '</div>' +
-        '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">ポイント制度について</h3></div>' +
-          '<div style="font-size:11px;line-height:2.2;color:var(--muted);">' +
-            '● 購入金額の1%（ランクに応じて最大2%）をポイント付与<br>' +
-            '● 受け取り確認後、翌日に反映されます<br>' +
-            '● 有効期限：最終利用日より1年間<br>' +
-            '● レビュー投稿ボーナス：1件につき50ポイント' +
+        '<div class="section-block" style="margin-top:16px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6)!important;border:1px solid rgba(201,169,110,.18)!important;box-shadow:0 4px 16px rgba(139,111,71,.1),inset 0 1px 0 rgba(255,255,255,.9)!important;border-radius:14px;"><div class="section-title-row"><h3 class="section-title" style="color:#8b6f47;">ポイント制度について</h3></div>' +
+          '<div style="font-size:11px;line-height:2.4;color:#7a5c3a;">' +
+            '✦ 購入金額の1%（ランクに応じて最大2%）をポイント付与<br>' +
+            '✦ 受け取り確認後、翌日に反映されます<br>' +
+            '✦ 有効期限：最終利用日より1年間<br>' +
+            '✦ レビュー投稿ボーナス：1件につき50ポイント' +
           '</div>' +
         '</div>';
     }
@@ -799,12 +799,12 @@
           '<div class="mbc"><div class="mbc-icon">↑</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.totalCharged).toLocaleString() + '</div><div class="mbc-label">累計チャージ</div></div>' +
           '<div class="mbc"><div class="mbc-icon">↓</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.totalUsed).toLocaleString() + '</div><div class="mbc-label">累計利用</div></div>' +
         '</div>' +
-        '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">残高のご利用方法</h3></div>' +
-          '<div style="font-size:11px;line-height:2.2;color:var(--muted);">' +
-            '● チャージ：銀行振込でアカウントにチャージ可能<br>' +
-            '● お会計時にポイントと併用してご利用可能<br>' +
-            '● 返金は残高として返却（入金まで3〜5営業日）<br>' +
-            '● チャージご希望は <a href="mailto:info@hinokaglobal.com" style="color:#111;">info@hinokaglobal.com</a> までご連絡ください' +
+        '<div class="section-block" style="margin-top:16px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6)!important;border:1px solid rgba(201,169,110,.18)!important;box-shadow:0 4px 16px rgba(139,111,71,.1),inset 0 1px 0 rgba(255,255,255,.9)!important;border-radius:14px;"><div class="section-title-row"><h3 class="section-title" style="color:#8b6f47;">残高のご利用方法</h3></div>' +
+          '<div style="font-size:11px;line-height:2.4;color:#7a5c3a;">' +
+            '✦ チャージ：銀行振込でアカウントにチャージ可能<br>' +
+            '✦ お会計時にポイントと併用してご利用可能<br>' +
+            '✦ 返金は残高として返却（入金まで3〜5営業日）<br>' +
+            '✦ チャージご希望は <a href="mailto:info@hinokaglobal.com" style="color:#8b6f47;">info@hinokaglobal.com</a> までご連絡ください' +
           '</div>' +
         '</div>';
     }
