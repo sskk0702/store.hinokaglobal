@@ -1419,6 +1419,10 @@
     });
     document.getElementById('resetSendBtn').addEventListener('click', resetPassword);
     document.getElementById('logoutBtn').addEventListener('click', function () { auth.signOut(); });
+var mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', function () { auth.signOut(); });
+var mobileLogoutBar = document.getElementById('mobileLogoutBar');
+if (mobileLogoutBar) mobileLogoutBar.style.display = '';
     document.getElementById('saveAddressBtn').addEventListener('click', saveAddress);
     document.querySelectorAll('[data-close-modal]').forEach(function (b) { b.addEventListener('click', closeAddressModal); });
     document.getElementById('addressModal').addEventListener('click', function (e) { if (e.target === this) closeAddressModal(); });
