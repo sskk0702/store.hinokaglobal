@@ -292,7 +292,7 @@
     const loadMoreBtn = document.getElementById('loadMoreBtn');
 
     function getWishlist() { return JSON.parse(localStorage.getItem('hinoka_wishlist') || '[]'); }
-    function saveWishlist(list) { localStorage.setItem('hinoka_wishlist', JSON.stringify(list)); }
+    function saveWishlist(list) { localStorage.setItem('hinoka_wishlist', JSON.stringify(list)); window.dispatchEvent(new Event('wishlistUpdated')); }
 
     function renderProducts() {
       grid.innerHTML = '';
