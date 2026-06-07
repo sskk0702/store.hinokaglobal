@@ -98,7 +98,8 @@ button { cursor: pointer; }
 .side-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: .08em; }
 .side-mail { margin-top: 3px; color: var(--muted); font-size: 11px; word-break: break-all; }
 .member-chip, .badge, .status, .default-tag, .unread-tag { display: inline-flex; align-items: center; padding: 4px 8px; font-size: 10px; letter-spacing: .08em; }
-.member-chip, .badge.gold { color: var(--accent); border: 1px solid #d7c5a2; background: #fffaf0; margin-top: 8px; }
+.member-chip { border: none; background: linear-gradient(135deg,#fdf8f3,#f0e6d6); color: #8b6f47; margin-top: 8px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 8px rgba(139,111,71,.15), inset 0 1px 0 rgba(255,255,255,.8); padding: 5px 12px; }
+.badge.gold { color: var(--accent); border: 1px solid #d7c5a2; background: #fffaf0; margin-top: 8px; }
 .side-nav { display: grid; gap: 2px; }
 .nav-btn { width: 100%; border: 0; background: transparent; color: #6b5540; display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 12px; text-align: left; letter-spacing: .04em; border-radius: 6px; transition: background .15s, color .15s; }
 .nav-btn:hover { background: rgba(201,169,110,.15); color: #5a3e28; }
@@ -222,8 +223,16 @@ button { cursor: pointer; }
 .outline-btn:hover::after, .mini-btn:hover::after { left: 130%; }
 
 /* ── Data card: hover lift ── */
+.data-card {
+  background: linear-gradient(145deg,#fdf8f3,#f0e6d6) !important;
+  border: 1px solid rgba(201,169,110,.18) !important;
+  box-shadow: 0 4px 16px rgba(139,111,71,.1), inset 0 1px 0 rgba(255,255,255,.9) !important;
+  border-radius: 14px;
+  text-align: center;
+}
+.data-card .data-value { color: #6b4f2e; }
 .data-card[data-go] { transition: transform .2s, box-shadow .2s; cursor: pointer; }
-.data-card[data-go]:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.1); border-color: #8b6f47; }
+.data-card[data-go]:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(139,111,71,.18) !important; border-color: rgba(139,111,71,.3) !important; }
 
 /* ── Message read/unread ── */
 .msg-unread { border-left: 3px solid #8b6f47 !important; background: #fff !important; }
