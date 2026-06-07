@@ -239,7 +239,7 @@
   function recordLogin() {
     var logs = getLS('hinoka_login_log', []);
     logs.unshift({ time: new Date().toLocaleString('ja-JP'), ua: navigator.userAgent.substring(0, 80) });
-    if (logs.length > 20) logs = logs.slice(0, 20);
+    if (logs.length > 20) logs = logs.slice(0, 1);
     setLS('hinoka_login_log', logs);
   }
 
@@ -1293,8 +1293,16 @@
       '<div class="section-block" style="box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
         '<div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div>' +
         loginTimelineHtml +
-      '</div>';
+      '</div>' +
+'<div id="mobileLogoutSection" style="display:none;margin-top:20px;padding:20px;background:#fff8f8;border:1px solid #fde8e8;border-radius:12px;text-align:center;">' +
+  '<div style="font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em;">アカウントからログアウトします</div>' +
+  '<button id="mobileLogoutBtnSettings" type="button" class="danger-btn" style="width:100%;padding:12px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
+'</div>';
 
+    var mobileLogoutSection = document.getElementById('mobileLogoutSection');
+if (mobileLogoutSection && window.innerWidth <= 768) mobileLogoutSection.style.display = '';
+var mobileLogoutBtnSettings = document.getElementById('mobileLogoutBtnSettings');
+if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', function () { auth.signOut(); });
     var bdSaveBtn = document.getElementById('saveBirthdayBtn');
     if (bdSaveBtn) bdSaveBtn.addEventListener('click', function () {
       var val = (document.getElementById('birthdayInput').value || '').trim();
