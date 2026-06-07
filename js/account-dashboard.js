@@ -239,7 +239,7 @@
   function recordLogin() {
     var logs = getLS('hinoka_login_log', []);
     logs.unshift({ time: new Date().toLocaleString('ja-JP'), ua: navigator.userAgent.substring(0, 80) });
-    if (logs.length > 20) logs = logs.slice(0, 1);
+    if (logs.length > 1) logs = logs.slice(0, 1);
     setLS('hinoka_login_log', logs);
   }
 
@@ -332,7 +332,7 @@
   }
 
   function head(title, desc, action) {
-    return '<div class="view-head"><div><h1 class="view-title">' + title + '</h1><p class="view-desc">' + desc + '</p></div>' + (action || '') + '</div>';
+    return '<div class="view-head">' + (action ? '<div class="view-head-action">' + action + '</div>' : '') + (desc ? '<p class="view-desc" style="margin:0;">' + desc + '</p>' : '') + '</div>';
   }
 
   // ══════════════════════════════════
@@ -1294,15 +1294,17 @@
         '<div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div>' +
         loginTimelineHtml +
       '</div>' +
-'<div id="mobileLogoutSection" style="display:none;margin-top:20px;padding:20px;background:#fff8f8;border:1px solid #fde8e8;border-radius:12px;text-align:center;">' +
-  '<div style="font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em;">アカウントからログアウトします</div>' +
-  '<button id="mobileLogoutBtnSettings" type="button" class="danger-btn" style="width:100%;padding:12px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
-'</div>';
+      '<div id="mobileLogoutSection" style="display:none;margin-top:20px;padding:20px;background:#fff8f8;border:1px solid #fde8e8;border-radius:12px;text-align:center;">' +
+        '<div style="font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em;">アカウントからログアウトします</div>' +
+        '<button id="mobileLogoutBtnSettings" type="button" class="danger-btn" style="width:100%;padding:12px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
+      '</div>';
 
+    // モバイルのみ表示（スクリーン幅768px以下）
     var mobileLogoutSection = document.getElementById('mobileLogoutSection');
-if (mobileLogoutSection && window.innerWidth <= 768) mobileLogoutSection.style.display = '';
-var mobileLogoutBtnSettings = document.getElementById('mobileLogoutBtnSettings');
-if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', function () { auth.signOut(); });
+    if (mobileLogoutSection && window.innerWidth <= 768) mobileLogoutSection.style.display = '';
+    var mobileLogoutBtnSettings = document.getElementById('mobileLogoutBtnSettings');
+    if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', function () { auth.signOut(); });
+
     var bdSaveBtn = document.getElementById('saveBirthdayBtn');
     if (bdSaveBtn) bdSaveBtn.addEventListener('click', function () {
       var val = (document.getElementById('birthdayInput').value || '').trim();
@@ -1427,10 +1429,6 @@ if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', f
     });
     document.getElementById('resetSendBtn').addEventListener('click', resetPassword);
     document.getElementById('logoutBtn').addEventListener('click', function () { auth.signOut(); });
-var mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', function () { auth.signOut(); });
-var mobileLogoutBar = document.getElementById('mobileLogoutBar');
-if (mobileLogoutBar) mobileLogoutBar.style.display = '';
     document.getElementById('saveAddressBtn').addEventListener('click', saveAddress);
     document.querySelectorAll('[data-close-modal]').forEach(function (b) { b.addEventListener('click', closeAddressModal); });
     document.getElementById('addressModal').addEventListener('click', function (e) { if (e.target === this) closeAddressModal(); });
