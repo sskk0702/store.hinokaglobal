@@ -8,7 +8,7 @@
     s.textContent = [
       /* ── タイトル書式 ── */
       '.view-title{font-size:13px!important;letter-spacing:.1em;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-family:"Cormorant Garamond",serif;font-weight:500;color:#111;}',
-      '.title-ja-prefix{font-size:13px;letter-spacing:.14em;color:var(--muted);font-family:"Noto Sans JP",sans-serif;font-weight:300;}',
+      '.title-ja-prefix{font-size:13px;letter-spacing:.14em;color:var(--muted);font-family:"Cormorant Garamond",serif;font-weight:400;}',
       /* ── ナビ二言語 ── */
       '.nav-en{display:block;font-size:8px;letter-spacing:.12em;color:var(--muted);font-weight:300;margin-top:1px;line-height:1;}',
       '.nav-btn.active .nav-en{color:rgba(255,255,255,.5);}',
@@ -377,6 +377,49 @@
     return earned;
   }
 
+  function checkBirthdayCoupon(user) {
+    // Only for SILVER and above (BRONZE has no birthday benefit)
+    var rank = getMemberRank(calcTotalSpend());
+    if (rank.name === 'BRONZE') return;
+
+    // Get birthday from Firestore profile or localStorage
+    var profile = getLS('hinoka_profile', {});
+    var birthday = profile.birthday || ''; // format: MM-DD  e.g. "03-15"
+    if (!birthday) return;
+
+    var now = new Date();
+    var mm  = String(now.getMonth() + 1).padStart(2, '0');
+    var dd  = String(now.getDate()).padStart(2, '0');
+    var todayMD = mm + '-' + dd;
+
+    // Check if birthday month (issue coupon for entire birth month)
+    var birthMM = birthday.split('-')[0];
+    if (mm !== birthMM) return;
+
+    var bdKey = 'BD-' + now.getFullYear() + '-' + mm;
+    var stored = getLS('hinoka_coupons', []);
+    var alreadyIssued = stored.some(function (c) { return c.id === bdKey; });
+    if (alreadyIssued) return;
+
+    var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    var expiry  = lastDay.getFullYear() + '/' + (lastDay.getMonth() + 1) + '/' + lastDay.getDate();
+    var discount = rank.name === 'DIAMOND' ? '20%' : rank.name === 'GOLD' ? '15%' : '10%';
+    stored.push({
+      id: bdKey,
+      monthKey: now.getFullYear() + '-' + (now.getMonth() + 1),
+      amount: discount,
+      title: '🎂 お誕生日特典クーポン ' + discount + 'OFF',
+      rule: '全商品対象・お誕生日月のみ有効',
+      date: '有効期限：' + expiry,
+      used: false,
+      isBirthday: true
+    });
+    setLS('hinoka_coupons', stored);
+
+    // Also show a toast notification
+    showToast('🎂 お誕生日おめでとうございます！クーポンを発行しました');
+  }
+
   function getMonthCoupons() {
     var now  = new Date();
     var ym   = now.getFullYear() + '-' + (now.getMonth() + 1);
@@ -724,11 +767,11 @@
       var rank  = getMemberRank(spend);
       // Premium dark gradient card
       html +=
-        '<div style="background:linear-gradient(135deg,#1a1a2e,#0f2040);border-radius:20px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:20px;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);">' +
-          '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;"></div>' +
-          '<div style="font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.45);margin-bottom:8px;">AVAILABLE POINTS</div>' +
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:56px;color:#c9a96e;line-height:1;margin-bottom:4px;">' + Number(pts.available).toLocaleString() + '<span style="font-size:20px;margin-left:6px;">pt</span></div>' +
-          '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;">1ポイント = ¥1 としてご利用いただけます</div>' +
+        '<div style="background:linear-gradient(135deg,#fdf8f3,#f5ede0);border-radius:20px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:20px;color:#3d2c1e;box-shadow:0 8px 32px rgba(139,111,71,.12),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(201,169,110,.2);">' +
+          '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(201,169,110,.07);pointer-events:none;"></div>' +
+          '<div style="font-size:10px;letter-spacing:.2em;color:#8b6f47;margin-bottom:8px;">AVAILABLE POINTS</div>' +
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:56px;color:#8b6f47;line-height:1;margin-bottom:4px;">' + Number(pts.available).toLocaleString() + '<span style="font-size:20px;margin-left:6px;">pt</span></div>' +
+          '<div style="font-size:11px;color:#a08060;margin-top:8px;">1ポイント = ¥1 としてご利用いただけます</div>' +
         '</div>' +
         '<div class="member-benefit-grid" style="grid-template-columns:repeat(4,1fr);">' +
           '<div class="mbc"><div class="mbc-icon">◈</div><div class="mbc-val">' + Number(pts.available).toLocaleString() + '</div><div class="mbc-label">利用可能ポイント</div></div>' +
@@ -749,17 +792,17 @@
     if (state.assetFilter === 'balance') {
       var bal = getLS('hinoka_balance', { available: 0, frozen: 0, totalCharged: 0, totalUsed: 0 });
       html +=
-        '<div class="summary-card" style="padding:20px;margin-bottom:16px;">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-            '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:18px;margin:0;">アカウント残高</h3>' +
-            '<span style="font-family:\'Cormorant Garamond\',serif;font-size:36px;">¥' + Number(bal.available).toLocaleString() + '</span>' +
-          '</div>' +
+        '<div style="background:linear-gradient(135deg,#fdf8f3,#f5ede0);border-radius:20px;padding:28px 32px;position:relative;overflow:hidden;margin-bottom:20px;color:#3d2c1e;box-shadow:0 8px 32px rgba(139,111,71,.12),inset 0 1px 0 rgba(255,255,255,.8);border:1px solid rgba(201,169,110,.2);">' +
+          '<div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(201,169,110,.07);pointer-events:none;"></div>' +
+          '<div style="font-size:10px;letter-spacing:.2em;color:#8b6f47;margin-bottom:8px;">ACCOUNT BALANCE</div>' +
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:56px;color:#8b6f47;line-height:1;margin-bottom:4px;">¥' + Number(bal.available).toLocaleString() + '</div>' +
+          '<div style="font-size:11px;color:#a08060;margin-top:8px;">チャージ・返金はinfo@hinokaglobal.comまでご連絡ください</div>' +
         '</div>' +
-        '<div class="stat-grid">' +
-          dataBlock('利用可能残高', '¥' + Number(bal.available).toLocaleString()) +
-          dataBlock('凍結中残高',   '¥' + Number(bal.frozen).toLocaleString()) +
-          dataBlock('累計チャージ', '¥' + Number(bal.totalCharged).toLocaleString()) +
-          dataBlock('累計利用',     '¥' + Number(bal.totalUsed).toLocaleString()) +
+        '<div class="member-benefit-grid" style="grid-template-columns:repeat(4,1fr);">' +
+          '<div class="mbc"><div class="mbc-icon">◈</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.available).toLocaleString() + '</div><div class="mbc-label">利用可能残高</div></div>' +
+          '<div class="mbc"><div class="mbc-icon">🔒</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.frozen).toLocaleString() + '</div><div class="mbc-label">凍結中残高</div></div>' +
+          '<div class="mbc"><div class="mbc-icon">↑</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.totalCharged).toLocaleString() + '</div><div class="mbc-label">累計チャージ</div></div>' +
+          '<div class="mbc"><div class="mbc-icon">↓</div><div class="mbc-val" style="font-size:20px;">¥' + Number(bal.totalUsed).toLocaleString() + '</div><div class="mbc-label">累計利用</div></div>' +
         '</div>' +
         '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">残高のご利用方法</h3></div>' +
           '<div style="font-size:11px;line-height:2.2;color:var(--muted);">' +
@@ -1252,6 +1295,7 @@
           infoRow('メールアドレス',   esc(user.email || ''), '') +
           infoRow('メール確認',       user.emailVerified ? '確認済み ✓' : '未確認', '<button class="mini-btn" id="resendVerifyBtn" type="button">再送信</button>') +
           infoRow('パスワード',       '再設定メールを送信します', '<button class="mini-btn" id="changePwBtn" type="button">変更</button>') +
+          infoRow('生年月日', (function(){ var p=getLS('hinoka_profile',{}); return p.birthday ? p.birthday.replace('-','/') + ' 🎂' : '未設定'; })(), '<input id="birthdayInput" type="text" placeholder="MM-DD（例：03-15）" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;width:120px;"> <button class="mini-btn" id="saveBirthdayBtn" type="button">保存</button>') +
           infoRow('メールマガジン',   '<span id="marketingLabel">受信しない</span>', '<label><input id="marketingToggle" type="checkbox" style="accent-color:#111;"></label>') +
         '</div>' +
       '</div>' +
@@ -1260,6 +1304,17 @@
         loginTimelineHtml +
       '</div>';
 
+    var bdSaveBtn = document.getElementById('saveBirthdayBtn');
+    if (bdSaveBtn) bdSaveBtn.addEventListener('click', function () {
+      var val = (document.getElementById('birthdayInput').value || '').trim();
+      if (!/^\d{2}-\d{2}$/.test(val)) { showToast('形式はMM-DDで入力してください（例：03-15）'); return; }
+      var profile = getLS('hinoka_profile', {});
+      profile.birthday = val;
+      setLS('hinoka_profile', profile);
+      showToast('生年月日を保存しました 🎂');
+      checkBirthdayCoupon(user);
+      renderSettings();
+    });
     document.getElementById('resendVerifyBtn').addEventListener('click', function () {
       if (auth.currentUser) auth.currentUser.sendEmailVerification().then(function () { showToast('確認メールを再送信しました'); }).catch(function () { showToast('送信に失敗しました'); });
     });
@@ -1336,6 +1391,7 @@
     document.getElementById('authSection').style.display   = 'none';
     document.getElementById('accountShell').style.display  = 'block';
     recordLogin();
+    checkBirthdayCoupon(user);
     buildNavigation();
     renderUser(user);
     var validViews = navItems.map(function (n) { return n.id; });
