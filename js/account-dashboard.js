@@ -959,12 +959,11 @@
             '</div>' +
             '<div style="font-size:14px;font-weight:600;color:#6b4f2e;">' + yen(item.price * Number(item.qty || 1)) + '</div>' +
           '</div>' +
-          '<button data-cart-del="' + idx + '" style="background:none;border:none;cursor:pointer;font-size:18px;color:#b09070;text-align:left;padding:4px 0 0;line-height:1;width:fit-content;">×</button>' +
         '</div>' +
       '</div>';
     }).join('') : '';
     var checkoutBtn = items.length
-      ? '<button class="auth-btn" type="button" id="cartToCheckoutBtn" style="margin-top:8px;">お会計へ進む — ' + yen(total) + '</button>'
+      ? '<button type="button" id="cartToCheckoutBtn" style="margin-top:12px;width:100%;padding:16px;background:linear-gradient(135deg,#8b6f47,#c9a96e);color:#fff;border:none;border-radius:12px;font-size:14px;letter-spacing:.12em;cursor:pointer;box-shadow:0 6px 20px rgba(139,111,71,.35);font-family:inherit;transition:transform .2s,box-shadow .2s;">お会計へ進む &nbsp;—&nbsp; ' + yen(total) + '</button>'
       : '';
     document.getElementById('view-cart').innerHTML =
       head(biHead('SHOPPING BAG', 'バッグ'), '現在のバッグ内容を確認・編集できます。', '<a class="view-action-link" href="store.html">買い物を続ける</a>') +
@@ -978,9 +977,6 @@
     });
     document.querySelectorAll('[data-cart-dec]').forEach(function (b) {
       b.addEventListener('click', function () { var i = +b.dataset.cartDec; var cart = getLS('cartItems', []); if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
-    });
-    document.querySelectorAll('[data-cart-del]').forEach(function (b) {
-      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart.splice(+b.dataset.cartDel, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
   }
 
