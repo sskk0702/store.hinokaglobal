@@ -302,10 +302,11 @@
 
   function switchView(viewId) {
     state.activeView = viewId;
-    location.hash = viewId;
+    try { history.replaceState(null, '', '#' + viewId); } catch(e) {}
     document.querySelectorAll('.view-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'view-' + viewId); });
     document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.view === viewId); });
     renderCurrentView();
+    window.scrollTo(0, 0);
   }
 
   function renderUser(user) {
@@ -1307,7 +1308,7 @@
       '<div class="section-block" style="margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
         '<div class="section-title-row"><h3 class="section-title">プロフィール・セキュリティ</h3></div>' +
         '<div class="info-table">' +
-          infoRow('ニックネーム',     esc(user.displayName || '未設定'), '') +
+          infoRow('ニックネーム', esc(user.displayName || '未設定'), '<input id="nameInput" type="text" placeholder="ニックネームを入力" value="' + esc(user.displayName || '') + '" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;width:130px;"> <button class="mini-btn" id="saveNameBtn" type="button">保存</button>') +
           infoRow('メールアドレス',   esc(user.email || ''), '') +
           infoRow('メール確認',       user.emailVerified ? '確認済み ✓' : '未確認', '<button class="mini-btn" id="resendVerifyBtn" type="button">再送信</button>') +
           infoRow('パスワード',       '再設定メールを送信します', '<button class="mini-btn" id="changePwBtn" type="button">変更</button>') +
@@ -1329,6 +1330,18 @@
     if (mobileLogoutSection && window.innerWidth <= 768) mobileLogoutSection.style.display = '';
     var mobileLogoutBtnSettings = document.getElementById('mobileLogoutBtnSettings');
     if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', function () { auth.signOut(); });
+
+    var nameSaveBtn = document.getElementById('saveNameBtn');
+    if (nameSaveBtn) nameSaveBtn.addEventListener('click', function () {
+      var val = (document.getElementById('nameInput').value || '').trim();
+      if (!val) { showToast('ニックネームを入力してください'); return; }
+      auth.currentUser.updateProfile({ displayName: val }).then(function () {
+        state.user.displayName = val;
+        renderUser(state.user);
+        renderSettings();
+        showToast('ニックネームを保存しました');
+      }).catch(function () { showToast('保存に失敗しました'); });
+    });
 
     var bdSaveBtn = document.getElementById('saveBirthdayBtn');
     if (bdSaveBtn) bdSaveBtn.addEventListener('click', function () {
