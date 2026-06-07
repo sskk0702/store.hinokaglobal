@@ -133,7 +133,7 @@ button { cursor: pointer; }
 .asset-num, .data-value { font-family: 'Cormorant Garamond', serif; font-size: 30px; line-height: 1; }
 .asset-label, .data-label { color: var(--muted); font-size: 10px; letter-spacing: .1em; margin-top: 7px; }
 .quick-grid { grid-template-columns: repeat(5,1fr); margin-bottom: 16px; }
-.quick-card { border: 1px solid rgba(201,169,110,.18); background: linear-gradient(145deg,#fdf8f3,#f0e6d6); box-shadow: 0 4px 16px rgba(139,111,71,.1), inset 0 1px 0 rgba(255,255,255,.9); padding: 18px 10px; text-align: center; border-radius: 14px; }
+.quick-card { border: 1px solid rgba(201,169,110,.18) !important; background: linear-gradient(145deg,#fdf8f3,#f0e6d6) !important; box-shadow: 0 4px 16px rgba(139,111,71,.1), inset 0 1px 0 rgba(255,255,255,.9) !important; padding: 18px 10px; text-align: center; border-radius: 14px; }
 .quick-card:hover { border-color: #c9a96e; box-shadow: 0 6px 20px rgba(139,111,71,.18), inset 0 1px 0 rgba(255,255,255,.9); transform: translateY(-2px); transition: all .2s; }
 .quick-icon { font-size: 22px; margin-bottom: 9px; }
 .quick-label { font-size: 11px; color: var(--muted); }
@@ -166,9 +166,14 @@ button { cursor: pointer; }
 .product-price { font-size: 13px; margin-bottom: 4px; }
 .old-price { color: var(--muted); text-decoration: line-through; font-size: 11px; margin-left: 6px; }
 .stock { color: var(--success); font-size: 10px; margin-bottom: 10px; }
-.coupon-card { display: grid; grid-template-columns: 112px minmax(0,1fr); overflow: hidden; }
-.coupon-face { background: var(--ink); color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 18px 10px; }
-.coupon-amount { font-family: 'Cormorant Garamond', serif; font-size: 30px; }
+.coupon-card { display: grid; grid-template-columns: 120px minmax(0,1fr); overflow: hidden; background: linear-gradient(135deg,#1a1208 0%,#2d1f0a 40%,#1a1208 100%) !important; border: 1px solid rgba(201,169,110,.45) !important; box-shadow: 0 6px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(201,169,110,.3) !important; position: relative; }
+.coupon-card::before { content:''; position:absolute; inset:0; background: repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(201,169,110,.03) 8px,rgba(201,169,110,.03) 9px); pointer-events:none; }
+.coupon-face { background: linear-gradient(160deg,#c9a96e 0%,#8b6f47 50%,#6b4f2e 100%); color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 18px 10px; position: relative; box-shadow: inset -1px 0 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15); }
+.coupon-face::after { content:''; position:absolute; top:0; right:0; bottom:0; width:1px; background: repeating-linear-gradient(180deg,transparent,transparent 5px,rgba(255,255,255,.15) 5px,rgba(255,255,255,.15) 6px); }
+.coupon-amount { font-family: 'Cormorant Garamond', serif; font-size: 30px; text-shadow: 0 2px 4px rgba(0,0,0,.3); }
+.coupon-info { color: #e8d5b0; }
+.coupon-info .message-title { color: #f0e0c0; font-size: 13px; }
+.coupon-info .message-body { color: rgba(232,213,176,.7); font-size: 11px; }
 .coupon-info, .message-row, .address-card, .review-card, .service-card { padding: 16px; }
 .message-top, .address-top, .review-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
 .message-title, .address-name, .review-product { font-size: 13px; font-weight: 500; }
