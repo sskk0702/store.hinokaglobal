@@ -1266,6 +1266,7 @@
     var rank    = getMemberRank(spend);
     var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
     var rankColor  = rankColors[rank.name] || '#8b6f47';
+    var rankMedals = { BRONZE: '✦', SILVER: '✦✦', GOLD: '✦✦✦', DIAMOND: '◆' };
 
     function parseDevice(ua) {
       if (!ua) return 'パソコン';
@@ -1320,16 +1321,15 @@
         '<div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div>' +
         loginTimelineHtml +
       '</div>' +
-      '<div id="mobileLogoutSection" style="display:none;margin-top:20px;padding:20px;background:#fff8f8;border:1px solid #fde8e8;border-radius:12px;text-align:center;">' +
-        '<div style="font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em;">アカウントからログアウトします</div>' +
-        '<button id="mobileLogoutBtnSettings" type="button" class="danger-btn" style="width:100%;padding:12px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
+      '<div style="margin-top:24px;padding:20px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6);border:1px solid rgba(201,169,110,.2);border-radius:14px;text-align:center;">' +
+        '<div style="font-size:11px;color:#a08060;margin-bottom:12px;letter-spacing:.08em;">アカウントからログアウトします</div>' +
+        '<button id="settingsLogoutBtn" type="button" class="danger-btn" style="width:100%;max-width:280px;padding:13px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
       '</div>';
 
-    // モバイルのみ表示（スクリーン幅768px以下）
-    var mobileLogoutSection = document.getElementById('mobileLogoutSection');
-    if (mobileLogoutSection && window.innerWidth <= 768) mobileLogoutSection.style.display = '';
-    var mobileLogoutBtnSettings = document.getElementById('mobileLogoutBtnSettings');
-    if (mobileLogoutBtnSettings) mobileLogoutBtnSettings.addEventListener('click', function () { auth.signOut(); });
+    var settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
+    if (settingsLogoutBtn) settingsLogoutBtn.addEventListener('click', function () {
+      if (confirm('ログアウトしますか？')) auth.signOut();
+    });
 
     var nameSaveBtn = document.getElementById('saveNameBtn');
     if (nameSaveBtn) nameSaveBtn.addEventListener('click', function () {
