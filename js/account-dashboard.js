@@ -863,12 +863,55 @@
   }
 
   function renderHistory() {
-    var groups = getHistory();
-    document.getElementById('view-history').innerHTML = head(biHead('BROWSING HISTORY', '閲覧履歴'), '最近閲覧した商品を日付別に表示します。', '<button class="view-action-btn" id="clearHistoryBtn" type="button">履歴を削除</button>') + (groups.length ? groups.map(function (group) {
-      return '<div class="section-title-row" style="margin-top:18px;"><h3 class="section-title">' + esc(group.date) + '</h3></div><div class="product-grid">' + group.items.map(function (p) { return productCard(p, '閲覧時間 ' + p.time); }).join('') + '</div>';
-    }).join('') : empty('閲覧履歴はありません。'));
+    var raw = getHistory();
+    // Support both flat array (new format) and grouped array (old format)
+    var items = [];
+    if (raw.length && raw[0] && raw[0].items) {
+      // old grouped format → flatten
+      raw.forEach(function(g) { (g.items || []).forEach(function(p) { items.push(p); }); });
+    } else {
+      items = raw;
+    }
+    // Group by date for display
+    var grouped = [];
+    var dateMap  = {};
+    items.forEach(function(p) {
+      var d = p.date || '—';
+      if (!dateMap[d]) { dateMap[d] = []; grouped.push({ date: d, items: dateMap[d] }); }
+      dateMap[d].push(p);
+    });
+
+    document.getElementById('view-history').innerHTML =
+      head(biHead('BROWSING HISTORY', '閲覧履歴'), '最近閲覧した商品（最大10件）。', '<button class="view-action-btn" id="clearHistoryBtn" type="button">履歴を削除</button>') +
+      (grouped.length
+        ? grouped.map(function(group) {
+            return '<div class="section-title-row" style="margin-top:18px;"><h3 class="section-title">' + esc(group.date) + '</h3></div>' +
+              '<div class="product-grid">' + group.items.map(function(p) {
+                return '<article class="product-card" style="position:relative;">' +
+                  '<a href="product-detail.html?id=' + esc(p.id) + '" style="text-decoration:none;color:inherit;">' +
+                    '<div class="product-img-wrap"><img src="' + esc(p.img || '') + '" alt="' + esc(p.name) + '" onerror="this.src=\'assets/images/placeholder.jpg\'"></div>' +
+                    '<div class="product-body">' +
+                      '<div class="product-name">' + esc(p.name) + '</div>' +
+                      '<div class="product-price">¥' + Number(p.price).toLocaleString() + '</div>' +
+                      '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;">閲覧 ' + esc(p.time || '') + '</div>' +
+                    '</div>' +
+                  '</a>' +
+                  '<div style="display:flex;gap:6px;padding:0 13px 13px;">' +
+                    '<button class="mini-btn primary" style="flex:1;" data-product-action="cart" data-product-id="' + esc(p.id) + '">カートに追加</button>' +
+                    '<a class="mini-btn" href="product-detail.html?id=' + esc(p.id) + '" style="flex:1;text-align:center;text-decoration:none;">詳細を見る</a>' +
+                  '</div>' +
+                '</article>';
+              }).join('') + '</div>';
+          }).join('')
+        : empty('閲覧履歴はありません。<br>商品ページを開くと自動的に記録されます。'));
+
     var clearBtn = document.getElementById('clearHistoryBtn');
-    if (clearBtn) clearBtn.addEventListener('click', function () { setLS('hinoka_browsing_history', []); renderHistory(); showToast('閲覧履歴を削除しました'); });
+    if (clearBtn) clearBtn.addEventListener('click', function () {
+      setLS('hinoka_browsing_history', []);
+      window.dispatchEvent(new Event('historyUpdated'));
+      renderHistory();
+      showToast('閲覧履歴を削除しました');
+    });
     bindProductActions();
   }
 
