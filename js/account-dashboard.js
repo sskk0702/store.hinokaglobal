@@ -608,10 +608,12 @@
     var rank       = getMemberRank(spend);
     var pts        = calcPoints();
     var coupons    = getMonthCoupons();
-    var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
-    var rankColor  = rankColors[rank.name] || '#8b6f47';
-    var initial    = ((state.user.displayName || state.user.email || 'H')[0]).toUpperCase();
-    var name       = state.user.displayName || 'HINOKA MEMBER';
+    var rankColors  = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
+    var rankColor   = rankColors[rank.name] || '#8b6f47';
+    var rankMedals  = { BRONZE: '✦', SILVER: '✦✦', GOLD: '✦✦✦', DIAMOND: '◆' };
+    var rankMedal   = rankMedals[rank.name] || '✦';
+    var initial     = ((state.user.displayName || state.user.email || 'H')[0]).toUpperCase();
+    var name        = state.user.displayName || 'HINOKA MEMBER';
 
     var quickRows = [
       ['pay',    'お支払い待ち', '💳'],
@@ -628,7 +630,7 @@
           '<div class="hero-info">' +
             '<div class="hero-info-sub">MEMBER NAME</div>' +
             '<div class="hero-info-name">' + esc(name) + '</div>' +
-            '<div class="hero-info-rank">▲ ' + rank.label.toUpperCase() + ' MEMBER</div>' +
+            '<div class="hero-info-rank">' + rankMedal + ' ' + rank.label.toUpperCase() + ' MEMBER</div>' +
           '</div>' +
           '<div class="hero-logo-area"><span>HINOKA</span><span>MEMBER CARD</span></div>' +
         '</div>' +
@@ -651,10 +653,12 @@
       }).join('') +
       '</div>';
 
+    var cartItems = getCartItems();
+    var cartCount = cartItems.reduce(function (s, i) { return s + Number(i.qty || 1); }, 0);
     var statsRow =
       '<div class="stat-grid">' +
         dataBlock('累計注文数', orders.length, 'orders') +
-        dataBlock('累計購入金額', yen(spend), 'orders') +
+        dataBlock('バッグ', cartCount, 'cart') +
         dataBlock('お気に入り', wish.length, 'wishlist') +
         dataBlock('未読メッセージ', msgs.filter(function (m) { return m.unread; }).length, 'messages') +
       '</div>';
@@ -1293,7 +1297,7 @@
         '<div class="settings-profile-info">' +
           '<div class="settings-profile-name">' + esc(name) + '</div>' +
           '<div class="settings-profile-email">' + esc(user.email || '') + '</div>' +
-          '<div class="settings-profile-badge" style="color:' + rankColor + ';">▲ ' + rank.label.toUpperCase() + ' MEMBER</div>' +
+          '<div class="settings-profile-badge" style="color:' + rankColor + ';">' + rankMedals[rank.name] + ' ' + rank.label.toUpperCase() + ' MEMBER</div>' +
         '</div>' +
       '</div>';
 
