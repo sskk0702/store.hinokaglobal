@@ -7,8 +7,8 @@
     var s = document.createElement('style');
     s.textContent = [
       /* ── タイトル書式 ── */
-      '.view-title{font-size:13px!important;letter-spacing:.1em;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-family:"Cormorant Garamond",serif;font-weight:500;color:#111;}',
-      '.title-ja-prefix{font-size:13px;letter-spacing:.14em;color:var(--muted);font-family:"Cormorant Garamond",serif;font-weight:400;}',
+      '.view-title{font-size:15px!important;letter-spacing:.12em;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-family:"Cormorant Garamond",serif;font-weight:600;color:#111;}',
+      '.title-ja-prefix{font-size:15px;letter-spacing:.12em;color:var(--muted);font-family:"Cormorant Garamond",serif;font-weight:600;}',
       /* ── ナビ二言語 ── */
       '.nav-en{display:block;font-size:8px;letter-spacing:.12em;color:var(--muted);font-weight:300;margin-top:1px;line-height:1;}',
       '.nav-btn.active .nav-en{color:rgba(255,255,255,.5);}',
@@ -19,12 +19,12 @@
       '.add-action-btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(139,111,71,.35);}',
       /* ── 会員特典カード 3D ── */
       '.member-benefit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}',
-      '.mbc{background:linear-gradient(145deg,#1e293b,#0f172a);border-radius:14px;padding:18px 12px;text-align:center;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .2s,box-shadow .2s;}',
-      '.mbc:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(0,0,0,.35);}',
-      '.mbc-icon{font-size:22px;margin-bottom:8px;}',
-      '.mbc-label{font-size:9px;letter-spacing:.14em;color:rgba(255,255,255,.45);margin-bottom:6px;}',
-      '.mbc-val{font-family:"Cormorant Garamond",serif;font-size:28px;color:#c9a96e;line-height:1;}',
-      '.mbc-sub{font-size:9px;color:rgba(255,255,255,.35);margin-top:5px;}',
+      '.mbc{background:linear-gradient(145deg,#fdf8f3,#f0e6d6);border-radius:14px;padding:18px 12px;text-align:center;color:#3d2c1e;box-shadow:0 4px 16px rgba(139,111,71,.1),inset 0 1px 0 rgba(255,255,255,.9);border:1px solid rgba(201,169,110,.18);transition:transform .2s,box-shadow .2s;}',
+      '.mbc:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(139,111,71,.18);}',
+      '.mbc-icon{font-size:20px;margin-bottom:8px;color:#8b6f47;}',
+      '.mbc-label{font-size:9px;letter-spacing:.14em;color:#a08060;margin-bottom:6px;}',
+      '.mbc-val{font-family:"Cormorant Garamond",serif;font-size:28px;color:#6b4f2e;line-height:1;}',
+      '.mbc-sub{font-size:9px;color:#b09070;margin-top:5px;}',
       /* ── ランク表 premium ── */
       '.rank-table-wrap{border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.08);}',
       '.rank-table-wrap table{width:100%;border-collapse:collapse;font-size:11px;}',
@@ -377,33 +377,24 @@
     return earned;
   }
 
-  function checkBirthdayCoupon(user) {
-    // Only for SILVER and above (BRONZE has no birthday benefit)
-    var rank = getMemberRank(calcTotalSpend());
-    if (rank.name === 'BRONZE') return;
-
-    // Get birthday from Firestore profile or localStorage
-    var profile = getLS('hinoka_profile', {});
-    var birthday = profile.birthday || ''; // format: MM-DD  e.g. "03-15"
+  function checkBirthdayCoupon() {
+    var profile  = getLS('hinoka_profile', {});
+    var birthday = profile.birthday || '';
     if (!birthday) return;
 
-    var now = new Date();
-    var mm  = String(now.getMonth() + 1).padStart(2, '0');
-    var dd  = String(now.getDate()).padStart(2, '0');
-    var todayMD = mm + '-' + dd;
-
-    // Check if birthday month (issue coupon for entire birth month)
-    var birthMM = birthday.split('-')[0];
+    var now     = new Date();
+    var mm      = String(now.getMonth() + 1).padStart(2, '0');
+    var birthMM = String(birthday.split('-')[0]).padStart(2, '0');
     if (mm !== birthMM) return;
 
     var bdKey = 'BD-' + now.getFullYear() + '-' + mm;
     var stored = getLS('hinoka_coupons', []);
-    var alreadyIssued = stored.some(function (c) { return c.id === bdKey; });
-    if (alreadyIssued) return;
+    if (stored.some(function (c) { return c.id === bdKey; })) return;
 
+    var rank    = getMemberRank(calcTotalSpend());
+    var discount = rank.name === 'DIAMOND' ? '20%' : rank.name === 'GOLD' ? '15%' : rank.name === 'SILVER' ? '10%' : '5%';
     var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     var expiry  = lastDay.getFullYear() + '/' + (lastDay.getMonth() + 1) + '/' + lastDay.getDate();
-    var discount = rank.name === 'DIAMOND' ? '20%' : rank.name === 'GOLD' ? '15%' : '10%';
     stored.push({
       id: bdKey,
       monthKey: now.getFullYear() + '-' + (now.getMonth() + 1),
@@ -415,12 +406,12 @@
       isBirthday: true
     });
     setLS('hinoka_coupons', stored);
-
-    // Also show a toast notification
-    showToast('🎂 お誕生日おめでとうございます！クーポンを発行しました');
+    window.dispatchEvent(new Event('couponUpdated'));
+    try { showToast('🎂 お誕生日おめでとうございます！クーポンを発行しました'); } catch (e) {}
   }
 
   function getMonthCoupons() {
+    checkBirthdayCoupon();
     var now  = new Date();
     var ym   = now.getFullYear() + '-' + (now.getMonth() + 1);
     var stored = getLS('hinoka_coupons', []);
@@ -1312,7 +1303,7 @@
       profile.birthday = val;
       setLS('hinoka_profile', profile);
       showToast('生年月日を保存しました 🎂');
-      checkBirthdayCoupon(user);
+      checkBirthdayCoupon();
       renderSettings();
     });
     document.getElementById('resendVerifyBtn').addEventListener('click', function () {
@@ -1391,7 +1382,7 @@
     document.getElementById('authSection').style.display   = 'none';
     document.getElementById('accountShell').style.display  = 'block';
     recordLogin();
-    checkBirthdayCoupon(user);
+    checkBirthdayCoupon();
     buildNavigation();
     renderUser(user);
     var validViews = navItems.map(function (n) { return n.id; });
