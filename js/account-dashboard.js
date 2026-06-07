@@ -1420,16 +1420,26 @@
   }
 
   function showLogin() {
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('accountShell').style.display  = 'none';
-    document.getElementById('authSection').style.display   = 'block';
+    var load = document.getElementById('loadingSection');
+    var auth_ = document.getElementById('authSection');
+    var shell = document.getElementById('accountShell');
+    if (load)  load.style.display  = 'none';
+    if (shell) shell.style.display = 'none';
+    if (auth_) auth_.style.display = 'block';
+    document.body.classList.remove('is-logged-in');
+    document.body.classList.add('is-logged-out');
   }
 
   function showAccount(user) {
     state.user = user;
-    document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('authSection').style.display   = 'none';
-    document.getElementById('accountShell').style.display  = 'block';
+    var load = document.getElementById('loadingSection');
+    var auth_ = document.getElementById('authSection');
+    var shell = document.getElementById('accountShell');
+    if (load)  load.style.display  = 'none';
+    if (auth_) auth_.style.display = 'none';
+    if (shell) shell.style.display = 'block';
+    document.body.classList.remove('is-logged-out');
+    document.body.classList.add('is-logged-in');
     window.scrollTo(0, 0);
     recordLogin();
     checkBirthdayCoupon();
