@@ -1,147 +1,134 @@
-// firebase-sync.js — Firestore クロスデバイス同期
+// firebase-sync.js — Firestore クロスデバイス同期 (シンプル版)
 (function () {
-  var app  = (firebase.apps.length > 0) ? firebase.app() : firebase.initializeApp({
+  var FB_CONFIG = {
     apiKey:            'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
     authDomain:        'hinoka-0304.firebaseapp.com',
     projectId:         'hinoka-0304',
     storageBucket:     'hinoka-0304.firebasestorage.app',
     messagingSenderId: '275098198657',
     appId:             '1:275098198657:web:d9b11ff1086c972ac6e380'
-  });
+  };
+
+  var app  = firebase.apps.length ? firebase.app() : firebase.initializeApp(FB_CONFIG);
   var auth = firebase.auth(app);
   var db   = firebase.firestore(app);
 
-  var _uid      = null;
-  var _timers   = {};
-  var _unsubs   = [];   // onSnapshot unsubscribe handles
+  var _uid    = null;
+  var _timers = {};
+  var _unsubs = [];
 
-  // ── マージ戦略 ────────────────────────────────────────────────
+  // ── マージ ────────────────────────────────────────────────────
   function mergeCart(local, remote) {
-    var merged = local.slice();
-    remote.forEach(function (ri) {
-      var found = merged.find(function (li) {
-        return li.id === ri.id &&
-               (li.size  || '') === (ri.size  || '') &&
-               (li.color || '') === (ri.color || '');
+    var out = local.slice();
+    (remote || []).forEach(function (ri) {
+      var found = out.find(function (li) {
+        return li.id === ri.id && (li.size||'') === (ri.size||'') && (li.color||'') === (ri.color||'');
       });
-      if (found) { found.qty = Math.max(found.qty || 1, ri.qty || 1); }
-      else { merged.push(ri); }
+      if (found) { found.qty = Math.max(found.qty||1, ri.qty||1); }
+      else { out.push(ri); }
     });
-    return merged;
+    return out;
   }
 
-  function mergeArray(local, remote) {
-    // works for both string[] and object[] with .id
-    var merged = local.slice();
-    remote.forEach(function (ri) {
-      var key = (typeof ri === 'string') ? ri : ri.id;
-      var exists = merged.some(function (li) {
-        return (typeof li === 'string') ? li === key : li.id === key;
+  function mergeArr(local, remote) {
+    var out = local.slice();
+    (remote || []).forEach(function (ri) {
+      var key = typeof ri === 'string' ? ri : ri.id;
+      var exists = out.some(function (li) {
+        return typeof li === 'string' ? li === key : li.id === key;
       });
-      if (!exists) merged.push(ri);
+      if (!exists) out.push(ri);
     });
-    return merged;
+    return out;
   }
 
   function mergeOrders(local, remote) {
-    var merged = local.slice();
-    remote.forEach(function (ri) {
+    var out = local.slice();
+    (remote || []).forEach(function (ri) {
       var key = ri.ref || ri.id;
-      var exists = merged.some(function (li) { return (li.ref || li.id) === key; });
-      if (!exists) merged.push(ri);
+      if (!out.some(function (li) { return (li.ref||li.id) === key; })) out.push(ri);
     });
-    return merged;
+    return out;
   }
 
-  // オブジェクト型（ポイント・残高・プロフィール）はリモートを優先
-  function mergeObject(local, remote) {
+  function mergeObj(local, remote) {
     return Object.assign({}, local || {}, remote || {});
   }
 
-  // ── 同期対象 ────────────────────────────────────────────────
-  // type: 'array' | 'object'
-  var SYNC_TARGETS = [
-    { key: 'cartItems',               doc: 'cart',      field: 'items', event: 'cartUpdated',     merge: mergeCart,    type: 'array'  },
-    { key: 'hinoka_wishlist',         doc: 'wishlist',  field: 'ids',   event: 'wishlistUpdated', merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_orders',           doc: 'orders',    field: 'items', event: 'orderUpdated',    merge: mergeOrders,  type: 'array'  },
-    { key: 'hinoka_addresses',        doc: 'addresses', field: 'items', event: 'addressUpdated',  merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_browsing_history', doc: 'history',   field: 'items', event: 'historyUpdated',  merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_reviews',          doc: 'reviews',   field: 'items', event: 'reviewUpdated',   merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_messages',         doc: 'messages',  field: 'items', event: 'messageUpdated',  merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_coupons',          doc: 'coupons',   field: 'items', event: 'couponUpdated',   merge: mergeArray,   type: 'array'  },
-    { key: 'hinoka_points_log',       doc: 'points',    field: 'data',  event: 'pointsUpdated',   merge: mergeObject,  type: 'object' },
-    { key: 'hinoka_balance',          doc: 'balance',   field: 'data',  event: 'balanceUpdated',  merge: mergeObject,  type: 'object' },
-    { key: 'hinoka_profile',          doc: 'profile',   field: 'data',  event: 'profileUpdated',  merge: mergeObject,  type: 'object' }
+  // ── 対象リスト ────────────────────────────────────────────────
+  var TARGETS = [
+    { key: 'cartItems',               doc: 'cart',      field: 'items', event: 'cartUpdated',     merge: mergeCart,   type: 'array'  },
+    { key: 'hinoka_wishlist',         doc: 'wishlist',  field: 'ids',   event: 'wishlistUpdated', merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_orders',           doc: 'orders',    field: 'items', event: 'orderUpdated',    merge: mergeOrders, type: 'array'  },
+    { key: 'hinoka_addresses',        doc: 'addresses', field: 'items', event: 'addressUpdated',  merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_browsing_history', doc: 'history',   field: 'items', event: 'historyUpdated',  merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_reviews',          doc: 'reviews',   field: 'items', event: 'reviewUpdated',   merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_messages',         doc: 'messages',  field: 'items', event: 'messageUpdated',  merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_coupons',          doc: 'coupons',   field: 'items', event: 'couponUpdated',   merge: mergeArr,    type: 'array'  },
+    { key: 'hinoka_points_log',       doc: 'points',    field: 'data',  event: 'pointsUpdated',   merge: mergeObj,    type: 'object' },
+    { key: 'hinoka_balance',          doc: 'balance',   field: 'data',  event: 'balanceUpdated',  merge: mergeObj,    type: 'object' },
+    { key: 'hinoka_profile',          doc: 'profile',   field: 'data',  event: 'profileUpdated',  merge: mergeObj,    type: 'object' }
   ];
 
-  // ── localStorage ヘルパー ────────────────────────────────────
+  // ── ローカル読み書き ──────────────────────────────────────────
   function readLocal(t) {
     try {
-      var raw = localStorage.getItem(t.key);
-      if (!raw) return t.type === 'object' ? {} : [];
-      var parsed = JSON.parse(raw);
-      // hinoka_points_log は {total,available,expire} or null
-      if (t.type === 'object' && Array.isArray(parsed)) return {};
-      return parsed;
-    } catch (e) {
-      return t.type === 'object' ? {} : [];
-    }
+      var v = JSON.parse(localStorage.getItem(t.key) || 'null');
+      if (v === null) return t.type === 'object' ? {} : [];
+      if (t.type === 'object' && Array.isArray(v)) return {};
+      return v;
+    } catch (e) { return t.type === 'object' ? {} : []; }
   }
 
   function writeLocal(t, data) {
     try { localStorage.setItem(t.key, JSON.stringify(data)); } catch (e) {}
   }
 
-  // ── Firestore 書き込み（デバウンス800ms）────────────────────
-  function scheduleUpload(target) {
+  // ── Firestore 保存（デバウンス）──────────────────────────────
+  function save(t) {
     if (!_uid) return;
-    clearTimeout(_timers[target.doc]);
-    _timers[target.doc] = setTimeout(function () { upload(target); }, 800);
+    var obj = { ts: firebase.firestore.FieldValue.serverTimestamp() };
+    obj[t.field] = readLocal(t);
+    db.collection('users').doc(_uid).collection('sync').doc(t.doc)
+      .set(obj).catch(function () {});
   }
 
-  function upload(target) {
+  function debounceSave(t) {
     if (!_uid) return;
-    var data  = readLocal(target);
-    var obj   = { ts: firebase.firestore.FieldValue.serverTimestamp() };
-    obj[target.field] = data;
-    db.collection('users').doc(_uid)
-      .collection('sync').doc(target.doc)
-      .set(obj)
-      .catch(function () {});
+    clearTimeout(_timers[t.doc]);
+    _timers[t.doc] = setTimeout(function () { save(t); }, 600);
   }
 
-  // ── Firestore 読み込み（初回）────────────────────────────────
-  function download(target, callback) {
-    db.collection('users').doc(_uid)
-      .collection('sync').doc(target.doc)
-      .get()
-      .then(function (snap) {
-        if (!snap.exists) { if (callback) callback(); return; }
-        applyRemote(target, snap.data()[target.field]);
-        if (callback) callback();
-      })
-      .catch(function () { if (callback) callback(); });
-  }
-
-  function applyRemote(target, remote) {
+  // ── リモートデータ適用 ────────────────────────────────────────
+  function apply(t, remote) {
     if (remote === undefined || remote === null) return;
-    var local  = readLocal(target);
-    var merged = target.merge(local, remote);
-    var mStr   = JSON.stringify(merged);
-    if (mStr !== JSON.stringify(local)) {
-      writeLocal(target, merged);
-      window.dispatchEvent(new Event(target.event));
+    var local  = readLocal(t);
+    var merged = t.merge(local, remote);
+    if (JSON.stringify(merged) !== JSON.stringify(local)) {
+      writeLocal(t, merged);
+      window.dispatchEvent(new Event(t.event));
     }
   }
 
-  // ── リアルタイム監視（onSnapshot）────────────────────────────
+  // ── ログイン時: Firestoreから全データをダウンロード ───────────
+  function downloadAll() {
+    TARGETS.forEach(function (t) {
+      db.collection('users').doc(_uid).collection('sync').doc(t.doc)
+        .get({ source: 'server' })   // キャッシュを無視してサーバから取得
+        .then(function (snap) {
+          if (snap.exists) apply(t, snap.data()[t.field]);
+        })
+        .catch(function () {});
+    });
+  }
+
+  // ── リアルタイム監視 ─────────────────────────────────────────
   function startListening() {
-    SYNC_TARGETS.forEach(function (target) {
-      var unsub = db.collection('users').doc(_uid)
-        .collection('sync').doc(target.doc)
-        .onSnapshot(function (snap) {
-          if (!snap.exists || snap.metadata.hasPendingWrites) return;
-          applyRemote(target, snap.data()[target.field]);
+    TARGETS.forEach(function (t) {
+      var unsub = db.collection('users').doc(_uid).collection('sync').doc(t.doc)
+        .onSnapshot({ includeMetadataChanges: false }, function (snap) {
+          if (!snap.exists) return;
+          apply(t, snap.data()[t.field]);
         }, function () {});
       _unsubs.push(unsub);
     });
@@ -152,59 +139,37 @@
     _unsubs = [];
   }
 
-  // ── localStorage 変更イベント（他タブ含む）────────────────────
-  function bindLocalEvents() {
-    SYNC_TARGETS.forEach(function (target) {
-      window.addEventListener(target.event, function () {
-        scheduleUpload(target);
-      });
-    });
-
-    // 別タブからの localStorage 変更も検知
-    window.addEventListener('storage', function (e) {
-      var target = SYNC_TARGETS.find(function (t) { return t.key === e.key; });
-      if (target && _uid) scheduleUpload(target);
-    });
-  }
-
-  // ── ページ非表示前に即時保存 ────────────────────────────────
-  window.addEventListener('visibilitychange', function () {
+  // ── ページ非表示時に即時保存 ─────────────────────────────────
+  document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden' && _uid) {
-      SYNC_TARGETS.forEach(function (t) {
-        clearTimeout(_timers[t.doc]);
-        upload(t);
-      });
+      TARGETS.forEach(function (t) { clearTimeout(_timers[t.doc]); save(t); });
     }
   });
 
-  // ── 認証状態変化 ────────────────────────────────────────────
+  // ── ローカルイベント → Firestore保存 ─────────────────────────
+  TARGETS.forEach(function (t) {
+    window.addEventListener(t.event, function () { debounceSave(t); });
+  });
+
+  // 他タブのlocalStorage変更も検知
+  window.addEventListener('storage', function (e) {
+    var t = TARGETS.find(function (x) { return x.key === e.key; });
+    if (t && _uid) debounceSave(t);
+  });
+
+  // ── 認証 ─────────────────────────────────────────────────────
   auth.onAuthStateChanged(function (user) {
     if (user) {
       _uid = user.uid;
-      // 全データをダウンロードしてからリアルタイム監視開始
-      var done = 0;
-      SYNC_TARGETS.forEach(function (target) {
-        download(target, function () {
-          done++;
-          if (done === SYNC_TARGETS.length) {
-            startListening();
-          }
-        });
-      });
+      downloadAll();          // ① サーバから最新データを取得
+      startListening();       // ② リアルタイム監視開始
     } else {
       stopListening();
       _uid = null;
     }
   });
 
-  // 外部から強制アップロード可能
-  window.hinokaSyncSave = function () {
-    SYNC_TARGETS.forEach(function (t) { upload(t); });
-  };
-  window.hinokaSyncForceDownload = function () {
-    if (!_uid) return;
-    SYNC_TARGETS.forEach(function (t) { download(t); });
-  };
-
-  bindLocalEvents();
+  // ── 外部API ──────────────────────────────────────────────────
+  window.hinokaSyncSave = function () { TARGETS.forEach(save); };
+  window.hinokaSyncForceDownload = downloadAll;
 })();
