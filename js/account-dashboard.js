@@ -7,8 +7,8 @@
     var s = document.createElement('style');
     s.textContent = [
       /* ── タイトル書式 ── */
-      '.view-title{font-size:20px!important;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}',
-      '.title-ja-prefix{font-size:11px;letter-spacing:.14em;color:var(--muted);font-family:"Noto Sans JP",sans-serif;font-weight:300;}',
+      '.view-title{font-size:13px!important;letter-spacing:.1em;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-family:"Cormorant Garamond",serif;font-weight:500;color:#111;}',
+      '.title-ja-prefix{font-size:13px;letter-spacing:.14em;color:var(--muted);font-family:"Noto Sans JP",sans-serif;font-weight:300;}',
       /* ── ナビ二言語 ── */
       '.nav-en{display:block;font-size:8px;letter-spacing:.12em;color:var(--muted);font-weight:300;margin-top:1px;line-height:1;}',
       '.nav-btn.active .nav-en{color:rgba(255,255,255,.5);}',
@@ -730,11 +730,11 @@
           '<div style="font-family:\'Cormorant Garamond\',serif;font-size:56px;color:#c9a96e;line-height:1;margin-bottom:4px;">' + Number(pts.available).toLocaleString() + '<span style="font-size:20px;margin-left:6px;">pt</span></div>' +
           '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:8px;">1ポイント = ¥1 としてご利用いただけます</div>' +
         '</div>' +
-        '<div class="stat-grid">' +
-          dataBlock('利用可能ポイント', Number(pts.available).toLocaleString() + ' pt') +
-          dataBlock('利用可能額', '¥' + Number(pts.available).toLocaleString()) +
-          dataBlock('失効予定ポイント', Number(pts.expire).toLocaleString() + ' pt') +
-          dataBlock('ポイント倍率', rank.rate + '倍（' + rank.label + '）', 'member') +
+        '<div class="member-benefit-grid" style="grid-template-columns:repeat(4,1fr);">' +
+          '<div class="mbc"><div class="mbc-icon">◈</div><div class="mbc-val">' + Number(pts.available).toLocaleString() + '</div><div class="mbc-label">利用可能ポイント</div></div>' +
+          '<div class="mbc"><div class="mbc-icon">¥</div><div class="mbc-val" style="font-size:22px;">¥' + Number(pts.available).toLocaleString() + '</div><div class="mbc-label">利用可能額</div></div>' +
+          '<div class="mbc"><div class="mbc-icon">⏳</div><div class="mbc-val">' + Number(pts.expire).toLocaleString() + '</div><div class="mbc-label">失効予定ポイント</div></div>' +
+          '<div class="mbc" data-nav-view="member" style="cursor:pointer;"><div class="mbc-icon">✦</div><div class="mbc-val">' + rank.rate + 'x</div><div class="mbc-label">ポイント倍率</div></div>' +
         '</div>' +
         '<div class="section-block" style="margin-top:16px;"><div class="section-title-row"><h3 class="section-title">ポイント制度について</h3></div>' +
           '<div style="font-size:11px;line-height:2.2;color:var(--muted);">' +
@@ -773,6 +773,7 @@
 
     document.getElementById('view-assets').innerHTML = html;
     document.querySelectorAll('[data-asset-tab]').forEach(function (b) { b.addEventListener('click', function () { state.assetFilter = b.dataset.assetTab; renderAssets(); }); });
+    document.querySelectorAll('[data-nav-view]').forEach(function (b) { b.addEventListener('click', function () { switchView(b.dataset.navView); }); });
     document.querySelectorAll('[data-go]').forEach(function (b) {
       b.addEventListener('click', function () {
         if (b.dataset.assetFilter) state.assetFilter = b.dataset.assetFilter;
@@ -850,7 +851,7 @@
         '<div class="item-price">' + yen(item.price * Number(item.qty || 1)) + '</div></div>';
     }).join('') : '';
     var checkoutBtn = items.length ? '<button class="auth-btn" type="button" id="cartToCheckoutBtn" style="margin-top:16px;">お会計へ進む (' + yen(total) + ')</button>' : '';
-    document.getElementById('view-cart').innerHTML = head(biHead('SHOPPING BAG', 'バッグ'), '現在のバッグ内容を確認・編集できます。', '<button class="outline-btn" type="button" onclick="location.href=\'store.html\'">買い物を続ける</button>') +
+    document.getElementById('view-cart').innerHTML = head(biHead('SHOPPING BAG', 'バッグ'), '現在のバッグ内容を確認・編集できます。', '<a class="view-action-link" href="store.html">買い物を続ける</a>') +
       '<div class="summary-card" style="padding:0;overflow:hidden;">' +
       (items.length ? cartRows : '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">ショッピングバッグは空です。</div>') +
       '</div>' + checkoutBtn;
@@ -1121,8 +1122,8 @@
     var progress     = nextRank ? Math.min(100, Math.round((spend - rank.min) / (nextRank.min - rank.min) * 100)) : 100;
     var rankColors   = { BRONZE: '#cd7f32', SILVER: '#aaa', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
     var rankColor    = rankColors[rank.name] || '#8b6f47';
-    var rankMedals   = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
-    var rankMedal    = rankMedals[rank.name] || '⭐';
+    var rankMedals   = { BRONZE: '✦', SILVER: '✦✦', GOLD: '✦✦✦', DIAMOND: '◆' };
+    var rankMedal    = rankMedals[rank.name] || '✦';
 
     var heroCard =
       '<div class="member-hero-card">' +
