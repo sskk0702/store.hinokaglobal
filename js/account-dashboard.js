@@ -1431,7 +1431,17 @@
   }
 
   function showAccount(user) {
-    state.user = user;
+    // Reload user to get latest displayName from Firebase Auth
+    user.reload().then(function () {
+      state.user = auth.currentUser || user;
+      _showAccountUI(state.user);
+    }).catch(function () {
+      state.user = user;
+      _showAccountUI(user);
+    });
+  }
+
+  function _showAccountUI(user) {
     var load = document.getElementById('loadingSection');
     var auth_ = document.getElementById('authSection');
     var shell = document.getElementById('accountShell');
@@ -1447,6 +1457,9 @@
     renderUser(user);
     var validViews = navItems.map(function (n) { return n.id; });
     switchView(validViews.indexOf(state.activeView) !== -1 ? state.activeView : 'overview');
+
+    // Re-render 2s after login to catch Firestore sync data arriving late
+    setTimeout(function () { if (state.user) { buildNavigation(); renderCurrentView(); } }, 2000);
 
     // Re-render current view whenever firebase-sync downloads remote data
     var syncEvents = ['cartUpdated','orderUpdated','wishlistUpdated','addressUpdated',
