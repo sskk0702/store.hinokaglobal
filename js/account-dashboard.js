@@ -1417,6 +1417,7 @@
     document.getElementById('loadingSection').style.display = 'none';
     document.getElementById('authSection').style.display   = 'none';
     document.getElementById('accountShell').style.display  = 'block';
+    window.scrollTo(0, 0);
     recordLogin();
     checkBirthdayCoupon();
     buildNavigation();
