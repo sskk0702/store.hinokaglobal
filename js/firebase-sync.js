@@ -90,7 +90,7 @@
     var obj = { ts: firebase.firestore.FieldValue.serverTimestamp() };
     obj[t.field] = readLocal(t);
     db.collection('users').doc(_uid).collection('sync').doc(t.doc)
-      .set(obj).catch(function () {});
+      .set(obj).catch(function (e) { console.warn('[hinoka-sync] upload failed:', t.doc, e && e.code, e && e.message); });
   }
 
   function debounceSave(t) {
@@ -118,7 +118,7 @@
         .then(function (snap) {
           if (snap.exists) apply(t, snap.data()[t.field]);
         })
-        .catch(function () {});
+        .catch(function (e) { console.warn('[hinoka-sync] download failed:', t.doc, e && e.code, e && e.message); });
     });
   }
 
