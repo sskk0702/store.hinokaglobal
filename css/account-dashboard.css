@@ -83,6 +83,9 @@ button { cursor: pointer; }
 .msg-success { background: #f2fbf4; border: 1px solid #b8dfc1; color: var(--success); white-space: pre-line; }
 
 .account-shell { display: none; max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
+/* ── 排他表示: ログイン状態でのみ対応セクションを表示 ── */
+body.is-logged-in  #authSection  { display: none !important; }
+body.is-logged-out #accountShell { display: none !important; }
 .account-layout { display: grid; grid-template-columns: 260px minmax(0,1fr); gap: 20px; align-items: start; }
 .side-panel {
   position: sticky; top: calc(var(--nav-h) + 18px); padding: 20px;
