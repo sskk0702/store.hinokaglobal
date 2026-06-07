@@ -941,34 +941,46 @@
     var items = getCartItems();
     var total = items.reduce(function (s, i) { return s + Number(i.price || 0) * Number(i.qty || 1); }, 0);
     var cartRows = items.length ? items.map(function (item, idx) {
-      return '<div class="order-item" style="padding:12px 16px;border-bottom:1px solid var(--line);">' +
-        '<img class="thumb" src="' + esc(item.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'">' +
-        '<div><div class="item-name">' + esc(item.name) + '</div>' +
-        '<div class="item-spec">' + esc([item.color, item.size].filter(Boolean).join(' / ')) + '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">' +
-        '<button class="mini-btn" data-cart-dec="' + idx + '">−</button>' +
-        '<span style="font-size:13px;min-width:24px;text-align:center;">' + Number(item.qty || 1) + '</span>' +
-        '<button class="mini-btn" data-cart-inc="' + idx + '">+</button>' +
-        '<button class="mini-btn" style="margin-left:8px;color:#b33a2f;border-color:#d9aaa4;" data-cart-del="' + idx + '">削除</button>' +
-        '</div></div>' +
-        '<div class="item-price">' + yen(item.price * Number(item.qty || 1)) + '</div></div>';
+      var detailUrl = 'product-detail.html?id=' + esc(item.id || '');
+      return '<div style="display:grid;grid-template-columns:100px 1fr;gap:16px;padding:18px;margin-bottom:12px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6);border:1px solid rgba(201,169,110,.22);border-radius:14px;box-shadow:0 4px 16px rgba(139,111,71,.1),inset 0 1px 0 rgba(255,255,255,.9);">' +
+        '<a href="' + detailUrl + '" style="display:block;border-radius:8px;overflow:hidden;">' +
+          '<img src="' + esc(item.img || 'assets/images/placeholder.jpg') + '" alt="" onerror="this.src=\'assets/images/placeholder.jpg\'" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block;">' +
+        '</a>' +
+        '<div style="display:flex;flex-direction:column;justify-content:space-between;">' +
+          '<div>' +
+            '<a href="' + detailUrl + '" style="text-decoration:none;"><div style="font-size:13px;color:#3d2c1e;letter-spacing:.04em;margin-bottom:4px;line-height:1.5;">' + esc(item.name) + '</div></a>' +
+            '<div style="font-size:11px;color:#a08060;margin-bottom:10px;">' + esc([item.color, item.size].filter(Boolean).join(' / ')) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+              '<button style="width:28px;height:28px;border-radius:50%;background:rgba(139,111,71,.1);border:none;cursor:pointer;font-size:16px;color:#8b6f47;font-weight:600;display:flex;align-items:center;justify-content:center;" data-cart-dec="' + idx + '">−</button>' +
+              '<span style="font-size:14px;min-width:24px;text-align:center;font-weight:600;color:#3d2c1e;">' + Number(item.qty || 1) + '</span>' +
+              '<button style="width:28px;height:28px;border-radius:50%;background:rgba(139,111,71,.1);border:none;cursor:pointer;font-size:16px;color:#8b6f47;font-weight:600;display:flex;align-items:center;justify-content:center;" data-cart-inc="' + idx + '">+</button>' +
+            '</div>' +
+            '<div style="font-size:14px;font-weight:600;color:#6b4f2e;">' + yen(item.price * Number(item.qty || 1)) + '</div>' +
+          '</div>' +
+          '<button data-cart-del="' + idx + '" style="background:none;border:none;cursor:pointer;font-size:18px;color:#b09070;text-align:left;padding:4px 0 0;line-height:1;width:fit-content;">×</button>' +
+        '</div>' +
+      '</div>';
     }).join('') : '';
-    var checkoutBtn = items.length ? '<button class="auth-btn" type="button" id="cartToCheckoutBtn" style="margin-top:16px;">お会計へ進む (' + yen(total) + ')</button>' : '';
-    document.getElementById('view-cart').innerHTML = head(biHead('SHOPPING BAG', 'バッグ'), '現在のバッグ内容を確認・編集できます。', '<a class="view-action-link" href="store.html">買い物を続ける</a>') +
-      '<div class="summary-card" style="padding:0;overflow:hidden;">' +
+    var checkoutBtn = items.length
+      ? '<button class="auth-btn" type="button" id="cartToCheckoutBtn" style="margin-top:8px;">お会計へ進む — ' + yen(total) + '</button>'
+      : '';
+    document.getElementById('view-cart').innerHTML =
+      head(biHead('SHOPPING BAG', 'バッグ'), '現在のバッグ内容を確認・編集できます。', '<a class="view-action-link" href="store.html">買い物を続ける</a>') +
       (items.length ? cartRows : '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">ショッピングバッグは空です。</div>') +
-      '</div>' + checkoutBtn;
+      checkoutBtn;
     if (document.getElementById('cartToCheckoutBtn')) {
       document.getElementById('cartToCheckoutBtn').addEventListener('click', function () { location.href = 'checkout.html'; });
     }
     document.querySelectorAll('[data-cart-inc]').forEach(function (b) {
-      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart[Number(b.dataset.cartInc)].qty = Number(cart[Number(b.dataset.cartInc)].qty || 1) + 1; setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
+      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart[+b.dataset.cartInc].qty = Number(cart[+b.dataset.cartInc].qty || 1) + 1; setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
     document.querySelectorAll('[data-cart-dec]').forEach(function (b) {
-      b.addEventListener('click', function () { var idx = Number(b.dataset.cartDec); var cart = getLS('cartItems', []); if (cart[idx].qty > 1) cart[idx].qty--; else cart.splice(idx, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
+      b.addEventListener('click', function () { var i = +b.dataset.cartDec; var cart = getLS('cartItems', []); if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
     document.querySelectorAll('[data-cart-del]').forEach(function (b) {
-      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart.splice(Number(b.dataset.cartDel), 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
+      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart.splice(+b.dataset.cartDel, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
   }
 
