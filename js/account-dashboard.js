@@ -475,6 +475,14 @@
     var now  = new Date();
     var ym   = now.getFullYear() + '-' + (now.getMonth() + 1);
     var stored = getLS('hinoka_coupons', []);
+
+    // 旧クーポン（claimedフィールドなし）に claimed:false を補完（マイグレーション）
+    var migrated = false;
+    stored.forEach(function (c) {
+      if (!('claimed' in c)) { c.claimed = false; migrated = true; }
+    });
+    if (migrated) setLS('hinoka_coupons', stored);
+
     var hasThisMonth = stored.some(function (c) { return c.monthKey === ym; });
     if (!hasThisMonth) {
       var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
