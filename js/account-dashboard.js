@@ -223,7 +223,7 @@
   var navItems = [
     { id: 'overview',   label: 'ホーム',               en: 'HOME' },
     { id: 'orders',     label: 'ご注文履歴',            en: 'ORDERS',    countKey: 'ordersTodo' },
-    { id: 'assets',     label: 'クーポン・ポイント',    en: 'ASSETS' },
+    { id: 'assets',     label: 'クーポン・ポイント',    en: 'ASSETS',    countKey: 'coupons' },
     { id: 'wishlist',   label: 'お気に入り',            en: 'WISHLIST',  countKey: 'wishlist' },
     { id: 'history',    label: '閲覧履歴',              en: 'HISTORY' },
     { id: 'cart',       label: 'ショッピングバッグ',    en: 'CART',      countKey: 'cart' },
@@ -400,12 +400,17 @@
 
   function counts() {
     var orders = getOrders();
+    var allCoupons = getLS('hinoka_coupons', []);
+    var unclaimedCoupons = allCoupons.filter(function(c){
+      return !c.used && c.claimed === false && !isCouponExpired(c);
+    });
     return {
       ordersTodo: orders.filter(function (o) { return ['pay','ship','receive','review','refund'].indexOf(o.status) !== -1; }).length,
       wishlist:   getWishlistProducts().length,
       cart:       getCartItems().reduce(function (s, i) { return s + Number(i.qty || 1); }, 0),
       reviews:    getReviews().filter(function (r) { return r.status === 'pending'; }).length,
-      messages:   getMessages().filter(function (m) { return m.unread; }).length
+      messages:   getMessages().filter(function (m) { return m.unread; }).length,
+      coupons:    unclaimedCoupons.length
     };
   }
 
@@ -509,7 +514,11 @@
 
     var now     = new Date();
     var mm      = String(now.getMonth() + 1).padStart(2, '0');
-    var birthMM = String(birthday.split('-')[0]).padStart(2, '0');
+    // birthday format: "MM-DD" or "YYYY-MM-DD" or "MM/DD"
+    var parts   = birthday.split(/[-\/]/);
+    var birthMM = parts.length >= 3
+      ? String(parts[1]).padStart(2, '0')   // YYYY-MM-DD
+      : String(parts[0]).padStart(2, '0');   // MM-DD
     if (mm !== birthMM) return;
 
     var bdKey = 'BD-' + now.getFullYear() + '-' + mm;
@@ -704,6 +713,8 @@
         showToast('受け取りを確認しました！' + earned + 'ポイントを獲得（' + rank.label + '会員 ' + rank.rate + '倍）');
         grantFirstPurchaseCoupon();
         checkRankUpgradeCoupon();
+        // 2秒後にクーポンタブへ遷移して獲得クーポンを表示
+        setTimeout(function(){ state.assetFilter = 'coupons'; switchView('assets'); }, 2000);
       }
       window.dispatchEvent(new Event('orderUpdated'));
       autoGenerateMessages(); buildNavigation(); renderOrders();
@@ -930,14 +941,36 @@
         '</article>';
       }
 
+      // ── クーポン獲得ガイド ──
+      html +=
+        '<div style="background:linear-gradient(135deg,rgba(201,169,110,.08),rgba(139,111,71,.04));border:1px solid rgba(201,169,110,.22);border-radius:12px;padding:16px 20px;margin-bottom:18px;">' +
+          '<div style="font-size:10px;letter-spacing:.14em;color:#8b6f47;margin-bottom:10px;font-weight:500;">✦ クーポン獲得方法</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:11px;color:#5a3e28;line-height:1.9;">' +
+            '<div>🗓 毎月1日 → 月間クーポン2枚配布<br><span style="font-size:10px;color:var(--muted);">受け取りボタンで取得</span></div>' +
+            '<div>🎂 お誕生日月 → バースデークーポン配布<br><span style="font-size:10px;color:var(--muted);">設定でお誕生日を登録</span></div>' +
+            '<div>🎁 初回購入後 → ¥500OFFクーポン自動付与<br><span style="font-size:10px;color:var(--muted);">受取確認後すぐ反映</span></div>' +
+            '<div>⭐ レビュー投稿 → ¥100OFFクーポン自動付与<br><span style="font-size:10px;color:var(--muted);">レビュー管理から投稿</span></div>' +
+            '<div>🏆 ランクアップ → 割引クーポン自動付与<br><span style="font-size:10px;color:var(--muted);">累計購入でSILVER以上</span></div>' +
+          '</div>' +
+        '</div>';
+
       if (activeCoupons.length) {
-        html += '<p style="font-size:11px;color:var(--muted);margin-bottom:12px;">「受け取る」を押すとお会計時にご利用いただけます。毎月1日に新しいクーポンが配布されます。</p>';
-        html += '<div class="coupon-grid">' + activeCoupons.map(couponCard).join('') + '</div>';
+        // 未受取 / 受取済みに分けて表示
+        var unclaimedList = activeCoupons.filter(function(c){ return c.claimed !== true; });
+        var claimedList   = activeCoupons.filter(function(c){ return c.claimed === true; });
+        if (unclaimedList.length) {
+          html += '<div style="font-size:10px;letter-spacing:.1em;color:#b7791f;margin-bottom:8px;font-weight:600;">📬 受け取り待ち（' + unclaimedList.length + '枚）</div>';
+          html += '<div class="coupon-grid">' + unclaimedList.map(couponCard).join('') + '</div>';
+        }
+        if (claimedList.length) {
+          html += '<div style="font-size:10px;letter-spacing:.1em;color:#2f7d46;margin:16px 0 8px;font-weight:600;">✓ 受取済み・使用可能（' + claimedList.length + '枚）</div>';
+          html += '<div class="coupon-grid">' + claimedList.map(couponCard).join('') + '</div>';
+        }
       } else {
-        html += empty('現在利用可能なクーポンはありません。<br>毎月1日に新しいクーポンが配布されます。');
+        html += empty('現在利用可能なクーポンはありません。<br>上記の方法でクーポンを獲得してください。');
       }
       if (expiredCoupons.length) {
-        html += '<div style="margin-top:16px;"><p style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.06em;">期限切れ</p>' +
+        html += '<div style="margin-top:20px;"><p style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.06em;border-top:1px solid var(--line);padding-top:12px;">期限切れ（7日後に自動削除）</p>' +
           '<div class="coupon-grid">' + expiredCoupons.map(couponCard).join('') + '</div></div>';
       }
     }
@@ -1340,6 +1373,8 @@
       state.reviewFilter = 'done';
       renderReviews(); buildNavigation();
       showToast('レビューを投稿しました！50pt＋¥100OFFクーポンをプレゼント🎁');
+      // 1.8秒後にクーポンタブへ遷移して獲得クーポンを表示
+      setTimeout(function(){ state.assetFilter = 'coupons'; switchView('assets'); }, 1800);
     });
   }
 
@@ -1700,12 +1735,18 @@
     checkBirthdayCoupon();
     checkRankUpgradeCoupon();
     buildNavigation();
-    // 未領取クーポン通知（1.5秒後）
+    // 未受取クーポン通知（1.5秒後）→ クリックでクーポンタブへ
     setTimeout(function() {
       var all = getLS('hinoka_coupons', []);
       var unclaimed = all.filter(function(c){ return !c.used && c.claimed === false && !isCouponExpired(c); });
       if (unclaimed.length > 0) {
-        showToast('🎟️ ' + unclaimed.length + '枚のクーポンが受け取り待ちです！マイページ→クーポンへ');
+        var t = document.getElementById('toast');
+        t.innerHTML = '🎟️ ' + unclaimed.length + '枚のクーポンが受け取り待ちです！<span style="text-decoration:underline;cursor:pointer;" id="toastGoAssets">クーポンを見る →</span>';
+        t.classList.add('show');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(function(){ t.classList.remove('show'); }, 4000);
+        var goBtn = document.getElementById('toastGoAssets');
+        if (goBtn) goBtn.addEventListener('click', function(){ state.assetFilter = 'coupons'; switchView('assets'); t.classList.remove('show'); });
       }
     }, 1500);
     renderUser(user);
