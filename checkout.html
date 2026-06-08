@@ -464,6 +464,21 @@
     }
     .pts-input:focus { border-color: var(--co-gold); }
 
+    /* 未受取クーポンバナー */
+    .unclaimed-coupon-banner {
+      max-width: 1100px; margin: 12px 28px 0;
+      padding: 11px 18px;
+      background: linear-gradient(135deg, rgba(183,121,31,0.10), rgba(201,169,110,0.08));
+      border: 1px solid rgba(183,121,31,0.35);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: #7a5000; letter-spacing: 0.04em;
+    }
+    .unclaimed-coupon-banner a {
+      color: var(--co-gold-dark); font-weight: 500;
+      text-decoration: underline; white-space: nowrap; margin-left: 12px;
+    }
+
     /* ═══════════════════════════
        レスポンシブ
     ═══════════════════════════ */
@@ -497,6 +512,12 @@
     </div>
   </div>
   <hr class="co-divider">
+
+  <!-- 未受取クーポンバナー（JSで動的に表示） -->
+  <div class="unclaimed-coupon-banner" id="unclaimedBanner" style="display:none;">
+    <span id="unclaimedBannerText">🎟️ 未受取のクーポンがあります</span>
+    <a href="account.html#assets">マイページで受け取る →</a>
+  </div>
 
   <!-- ── メインコンテンツ ── -->
   <div class="checkout-wrap">
@@ -1123,6 +1144,30 @@
       }
     }
     initDiscounts();
+
+    // 未受取クーポンバナー表示
+    (function() {
+      var all = [];
+      try { all = JSON.parse(localStorage.getItem('hinoka_coupons') || '[]'); } catch(e) {}
+      var now = Date.now();
+      function expiry(c) {
+        if (c.expiryTs) return c.expiryTs;
+        var m = (c.date || '').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+        return m ? new Date(+m[1], +m[2]-1, +m[3], 23, 59, 59).getTime() : 0;
+      }
+      var unclaimed = all.filter(function(c){
+        var ts = expiry(c);
+        return !c.used && c.claimed === false && (ts === 0 || now <= ts);
+      });
+      if (unclaimed.length > 0) {
+        var banner = document.getElementById('unclaimedBanner');
+        var text   = document.getElementById('unclaimedBannerText');
+        if (banner && text) {
+          text.textContent = '🎟️ ' + unclaimed.length + '枚の未受取クーポンがあります。受け取るとここで使えます。';
+          banner.style.display = 'flex';
+        }
+      }
+    })();
 
     // ════════════════════════════════
     //  PayPal ボタン初期化
