@@ -121,6 +121,15 @@
   var nav = document.getElementById('main-nav');
   var lastY = 0;
   var scrollTimer = null;
+
+  function updateNav() {
+    var y = window.scrollY;
+    // Adaptive transparent: frosted glass after 40px
+    if (y > 40) nav.classList.add('nav-scrolled');
+    else nav.classList.remove('nav-scrolled');
+  }
+  updateNav(); // run on load in case page is pre-scrolled
+
   window.addEventListener('scroll', function () {
     var y = window.scrollY;
     clearTimeout(scrollTimer);
@@ -128,6 +137,7 @@
     else nav.classList.remove('hidden');
     scrollTimer = setTimeout(function () { nav.classList.remove('hidden'); }, 1000);
     lastY = y;
+    updateNav();
   }, { passive: true });
 
   var overlay = document.getElementById('menuOverlay');
