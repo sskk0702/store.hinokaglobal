@@ -140,10 +140,15 @@
     _unsubs = [];
   }
 
-  // ── ページ非表示時に即時保存 ─────────────────────────────────
+  // ── ページ非表示時に即時保存・表示時に再取得 ─────────────────
+  var _hiddenAt = 0;
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden' && _uid) {
-      TARGETS.forEach(function (t) { clearTimeout(_timers[t.doc]); save(t); });
+    if (document.visibilityState === 'hidden') {
+      _hiddenAt = Date.now();
+      if (_uid) TARGETS.forEach(function (t) { clearTimeout(_timers[t.doc]); save(t); });
+    } else if (document.visibilityState === 'visible' && _uid) {
+      // 30秒以上バックグラウンドだった場合は Firestore から再取得
+      if (Date.now() - _hiddenAt > 30000) downloadAll();
     }
   });
 
@@ -165,6 +170,15 @@
       _uid = user.uid;
       downloadAll();
       startListening();
+      // ログイン後、ローカルに未同期データがあればアップロード（3秒後）
+      setTimeout(function () {
+        if (!_uid) return;
+        TARGETS.forEach(function (t) {
+          var local = readLocal(t);
+          var hasData = Array.isArray(local) ? local.length > 0 : Object.keys(local).length > 0;
+          if (hasData && getLocalTs(t.doc) === 0) save(t);
+        });
+      }, 3000);
     } else {
       stopListening();
       _uid = null;
