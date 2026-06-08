@@ -465,17 +465,6 @@
     document.getElementById('sideAvatar').innerHTML = photo ? '<img src="' + esc(photo) + '" alt="">' : esc(initial);
     document.getElementById('sideName').textContent  = name;
     document.getElementById('sideEmail').textContent = user.email || '';
-
-    // Update rank chip in sidebar
-    var chip = document.getElementById('sideRankChip');
-    if (chip) {
-      var rank = getMemberRank(calcTotalSpend());
-      var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
-      var rankIcons  = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
-      chip.textContent = (rankIcons[rank.name] || '🥉') + ' ' + rank.label.toUpperCase() + ' MEMBER';
-      chip.style.color = rankColors[rank.name] || '#8b6f47';
-      chip.style.borderColor = rankColors[rank.name] || '#8b6f47';
-    }
   }
 
   function biHead(en, ja) {
