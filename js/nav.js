@@ -72,13 +72,7 @@
         </div>
       </div>
 
-      <div class="menu-footer-links">
-        <a href="store.html">ホーム</a>
-        <a href="wishlist.html">お気に入り</a>
-        <a href="account.html">マイアカウント</a>
-        <a href="cart.html">ショッピングバッグ</a>
-      </div>
-      <div class="menu-footer-deco"><div class="menu-footer-deco-line"></div><p>COPYRIGHT &copy; HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p></div>
+      <div class="menu-footer-deco"><div class="menu-footer-deco-line"></div><p>COPYRIGHT &copy; HINOKA Co., Ltd.</p></div>
     </div>
   </aside>
 
@@ -110,7 +104,7 @@
         <span class="drawer-badge" id="drawerCartBadge">0</span>
       </a>
     </div>
-    <div class="menu-footer-deco"><div class="menu-footer-deco-line"></div><p>COPYRIGHT &copy; HINOKA Co., Ltd.<br>sun_hua@hinokaglobal.com</p></div>
+    <div class="menu-footer-deco"><div class="menu-footer-deco-line"></div><p>COPYRIGHT &copy; HINOKA Co., Ltd.</p></div>
   </aside>
 
   <div class="search-modal" id="searchModal">
@@ -195,6 +189,8 @@
   updateBadges();
   window.addEventListener('cartUpdated', updateBadges);
   window.addEventListener('wishlistUpdated', updateBadges);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') updateBadges(); });
+  window.addEventListener('pageshow', updateBadges);
 
   window.showCartToast = function () {
     var t = document.getElementById('cartToast');
