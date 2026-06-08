@@ -942,7 +942,17 @@
       var needsSave = false;
       rawCoupons.forEach(function(c){ if (!('claimed' in c)) { c.claimed = false; needsSave = true; } });
       if (needsSave) { try { localStorage.setItem('hinoka_coupons', JSON.stringify(rawCoupons)); } catch(e) {} }
-      var coupons = rawCoupons.filter(function(c){ return !c.used && c.claimed === true; });
+      function _couponExpiry(c) {
+        if (c.expiryTs) return c.expiryTs;
+        var m = (c.date || '').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+        if (m) return new Date(+m[1], +m[2]-1, +m[3], 23, 59, 59).getTime();
+        return 0;
+      }
+      var coupons = rawCoupons.filter(function(c) {
+        if (c.used || c.claimed !== true) return false;
+        var ts = _couponExpiry(c);
+        return ts === 0 || Date.now() <= ts;
+      });
       var sel = document.getElementById('couponSelect');
       coupons.forEach(function(c) {
         var opt = document.createElement('option');
