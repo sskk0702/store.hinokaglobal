@@ -56,25 +56,58 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  /* ★ 線系を完全排除 */
+  /* ── 初期状態：完全透明 ── */
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   border: none !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
   outline: none;
   transform: translateY(0);
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-  /* ★ 疑似要素で線が出ないよう */
   isolation: isolate;
+  transition:
+    background    0.55s cubic-bezier(0.4,0,0.2,1),
+    backdrop-filter 0.55s cubic-bezier(0.4,0,0.2,1),
+    box-shadow    0.55s cubic-bezier(0.4,0,0.2,1),
+    transform     0.4s  cubic-bezier(0.4,0,0.2,1);
 }
-#main-nav::after,
-#main-nav::before {
-  display: none !important;
-  content: none !important;
-}
+#main-nav::after, #main-nav::before { display: none !important; content: none !important; }
 #main-nav.hidden { transform: translateY(-110%); }
+
+/* ── スクロール後：フロストガラス ── */
+#main-nav.nav-scrolled {
+  background: rgba(249,244,236,0.76);
+  backdrop-filter: blur(28px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.04);
+  box-shadow: 0 1px 0 rgba(201,169,110,0.14), 0 6px 24px rgba(0,0,0,0.04);
+}
+
+/* ── ロゴ・ハンバーガー色：透明時は白、スクロール後は黒 ── */
+#main-nav .nav-logo {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.25);
+  transition: color 0.45s ease, text-shadow 0.45s ease;
+}
+#main-nav.nav-scrolled .nav-logo {
+  color: var(--black);
+  text-shadow: none;
+}
+#main-nav .hamburger-btn span,
+#main-nav .nav-more-btn span {
+  background: rgba(255,255,255,0.95);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+  transition: background 0.45s ease, filter 0.45s ease;
+}
+#main-nav.nav-scrolled .hamburger-btn span,
+#main-nav.nav-scrolled .nav-more-btn span {
+  background: var(--black);
+  filter: none;
+}
+#main-nav .nav-menu-label {
+  color: rgba(255,255,255,0.85);
+  transition: color 0.45s ease, opacity 0.2s;
+}
+#main-nav.nav-scrolled .nav-menu-label { color: var(--black); }
 
 /* ── 左 ── */
 .nav-left { display: flex; align-items: center; }
@@ -350,7 +383,7 @@ img { display: block; max-width: 100%; }
 .nav-more-btn span {
   display: block;
   width: 22px; height: 1px;
-  background: var(--black);
+  /* color managed by nav-scrolled state above */
   transition: var(--transition);
 }
 
@@ -358,7 +391,7 @@ img { display: block; max-width: 100%; }
 .nav-menu-label {
   font-family: 'Montserrat', sans-serif;
   font-size: 9px; letter-spacing: 0.22em;
-  color: var(--black); opacity: 0;
+  opacity: 0;
   text-transform: uppercase;
   transition: opacity 0.2s;
   pointer-events: none;
