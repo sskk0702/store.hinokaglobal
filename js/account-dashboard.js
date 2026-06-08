@@ -107,6 +107,72 @@
   }
   setInterval(function() { if (auth.currentUser) checkExpiry(); }, 5 * 60 * 1000);
 
+  // ── クーポン有効期限ユーティリティ ──────────────────────────────
+  function parseCouponExpiry(c) {
+    if (c.expiryTs) return c.expiryTs;
+    var m = (c.date || '').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3], 23, 59, 59).getTime();
+    return 0;
+  }
+  function isCouponExpired(c) { var ts = parseCouponExpiry(c); return ts > 0 && Date.now() > ts; }
+  function couponDaysLeft(c) {
+    var ts = parseCouponExpiry(c);
+    if (!ts) return null;
+    return Math.ceil((ts - Date.now()) / 86400000);
+  }
+
+  // ── クーポン付与（重複防止付き）────────────────────────────────
+  function grantCoupon(coupon) {
+    var stored = getLS('hinoka_coupons', []);
+    if (stored.some(function(x){ return x.id === coupon.id; })) return;
+    stored.push(coupon);
+    setLS('hinoka_coupons', stored);
+    window.dispatchEvent(new Event('couponUpdated'));
+  }
+
+  // ── 初回購入特典クーポン ────────────────────────────────────────
+  function grantFirstPurchaseCoupon() {
+    var orders = getLS('hinoka_orders', []);
+    var done = orders.filter(function(o){ return ['done','review'].indexOf(o.status) !== -1; });
+    if (done.length !== 1) return; // 初回のみ
+    var exp = new Date(); exp.setDate(exp.getDate() + 30);
+    var expStr = exp.getFullYear() + '/' + (exp.getMonth()+1) + '/' + exp.getDate();
+    grantCoupon({ id:'FP-FIRST', amount:'¥500', title:'🎁 初回購入ありがとうクーポン ¥500OFF',
+      rule:'3,000円以上のご注文で利用可能', date:'有効期限：'+expStr,
+      expiryTs:exp.getTime(), used:false, claimed:true, monthKey:null });
+    setTimeout(function(){ showToast('🎁 初回購入クーポン ¥500OFFを獲得しました！'); }, 500);
+  }
+
+  // ── レビュー投稿特典クーポン ────────────────────────────────────
+  function grantReviewCoupon() {
+    var exp = new Date(); exp.setDate(exp.getDate() + 14);
+    var expStr = exp.getFullYear() + '/' + (exp.getMonth()+1) + '/' + exp.getDate();
+    var id = 'RV-' + Date.now();
+    grantCoupon({ id:id, amount:'¥100', title:'⭐ レビュー投稿特典 ¥100OFF',
+      rule:'1,000円以上のご注文で利用可能', date:'有効期限：'+expStr,
+      expiryTs:exp.getTime(), used:false, claimed:true, monthKey:null });
+  }
+
+  // ── ランクアップ記念クーポン ────────────────────────────────────
+  function checkRankUpgradeCoupon() {
+    var spend = calcTotalSpend();
+    var rank  = getMemberRank(spend);
+    var prevRank = localStorage.getItem('_hinoka_last_rank') || 'BRONZE';
+    if (rank.name === prevRank) return;
+    localStorage.setItem('_hinoka_last_rank', rank.name);
+    var idx = { BRONZE:0, SILVER:1, GOLD:2, DIAMOND:3 };
+    if ((idx[rank.name]||0) <= (idx[prevRank]||0)) return;
+    var disc = { SILVER:'10%', GOLD:'15%', DIAMOND:'20%' }[rank.name];
+    if (!disc) return;
+    var exp = new Date(); exp.setDate(exp.getDate() + 7);
+    var expStr = exp.getFullYear() + '/' + (exp.getMonth()+1) + '/' + exp.getDate();
+    grantCoupon({ id:'RU-'+rank.name+'-'+Date.now(), amount:disc,
+      title:'🏆 ランクアップ記念クーポン '+disc+'OFF',
+      rule:'全商品対象・'+rank.label+'ランク昇格記念', date:'有効期限：'+expStr,
+      expiryTs:exp.getTime(), used:false, claimed:true, monthKey:null });
+    setTimeout(function(){ showToast('🏆 '+rank.label+'ランクに昇格！記念クーポンを獲得しました！'); }, 800);
+  }
+
   function showNewDeviceModal(user) {
     if (user.sendEmailVerification) user.sendEmailVerification().catch(function(){});
     var div = document.createElement('div');
@@ -461,6 +527,7 @@
       title: '🎂 お誕生日特典クーポン ' + discount + 'OFF',
       rule: '全商品対象・お誕生日月のみ有効',
       date: '有効期限：' + expiry,
+      expiryTs: lastDay.getTime(),
       used: false,
       claimed: false,
       isBirthday: true
@@ -483,13 +550,21 @@
     });
     if (migrated) setLS('hinoka_coupons', stored);
 
+    // 使用済み＋期限切れから7日超経過したものを削除（クリーンアップ）
+    var cleaned = stored.filter(function(c) {
+      var ts = parseCouponExpiry(c);
+      return !(c.used && ts > 0 && Date.now() - ts > 7 * 86400000);
+    });
+    if (cleaned.length !== stored.length) { stored = cleaned; setLS('hinoka_coupons', stored); }
+
     var hasThisMonth = stored.some(function (c) { return c.monthKey === ym; });
     if (!hasThisMonth) {
       var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      var expiry  = lastDay.getFullYear() + '/' + (lastDay.getMonth() + 1) + '/' + lastDay.getDate();
+      var expiryTs = lastDay.getTime();
+      var expiry   = lastDay.getFullYear() + '/' + (lastDay.getMonth() + 1) + '/' + lastDay.getDate();
       stored = stored.concat([
-        { id: 'MC-' + ym + '-1', monthKey: ym, amount: '¥30',  title: '月間メンバークーポン 30円OFF', rule: '200円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false, claimed: false },
-        { id: 'MC-' + ym + '-2', monthKey: ym, amount: '5%',   title: '今月限定 5%OFFクーポン',      rule: '3,000円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false, claimed: false }
+        { id: 'MC-' + ym + '-1', monthKey: ym, amount: '¥30',  title: '月間メンバークーポン 30円OFF', rule: '200円以上のご注文で利用可能', date: '有効期限：' + expiry, expiryTs: expiryTs, used: false, claimed: false },
+        { id: 'MC-' + ym + '-2', monthKey: ym, amount: '5%',   title: '今月限定 5%OFFクーポン',      rule: '3,000円以上のご注文で利用可能', date: '有効期限：' + expiry, expiryTs: expiryTs, used: false, claimed: false }
       ]);
       setLS('hinoka_coupons', stored);
     }
@@ -627,6 +702,8 @@
         var earned = addPoints(order.total || 0);
         var rank   = getMemberRank(calcTotalSpend());
         showToast('受け取りを確認しました！' + earned + 'ポイントを獲得（' + rank.label + '会員 ' + rank.rate + '倍）');
+        grantFirstPurchaseCoupon();
+        checkRankUpgradeCoupon();
       }
       window.dispatchEvent(new Event('orderUpdated'));
       autoGenerateMessages(); buildNavigation(); renderOrders();
@@ -814,13 +891,54 @@
 
     if (state.assetFilter === 'coupons') {
       var coupons = getMonthCoupons();
-      if (coupons.length) {
-        html += '<p style="font-size:11px;color:var(--muted);margin-bottom:12px;">毎月1日に新しいクーポンが自動配布されます。チェックアウト時に適用してください。</p>';
-        html += '<div class="coupon-grid">' + coupons.map(function (c) {
-          return '<article class="coupon-card"><div class="coupon-face"><div class="coupon-amount">' + esc(c.amount) + '</div><div style="font-size:10px;letter-spacing:.1em;">COUPON</div></div><div class="coupon-info"><div class="message-title">' + esc(c.title) + '</div><div class="message-body">' + esc(c.rule) + '<br>' + esc(c.date) + '</div><button class="mini-btn primary" style="margin-top:10px;" data-coupon-use="' + esc(c.id) + '">このクーポンを使う</button></div></article>';
-        }).join('') + '</div>';
+      var activeCoupons  = coupons.filter(function(c){ return !isCouponExpired(c); });
+      var expiredCoupons = coupons.filter(function(c){ return isCouponExpired(c); });
+
+      function couponCard(c) {
+        var expired  = isCouponExpired(c);
+        var days     = couponDaysLeft(c);
+        var urgent   = !expired && days !== null && days <= 3;
+        var faceStyle = expired
+          ? 'background:linear-gradient(135deg,#bbb,#999);'
+          : c.claimed === true
+            ? 'background:linear-gradient(135deg,#c9a96e,#8b6f47);'
+            : 'background:linear-gradient(135deg,#8b6f47,#c9a96e);';
+        var statusTag = expired
+          ? '<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;background:rgba(176,90,74,.15);color:#b05a4a;letter-spacing:.06em;">期限切れ</span>'
+          : c.claimed === true
+            ? '<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;background:rgba(47,125,70,.12);color:#2f7d46;letter-spacing:.06em;">✓ 受取済み・使用可能</span>'
+            : '<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;background:rgba(183,121,31,.12);color:#b7791f;letter-spacing:.06em;">未受取</span>';
+        var expiryTag = !expired && days !== null
+          ? '<span style="font-size:10px;color:' + (urgent ? '#b05a4a' : 'var(--muted)') + ';font-weight:' + (urgent ? '600' : '400') + ';">' + (urgent ? '⚠️ あと'+days+'日' : 'あと'+days+'日') + '</span>'
+          : '';
+        var actionBtn = expired
+          ? '<button disabled style="margin-top:10px;background:#ddd;border:none;color:#999;padding:7px 18px;border-radius:20px;font-size:11px;cursor:not-allowed;font-family:inherit;">期限切れ</button>'
+          : c.claimed === true
+            ? '<button disabled style="margin-top:10px;background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;color:#fff;padding:7px 18px;border-radius:20px;font-size:11px;cursor:default;font-family:inherit;opacity:.7;">✓ 受取済み</button>'
+            : '<button style="margin-top:10px;background:linear-gradient(135deg,#8b6f47,#c9a96e);border:none;color:#fff;padding:7px 18px;border-radius:20px;font-size:11px;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(139,111,71,.3);" data-coupon-use="'+esc(c.id)+'">受け取る</button>';
+        return '<article class="coupon-card" style="' + (expired ? 'opacity:.55;' : '') + '">' +
+          '<div class="coupon-face" style="'+faceStyle+'">' +
+            '<div class="coupon-amount" style="' + (expired ? 'color:#eee;' : '') + '">' + esc(c.amount) + '</div>' +
+            '<div style="font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.8);">COUPON</div>' +
+          '</div>' +
+          '<div class="coupon-info">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' + statusTag + expiryTag + '</div>' +
+            '<div class="message-title">' + esc(c.title) + '</div>' +
+            '<div class="message-body">' + esc(c.rule) + '<br>' + esc(c.date) + '</div>' +
+            actionBtn +
+          '</div>' +
+        '</article>';
+      }
+
+      if (activeCoupons.length) {
+        html += '<p style="font-size:11px;color:var(--muted);margin-bottom:12px;">「受け取る」を押すとお会計時にご利用いただけます。毎月1日に新しいクーポンが配布されます。</p>';
+        html += '<div class="coupon-grid">' + activeCoupons.map(couponCard).join('') + '</div>';
       } else {
         html += empty('現在利用可能なクーポンはありません。<br>毎月1日に新しいクーポンが配布されます。');
+      }
+      if (expiredCoupons.length) {
+        html += '<div style="margin-top:16px;"><p style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.06em;">期限切れ</p>' +
+          '<div class="coupon-grid">' + expiredCoupons.map(couponCard).join('') + '</div></div>';
       }
     }
 
@@ -1213,14 +1331,15 @@
       if (idx >= 0) list[idx] = updated; else list.push(updated);
       setLS('hinoka_reviews', list);
       window.dispatchEvent(new Event('reviewUpdated'));
-      // ボーナスポイント付与
+      // ボーナスポイント＋クーポン付与
       var pts = calcPoints();
       pts.total += 50; pts.available += 50;
       setLS('hinoka_points_log', pts);
+      grantReviewCoupon();
       div.remove();
       state.reviewFilter = 'done';
       renderReviews(); buildNavigation();
-      showToast('レビューを投稿しました！50ポイントをプレゼント🎁');
+      showToast('レビューを投稿しました！50pt＋¥100OFFクーポンをプレゼント🎁');
     });
   }
 
@@ -1579,7 +1698,16 @@
     window.scrollTo(0, 0);
     recordLogin();
     checkBirthdayCoupon();
+    checkRankUpgradeCoupon();
     buildNavigation();
+    // 未領取クーポン通知（1.5秒後）
+    setTimeout(function() {
+      var all = getLS('hinoka_coupons', []);
+      var unclaimed = all.filter(function(c){ return !c.used && c.claimed === false && !isCouponExpired(c); });
+      if (unclaimed.length > 0) {
+        showToast('🎟️ ' + unclaimed.length + '枚のクーポンが受け取り待ちです！マイページ→クーポンへ');
+      }
+    }, 1500);
     renderUser(user);
     var validViews = navItems.map(function (n) { return n.id; });
     switchView(validViews.indexOf(state.activeView) !== -1 ? state.activeView : 'overview');
