@@ -38,7 +38,7 @@
     .cart-back svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
     .cart-header-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 400; letter-spacing: 0.2em;
+      font-size: 15px; font-weight: 400; letter-spacing: 0.22em;
       color: var(--ca-text); flex: 1;
     }
     .cart-header-count {
@@ -236,7 +236,7 @@
   <div class="cart-header">
     <a class="cart-back" href="store.html">
       <svg viewBox="0 0 12 12"><polyline points="8,2 3,6 8,10"/></svg>
-      ショッピングを続ける
+      ← トップに戻る
     </a>
     <h1 class="cart-header-title">ショッピングバッグ</h1>
     <span class="cart-header-count" id="cartCount"></span>
@@ -351,7 +351,7 @@
           <div class="cart-empty">
             <div class="cart-empty-icon">🛍</div>
             <p>ショッピングバッグは空です</p>
-            <a href="store.html">ショッピングを続ける</a>
+            <a href="store.html">← トップに戻る</a>
           </div>`;
         updateSummary(0);
         return;
