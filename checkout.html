@@ -938,7 +938,7 @@
     // ════════════════════════════════
     function initDiscounts() {
       // クーポン
-      var coupons = getLS_co('hinoka_coupons', []).filter(function(c){ return !c.used; });
+      var coupons = getLS_co('hinoka_coupons', []).filter(function(c){ return !c.used && c.claimed !== false; });
       var sel = document.getElementById('couponSelect');
       coupons.forEach(function(c) {
         var opt = document.createElement('option');
