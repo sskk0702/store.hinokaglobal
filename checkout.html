@@ -937,8 +937,12 @@
     //  クーポン・ポイント・残高
     // ════════════════════════════════
     function initDiscounts() {
-      // クーポン
-      var coupons = getLS_co('hinoka_coupons', []).filter(function(c){ return !c.used && c.claimed !== false; });
+      // クーポン：claimedフィールドなし旧データをマイグレーション
+      var rawCoupons = getLS_co('hinoka_coupons', []);
+      var needsSave = false;
+      rawCoupons.forEach(function(c){ if (!('claimed' in c)) { c.claimed = false; needsSave = true; } });
+      if (needsSave) { try { localStorage.setItem('hinoka_coupons', JSON.stringify(rawCoupons)); } catch(e) {} }
+      var coupons = rawCoupons.filter(function(c){ return !c.used && c.claimed === true; });
       var sel = document.getElementById('couponSelect');
       coupons.forEach(function(c) {
         var opt = document.createElement('option');
