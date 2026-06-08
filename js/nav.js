@@ -89,10 +89,9 @@
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
         検索
       </button>
-      <a class="right-drawer-item" href="wishlist.html">
-        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        お気に入り
-        <span class="drawer-badge" id="drawerWishBadge">0</span>
+      <a class="right-drawer-item" href="product-list.html?category=new-arrival">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        新着商品
       </a>
       <a class="right-drawer-item" href="account.html">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -180,15 +179,11 @@
   }
   function updateBadges() {
     var cart = readJson('cartItems').reduce(function (s, i) { return s + (i.qty || 1); }, 0);
-    var wish = readJson('hinoka_wishlist').length;
     var cartBadge = document.getElementById('drawerCartBadge');
-    var wishBadge = document.getElementById('drawerWishBadge');
     if (cartBadge) { cartBadge.textContent = cart; cartBadge.classList.toggle('visible', cart > 0); }
-    if (wishBadge) { wishBadge.textContent = wish; wishBadge.classList.toggle('visible', wish > 0); }
   }
   updateBadges();
   window.addEventListener('cartUpdated', updateBadges);
-  window.addEventListener('wishlistUpdated', updateBadges);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') updateBadges(); });
   window.addEventListener('pageshow', updateBadges);
 
