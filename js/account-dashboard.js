@@ -462,6 +462,7 @@
       rule: '全商品対象・お誕生日月のみ有効',
       date: '有効期限：' + expiry,
       used: false,
+      claimed: false,
       isBirthday: true
     });
     setLS('hinoka_coupons', stored);
@@ -479,8 +480,8 @@
       var lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       var expiry  = lastDay.getFullYear() + '/' + (lastDay.getMonth() + 1) + '/' + lastDay.getDate();
       stored = stored.concat([
-        { id: 'MC-' + ym + '-1', monthKey: ym, amount: '¥30',  title: '月間メンバークーポン 30円OFF', rule: '200円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false },
-        { id: 'MC-' + ym + '-2', monthKey: ym, amount: '5%',   title: '今月限定 5%OFFクーポン',      rule: '3,000円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false }
+        { id: 'MC-' + ym + '-1', monthKey: ym, amount: '¥30',  title: '月間メンバークーポン 30円OFF', rule: '200円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false, claimed: false },
+        { id: 'MC-' + ym + '-2', monthKey: ym, amount: '5%',   title: '今月限定 5%OFFクーポン',      rule: '3,000円以上のご注文で利用可能', date: '有効期限：' + expiry, used: false, claimed: false }
       ]);
       setLS('hinoka_coupons', stored);
     }
@@ -879,9 +880,15 @@
     });
     document.querySelectorAll('[data-coupon-use]').forEach(function (b) {
       b.addEventListener('click', function () {
-        showToast('クーポンをコピーしました。お会計時に適用されます。');
-        b.textContent = '✓ 適用済み';
+        var id = b.dataset.couponUse;
+        var stored = getLS('hinoka_coupons', []);
+        stored.forEach(function (c) { if (c.id === id) c.claimed = true; });
+        setLS('hinoka_coupons', stored);
+        window.dispatchEvent(new Event('couponUpdated'));
+        showToast('クーポンを受け取りました！お会計時にご利用いただけます。');
+        b.textContent = '✓ 受取済み';
         b.disabled = true;
+        b.style.background = 'linear-gradient(135deg,#aaa,#888)';
       });
     });
   }
