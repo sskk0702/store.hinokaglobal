@@ -165,8 +165,25 @@
   });
 
   // ── 認証 ─────────────────────────────────────────────────────
+  var LAST_UID_KEY = '_hinoka_last_uid';
+  var USER_EXTRA_KEYS = [
+    '_hinoka_last_rank', '_hinoka_login_ts', '_hinoka_last_active',
+    'hinoka_login_log', '_hinoka_sync_ts'
+  ];
+
+  function clearUserData() {
+    TARGETS.forEach(function (t) { try { localStorage.removeItem(t.key); } catch (e) {} });
+    USER_EXTRA_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  }
+
   auth.onAuthStateChanged(function (user) {
     if (user) {
+      var lastUid = localStorage.getItem(LAST_UID_KEY);
+      // 別ユーザーがログインした場合は前ユーザーのローカルデータを全消去
+      if (lastUid !== null && lastUid !== user.uid) {
+        clearUserData();
+      }
+      localStorage.setItem(LAST_UID_KEY, user.uid);
       _uid = user.uid;
       downloadAll();
       startListening();
@@ -182,6 +199,8 @@
     } else {
       stopListening();
       _uid = null;
+      // ログアウト時もローカルデータを消去（次のユーザーのため）
+      clearUserData();
     }
   });
 
