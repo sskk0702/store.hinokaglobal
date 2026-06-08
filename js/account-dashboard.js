@@ -121,13 +121,33 @@
     return Math.ceil((ts - Date.now()) / 86400000);
   }
 
-  // ── クーポン付与（重複防止付き）────────────────────────────────
+  // ── クーポン付与（重複防止付き）+ メッセージ通知 ──────────────
   function grantCoupon(coupon) {
     var stored = getLS('hinoka_coupons', []);
     if (stored.some(function(x){ return x.id === coupon.id; })) return;
     stored.push(coupon);
     setLS('hinoka_coupons', stored);
     window.dispatchEvent(new Event('couponUpdated'));
+
+    // メッセージセンターに通知を追加
+    var msgs = getLS('hinoka_messages', []);
+    var msgId = 'coupon-grant-' + coupon.id;
+    if (!msgs.some(function(m){ return m.id === msgId; })) {
+      var needClaim = coupon.claimed !== true;
+      msgs.unshift({
+        id: msgId,
+        type: 'promo',
+        title: '🎟️ ' + coupon.title,
+        body: coupon.rule + '\n' + coupon.date +
+          (needClaim
+            ? '\n\nマイページ → クーポン から「受け取る」を押してご利用ください。'
+            : '\n\nお会計時に自動で選択できます。'),
+        time: new Date().toLocaleString('ja-JP'),
+        unread: true
+      });
+      setLS('hinoka_messages', msgs);
+      window.dispatchEvent(new Event('messageUpdated'));
+    }
   }
 
   // ── 初回購入特典クーポン ────────────────────────────────────────
