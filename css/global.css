@@ -244,9 +244,9 @@ img { display: block; max-width: 100%; }
   display: block;
   padding: 11px 28px 11px 44px;
   font-size: 10px; font-family: 'Noto Sans JP', sans-serif;
-  color: rgba(247,244,240,0.45);
+  color: rgba(58,40,20,0.62);
   letter-spacing: 0.07em;
-  border-bottom: 1px solid rgba(184,169,138,0.05);
+  border-bottom: 1px solid rgba(139,111,71,0.08);
   transition: color var(--transition), padding var(--transition);
 }
 .menu-subcategory a:last-child { border-bottom: none; }
@@ -455,8 +455,10 @@ img { display: block; max-width: 100%; }
    STORE FOOTER
 ══════════════════════════════════════ */
 .store-footer {
-  background: var(--menu-bg); color: rgba(247,244,240,0.6);
+  background: linear-gradient(160deg, #1a1208 0%, #2a1c0e 50%, #1a1208 100%);
+  color: rgba(247,244,240,0.6);
   padding: 60px 48px 32px; margin-top: 80px;
+  border-top: 1px solid rgba(201,169,110,0.2);
 }
 .store-footer-grid {
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -532,7 +534,7 @@ img { display: block; max-width: 100%; }
   font-style: normal;
   font-size: 9px;
   font-family: 'Noto Sans JP', sans-serif;
-  color: rgba(184,169,138,0.55);
+  color: rgba(139,111,71,0.7);
   letter-spacing: 0.05em;
   margin-top: 1px;
   font-weight: 300;
