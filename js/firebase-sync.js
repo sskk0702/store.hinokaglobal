@@ -199,8 +199,8 @@
     } else {
       stopListening();
       _uid = null;
-      // ログアウト時もローカルデータを消去（次のユーザーのため）
-      clearUserData();
+      // ログアウト時はローカルデータを保持（同一ユーザーの再ログイン用）
+      // 別ユーザーがログインした際に onAuthStateChanged 内でクリアされる
     }
   });
 
