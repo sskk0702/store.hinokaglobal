@@ -187,12 +187,14 @@
       _uid = user.uid;
       downloadAll();
       startListening();
-      // ログイン後、ローカルに未同期データがあればアップロード（3秒後）
+      // ログイン後3秒待ち、Firestoreにデータがなければローカルをアップロード
+      // （初回登録直後など、まだクラウドに保存されていないデータを保護）
       setTimeout(function () {
         if (!_uid) return;
         TARGETS.forEach(function (t) {
           var local = readLocal(t);
           var hasData = Array.isArray(local) ? local.length > 0 : Object.keys(local).length > 0;
+          // Firestoreに一度も保存されたことがないデータのみアップロード
           if (hasData && getLocalTs(t.doc) === 0) save(t);
         });
       }, 3000);
