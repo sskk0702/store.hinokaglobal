@@ -1380,10 +1380,28 @@
       if (!body) return showToast('レビュー内容を入力してください');
       var list = getLS('hinoka_reviews', []);
       var idx  = list.findIndex(function (x) { return x.id === reviewId; });
-      var updated = { id: reviewId, product: r.product, rating: selectedRating, body: body, status: 'done', hasPhoto: false };
+      var updated = { id: reviewId, orderId: r.orderId, product: r.product, rating: selectedRating, body: body, status: 'done', hasPhoto: false, time: new Date().toLocaleString('ja-JP') };
       if (idx >= 0) list[idx] = updated; else list.push(updated);
       setLS('hinoka_reviews', list);
       window.dispatchEvent(new Event('reviewUpdated'));
+
+      // レビュー済み注文ステータスを更新（注文内の全商品レビュー完了でdoneへ）
+      if (r.orderId) {
+        var orders = getLS('hinoka_orders', []);
+        var orderIdx = orders.findIndex(function(o){ return (o.ref || o.id) === r.orderId; });
+        if (orderIdx !== -1 && orders[orderIdx].status === 'review') {
+          var orderItems = orders[orderIdx].items || [];
+          var reviewedIds = list.filter(function(rv){ return rv.orderId === r.orderId && rv.status === 'done'; }).map(function(rv){ return rv.id; });
+          var allDone = orderItems.every(function(item, i){ return reviewedIds.indexOf('rev-' + r.orderId + '-' + i) !== -1; });
+          if (allDone) {
+            orders[orderIdx].status = 'done';
+            orders[orderIdx].statusText = '完了';
+            setLS('hinoka_orders', orders);
+            window.dispatchEvent(new Event('orderUpdated'));
+          }
+        }
+      }
+
       // ボーナスポイント＋クーポン付与
       var pts = calcPoints();
       pts.total += 50; pts.available += 50;
@@ -1401,14 +1419,23 @@
   // ══════════════════════════════════
   //  メッセージ
   // ══════════════════════════════════
+  function deleteMessage(msgId) {
+    var stored = getLS('hinoka_messages', []).filter(function (x) { return x.id !== msgId; });
+    setLS('hinoka_messages', stored);
+    window.dispatchEvent(new Event('messageUpdated'));
+    buildNavigation();
+    renderMessages();
+  }
+
   function messageCard(m) {
     var typeIcons = { order: '🛍️', logistics: '📦', promo: '🎁', system: '🔔' };
     var icon = typeIcons[m.type] || '📩';
     var unreadStyle = m.unread
       ? ' msg-unread" style="border-left:3px solid #8b6f47;background:#fff;'
       : ' msg-read" style="border-left:3px solid transparent;background:var(--soft);opacity:0.85;';
-    return '<article class="message-row' + unreadStyle + 'cursor:pointer;" data-msg-id="' + esc(m.id) + '">' +
-      '<div class="message-top">' +
+    return '<article class="message-row' + unreadStyle + 'cursor:pointer;position:relative;" data-msg-id="' + esc(m.id) + '">' +
+      '<button data-msg-del="' + esc(m.id) + '" title="削除" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:15px;color:#bbb;cursor:pointer;line-height:1;padding:2px 4px;z-index:2;" type="button">×</button>' +
+      '<div class="message-top" style="padding-right:24px;">' +
       '<div class="message-title">' + icon + ' ' + esc(m.title) + '</div>' +
       (m.unread ? '<span class="unread-tag">未読</span>' : '') +
       '</div>' +
@@ -1466,7 +1493,10 @@
       window.dispatchEvent(new Event('messageUpdated'));
       buildNavigation(); renderMessages();
     });
-    document.querySelectorAll('[data-msg-id]').forEach(function (card) { card.addEventListener('click', function () { showMessageDetail(card.dataset.msgId); }); });
+    document.querySelectorAll('[data-msg-del]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); deleteMessage(btn.dataset.msgDel); });
+    });
+    document.querySelectorAll('[data-msg-id]').forEach(function (card) { card.addEventListener('click', function (e) { if (!e.target.dataset.msgDel) showMessageDetail(card.dataset.msgId); }); });
   }
 
   // ══════════════════════════════════
@@ -1478,14 +1508,14 @@
     var nextRankIdx  = RANK_TABLE.findIndex(function (r) { return r.name === rank.name; }) + 1;
     var nextRank     = RANK_TABLE[nextRankIdx];
     var progress     = nextRank ? Math.min(100, Math.round((spend - rank.min) / (nextRank.min - rank.min) * 100)) : 100;
-    var rankColors   = { BRONZE: '#cd7f32', SILVER: '#aaa', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
+    var rankColors   = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
     var rankColor    = rankColors[rank.name] || '#8b6f47';
-    var rankMedals   = { BRONZE: '✦', SILVER: '✦✦', GOLD: '✦✦✦', DIAMOND: '◆' };
-    var rankMedal    = rankMedals[rank.name] || '✦';
+    var rankIcons    = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
+    var rankMedal    = rankIcons[rank.name] || '🥉';
 
     var heroCard =
       '<div class="member-hero-card">' +
-        '<div class="member-rank-badge">' + rankMedal + '</div>' +
+        '<div class="member-rank-badge" style="font-size:52px;line-height:1;margin-bottom:10px;">' + rankMedal + '</div>' +
         '<div class="member-rank-label">' + rank.label.toUpperCase() + ' MEMBER</div>' +
         '<div class="member-rank-sub">累計購入金額：¥' + Number(spend).toLocaleString() + '</div>' +
         (nextRank ?
