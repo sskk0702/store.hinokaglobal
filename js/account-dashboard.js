@@ -1412,57 +1412,33 @@
         '</div>' +
       '</div>';
 
+    var premBtn = 'background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;color:#fff;padding:6px 18px;border-radius:20px;font-size:11px;letter-spacing:0.08em;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(139,111,71,.3);transition:box-shadow .2s,transform .15s;white-space:nowrap;';
+
     document.getElementById('view-settings').innerHTML =
       head(biHead('ACCOUNT SETTINGS', 'アカウント設定'), 'プロフィール、安全設定、ログイン履歴を管理します。') +
       profileCard +
-      '<div class="section-block" style="margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
+      '<div class="section-block settings-info-block">' +
         '<div class="section-title-row"><h3 class="section-title">プロフィール・セキュリティ</h3></div>' +
         '<div class="info-table">' +
-          infoRow('ニックネーム', esc(user.displayName || '未設定'), '<input id="nameInput" type="text" placeholder="ニックネームを入力" value="' + esc(user.displayName || '') + '" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;width:130px;"> <button class="mini-btn" id="saveNameBtn" type="button">保存</button>') +
-          infoRow('メールアドレス',   esc(user.email || ''), '') +
-          infoRow('メール確認',       user.emailVerified ? '確認済み ✓' : '未確認', '<button class="mini-btn" id="resendVerifyBtn" type="button">再送信</button>') +
-          infoRow('パスワード',       '再設定メールを送信します', '<button class="mini-btn" id="changePwBtn" type="button">変更</button>') +
-          infoRow('生年月日', (function(){ var p=getLS('hinoka_profile',{}); return p.birthday ? p.birthday.replace('-','/') + ' 🎂' : '未設定'; })(), '<input id="birthdayInput" type="text" placeholder="MM-DD（例：03-15）" style="border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;width:120px;"> <button class="mini-btn" id="saveBirthdayBtn" type="button">保存</button>') +
-          infoRow('メールマガジン',   '<span id="marketingLabel">受信しない</span>', '<label><input id="marketingToggle" type="checkbox" style="accent-color:#111;"></label>') +
+          infoRow('ニックネーム',   esc(user.displayName || '未設定'), '') +
+          infoRow('メールアドレス', esc(user.email || ''), '') +
+          infoRow('メール確認',     user.emailVerified ? '確認済み ✓' : '未確認', '<button id="resendVerifyBtn" style="' + premBtn + '" type="button">再送信</button>') +
+          infoRow('パスワード',     '再設定メールを送信します', '<button id="changePwBtn" style="' + premBtn + '" type="button">変更</button>') +
+          infoRow('生年月日',       (function(){ var p=getLS('hinoka_profile',{}); return p.birthday ? p.birthday.replace('-','/') + ' 🎂' : '未設定'; })(), '') +
+          infoRow('メールマガジン', '<span id="marketingLabel">受信しない</span>', '<label><input id="marketingToggle" type="checkbox" style="accent-color:#8b6f47;width:16px;height:16px;cursor:pointer;"></label>') +
         '</div>' +
       '</div>' +
-      '<div class="section-block" style="box-shadow:0 2px 12px rgba(0,0,0,.05);border-radius:12px;">' +
+      '<div class="section-block settings-info-block">' +
         '<div class="section-title-row"><h3 class="section-title">LOGIN RECORD <span style="font-size:10px;color:var(--muted);font-weight:400;">ログイン履歴</span></h3></div>' +
         loginTimelineHtml +
       '</div>' +
-      '<div style="margin-top:24px;padding:20px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6);border:1px solid rgba(201,169,110,.2);border-radius:14px;text-align:center;">' +
-        '<div style="font-size:11px;color:#a08060;margin-bottom:12px;letter-spacing:.08em;">アカウントからログアウトします</div>' +
-        '<button id="settingsLogoutBtn" type="button" class="danger-btn" style="width:100%;max-width:280px;padding:13px;font-size:13px;letter-spacing:.1em;">ログアウト</button>' +
+      '<div class="settings-logout-mobile">' +
+        '<button id="settingsLogoutBtn" type="button" style="width:100%;padding:14px;background:transparent;border:1px solid rgba(176,90,74,.4);color:#b05a4a;border-radius:10px;font-size:12px;letter-spacing:.12em;cursor:pointer;font-family:inherit;transition:background .2s,color .2s;">ログアウト</button>' +
       '</div>';
 
     var settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
     if (settingsLogoutBtn) settingsLogoutBtn.addEventListener('click', function () {
       if (confirm('ログアウトしますか？')) auth.signOut();
-    });
-
-    var nameSaveBtn = document.getElementById('saveNameBtn');
-    if (nameSaveBtn) nameSaveBtn.addEventListener('click', function () {
-      var val = (document.getElementById('nameInput').value || '').trim();
-      if (!val) { showToast('ニックネームを入力してください'); return; }
-      auth.currentUser.updateProfile({ displayName: val }).then(function () {
-        state.user.displayName = val;
-        renderUser(state.user);
-        renderSettings();
-        showToast('ニックネームを保存しました');
-      }).catch(function () { showToast('保存に失敗しました'); });
-    });
-
-    var bdSaveBtn = document.getElementById('saveBirthdayBtn');
-    if (bdSaveBtn) bdSaveBtn.addEventListener('click', function () {
-      var val = (document.getElementById('birthdayInput').value || '').trim();
-      if (!/^\d{2}-\d{2}$/.test(val)) { showToast('形式はMM-DDで入力してください（例：03-15）'); return; }
-      var profile = getLS('hinoka_profile', {});
-      profile.birthday = val;
-      setLS('hinoka_profile', profile);
-      window.dispatchEvent(new Event('profileUpdated')); // triggers firebase-sync upload
-      showToast('生年月日を保存しました 🎂');
-      checkBirthdayCoupon();
-      renderSettings();
     });
     document.getElementById('resendVerifyBtn').addEventListener('click', function () {
       if (auth.currentUser) auth.currentUser.sendEmailVerification().then(function () { showToast('確認メールを再送信しました'); }).catch(function () { showToast('送信に失敗しました'); });
