@@ -987,22 +987,20 @@
     var list = getAddresses();
     document.getElementById('view-addresses').innerHTML = head(biHead('ADDRESS', 'お届け先住所'), '最大20件までお届け先住所を登録できます。', '<button class="add-action-btn" id="addAddressBtn" type="button">＋ 住所を追加</button>') +
       '<div class="address-list">' + (list.length ? list.map(function (a) {
-        return '<article class="address-card">'
-  + '<div class="address-top">'
-  +   '<div class="address-name">' + esc(a.name) + ' / ' + esc(a.phone) + '</div>'
-  +   (a.isDefault
-       ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;letter-spacing:0.08em;background:linear-gradient(135deg,#c9a96e,#8b6f47);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(139,111,71,.25);">既定</span>'
-       : '')
-  + '</div>'
-  + '<div class="address-detail">〒' + esc(a.zip) + ' ' + esc(a.pref) + esc(a.city) + ' ' + esc(a.detail) + '</div>'
-  + '<div class="action-row" style="margin-top:14px;display:flex;align-items:center;gap:10px;">'
-  +   '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#8b6f47;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(139,111,71,.4);transition:color .2s,border-color .2s;" data-edit-address="' + a.id + '" type="button">編集</button>'
-  +   '<button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">'
-+ (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集')
-+ '</button>'
-  +   '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#b05a4a;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(176,90,74,.35);transition:color .2s;" data-delete-address="' + a.id + '" type="button">削除</button>'
-  + '</div>'
-  + '</article>';
+        return '<article class="address-card">' +
+  '<div class="address-top">' +
+    '<div class="address-name">' + esc(a.name) + ' / ' + esc(a.phone) + '</div>' +
+    (a.isDefault
+      ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;letter-spacing:0.08em;background:linear-gradient(135deg,#c9a96e,#8b6f47);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(139,111,71,.25);">既定</span>'
+      : '') +
+  '</div>' +
+  '<div class="address-detail">〒' + esc(a.zip) + ' ' + esc(a.pref) + esc(a.city) + ' ' + esc(a.detail) + '</div>' +
+  '<div class="action-row" style="margin-top:14px;display:flex;align-items:center;gap:10px;">' +
+    '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#8b6f47;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(139,111,71,.4);transition:color .2s,border-color .2s;" data-edit-address="' + a.id + '" type="button">編集</button>' +
+    '<button style="background:linear-gradient(135deg,#fdf8f3,#e8d9bf);border:none;cursor:pointer;font-size:11px;letter-spacing:0.06em;color:#6b4f2e;font-family:inherit;padding:5px 12px;border-radius:20px;box-shadow:0 2px 6px rgba(139,111,71,.15),inset 0 1px 0 rgba(255,255,255,.8);transition:box-shadow .2s;" data-default-address="' + a.id + '" type="button">既定にする</button>' +
+    '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#b05a4a;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(176,90,74,.35);transition:color .2s;" data-delete-address="' + a.id + '" type="button">削除</button>' +
+  '</div>' +
+'</article>';
       }).join('') : empty('お届け先住所が登録されていません。<br>「住所を追加」ボタンから登録できます。')) + '</div>';
     document.getElementById('addAddressBtn').addEventListener('click', function () { openAddressModal(); });
     document.querySelectorAll('[data-edit-address]').forEach(function (b) { b.addEventListener('click', function () { openAddressModal(b.dataset.editAddress); }); });
@@ -1106,7 +1104,18 @@
     document.getElementById('view-reviews').innerHTML = head(biHead('REVIEWS', 'レビュー管理'), 'レビュー待ち、投稿済み、写真付きレビューを管理します。') +
       tabsHtml(reviewTabs, state.reviewFilter, 'data-review-tab') +
       '<div class="review-list">' + (list.length ? list.map(function (r) {
-        return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body || '') + '</div><div class="action-row" style="margin-top:12px;"><button class="mini-btn primary" type="button" data-review-id="' + esc(r.id) + '">' + (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') + '</button></div></article>';
+        return '<article class="review-card">' +
+  '<div class="review-top">' +
+    '<div class="review-product">' + esc(r.product) + '</div>' +
+    '<div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div>' +
+  '</div>' +
+  '<div class="review-body">' + esc(r.body || '') + '</div>' +
+  '<div class="action-row" style="margin-top:12px;">' +
+    '<button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">' +
+      (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') +
+    '</button>' +
+  '</div>' +
+'</article>';
       }).join('') : empty('レビューはありません。')) + '</div>';
     document.querySelectorAll('[data-review-tab]').forEach(function (b) { b.addEventListener('click', function () { state.reviewFilter = b.dataset.reviewTab; renderReviews(); }); });
     document.querySelectorAll('[data-review-id]').forEach(function (b) { b.addEventListener('click', function () { openReviewModal(b.dataset.reviewId); }); });
