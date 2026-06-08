@@ -1625,7 +1625,6 @@
 
     document.getElementById('view-settings').innerHTML =
       head(biHead('ACCOUNT SETTINGS', 'アカウント設定'), 'プロフィール、安全設定、ログイン履歴を管理します。') +
-      profileCard +
       '<div class="section-block settings-info-block">' +
         '<div class="section-title-row"><h3 class="section-title">プロフィール・セキュリティ</h3></div>' +
         '<div class="info-table">' +
