@@ -71,6 +71,64 @@
     document.head.appendChild(s);
   })();
 
+  // ── 認証セキュリティ定数 ─────────────────────────────────────
+  var SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+  var MAX_LOGIN_AGE_MS   = 30 * 24 * 60 * 60 * 1000;
+  var TS_LOGIN_KEY       = '_hinoka_login_ts';
+  var TS_ACTIVE_KEY      = '_hinoka_last_active';
+  var DEVICE_ID_KEY      = '_hinoka_device_id';
+
+  function getDeviceId() {
+    var id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) { id = 'dev-' + Math.random().toString(36).substr(2,9) + '-' + Date.now(); localStorage.setItem(DEVICE_ID_KEY, id); }
+    return id;
+  }
+  function getKnownDevices(uid) { return getLS('_hinoka_known_' + uid, []); }
+  function isKnownDevice(uid)   { return getKnownDevices(uid).indexOf(getDeviceId()) !== -1; }
+  function registerDevice(uid)  { var list = getKnownDevices(uid); var dev = getDeviceId(); if (list.indexOf(dev) === -1) { list.push(dev); setLS('_hinoka_known_' + uid, list); } }
+
+  var _lastActivityWrite = 0;
+  function touchActivity() {
+    var now = Date.now();
+    if (now - _lastActivityWrite > 30000) { _lastActivityWrite = now; try { localStorage.setItem(TS_ACTIVE_KEY, now.toString()); } catch(e) {} }
+  }
+  ['mousemove','keydown','touchstart','scroll'].forEach(function(evt) {
+    window.addEventListener(evt, touchActivity, { passive: true });
+  });
+
+  function checkExpiry() {
+    var loginTs = parseInt(localStorage.getItem(TS_LOGIN_KEY) || '0', 10);
+    if (loginTs && Date.now() - loginTs > MAX_LOGIN_AGE_MS) { auth.signOut(); return true; }
+    var active = parseInt(localStorage.getItem(TS_ACTIVE_KEY) || '0', 10);
+    if (active && Date.now() - active > SESSION_TIMEOUT_MS) {
+      auth.signOut(); showToast('セッションが期限切れになりました。再度ログインしてください。'); return true;
+    }
+    return false;
+  }
+  setInterval(function() { if (auth.currentUser) checkExpiry(); }, 5 * 60 * 1000);
+
+  function showNewDeviceModal(user) {
+    if (user.sendEmailVerification) user.sendEmailVerification().catch(function(){});
+    var div = document.createElement('div');
+    div.className = 'modal-mask show';
+    div.innerHTML =
+      '<div class="modal" style="text-align:center;max-width:420px;padding:40px 32px;">' +
+        '<div style="font-size:48px;margin-bottom:16px;">🔐</div>' +
+        '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:500;margin-bottom:12px;color:#1a1208;">新しいデバイスを検出しました</h3>' +
+        '<p style="font-size:12px;color:#666;line-height:2;margin-bottom:8px;"><strong>' + esc(user.email) + '</strong> に確認メールを送信しました。<br>メール内のリンクをクリックして本人確認を完了し、<br>再度ログインしてください。</p>' +
+        '<p style="font-size:11px;color:#999;margin-bottom:24px;">メールが届かない場合は迷惑メールフォルダをご確認ください。</p>' +
+        '<button id="newDevResendBtn" style="background:linear-gradient(135deg,#8b6f47,#c9a96e);border:none;color:#fff;padding:12px 32px;border-radius:8px;font-size:12px;letter-spacing:.1em;cursor:pointer;font-family:inherit;margin-bottom:12px;width:100%;">確認メールを再送信する</button><br>' +
+        '<button id="newDevCloseBtn" style="background:none;border:none;color:#999;font-size:11px;cursor:pointer;font-family:inherit;">閉じる（再ログインへ）</button>' +
+      '</div>';
+    document.body.appendChild(div);
+    document.getElementById('newDevResendBtn').addEventListener('click', function() {
+      auth.currentUser && auth.currentUser.sendEmailVerification().then(function(){ showToast('確認メールを再送信しました'); }).catch(function(){ showToast('送信に失敗しました'); });
+    });
+    var closeModal = function() { div.remove(); auth.signOut(); };
+    document.getElementById('newDevCloseBtn').addEventListener('click', closeModal);
+    div.addEventListener('click', function(e) { if (e.target === div) closeModal(); });
+  }
+
   var state = {
     user: null,
     activeView: location.hash ? location.hash.replace('#', '') : 'overview',
@@ -987,20 +1045,7 @@
     var list = getAddresses();
     document.getElementById('view-addresses').innerHTML = head(biHead('ADDRESS', 'お届け先住所'), '最大20件までお届け先住所を登録できます。', '<button class="add-action-btn" id="addAddressBtn" type="button">＋ 住所を追加</button>') +
       '<div class="address-list">' + (list.length ? list.map(function (a) {
-        return '<article class="address-card">' +
-  '<div class="address-top">' +
-    '<div class="address-name">' + esc(a.name) + ' / ' + esc(a.phone) + '</div>' +
-    (a.isDefault
-      ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;letter-spacing:0.08em;background:linear-gradient(135deg,#c9a96e,#8b6f47);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(139,111,71,.25);">既定</span>'
-      : '') +
-  '</div>' +
-  '<div class="address-detail">〒' + esc(a.zip) + ' ' + esc(a.pref) + esc(a.city) + ' ' + esc(a.detail) + '</div>' +
-  '<div class="action-row" style="margin-top:14px;display:flex;align-items:center;gap:10px;">' +
-    '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#8b6f47;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(139,111,71,.4);transition:color .2s,border-color .2s;" data-edit-address="' + a.id + '" type="button">編集</button>' +
-    '<button style="background:linear-gradient(135deg,#fdf8f3,#e8d9bf);border:none;cursor:pointer;font-size:11px;letter-spacing:0.06em;color:#6b4f2e;font-family:inherit;padding:5px 12px;border-radius:20px;box-shadow:0 2px 6px rgba(139,111,71,.15),inset 0 1px 0 rgba(255,255,255,.8);transition:box-shadow .2s;" data-default-address="' + a.id + '" type="button">既定にする</button>' +
-    '<button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#b05a4a;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(176,90,74,.35);transition:color .2s;" data-delete-address="' + a.id + '" type="button">削除</button>' +
-  '</div>' +
-'</article>';
+        return '<article class="address-card"><div class="address-top"><div class="address-name">' + esc(a.name) + ' / ' + esc(a.phone) + '</div>' + (a.isDefault ? '<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;letter-spacing:0.08em;background:linear-gradient(135deg,#c9a96e,#8b6f47);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(139,111,71,.25);">既定</span>' : '') + '</div><div class="address-detail">〒' + esc(a.zip) + ' ' + esc(a.pref) + esc(a.city) + ' ' + esc(a.detail) + '</div><div class="action-row" style="margin-top:14px;display:flex;align-items:center;gap:10px;"><button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#8b6f47;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(139,111,71,.4);transition:color .2s,border-color .2s;" data-edit-address="' + a.id + '" type="button">編集</button><button style="background:linear-gradient(135deg,#fdf8f3,#e8d9bf);border:none;cursor:pointer;font-size:11px;letter-spacing:0.06em;color:#6b4f2e;font-family:inherit;padding:5px 12px;border-radius:20px;box-shadow:0 2px 6px rgba(139,111,71,.15),inset 0 1px 0 rgba(255,255,255,.8);transition:box-shadow .2s;" data-default-address="' + a.id + '" type="button">既定にする</button><button style="background:none;border:none;cursor:pointer;font-size:12px;letter-spacing:0.06em;color:#b05a4a;font-family:inherit;padding:4px 0;border-bottom:1px solid rgba(176,90,74,.35);transition:color .2s;" data-delete-address="' + a.id + '" type="button">削除</button></div></article>';
       }).join('') : empty('お届け先住所が登録されていません。<br>「住所を追加」ボタンから登録できます。')) + '</div>';
     document.getElementById('addAddressBtn').addEventListener('click', function () { openAddressModal(); });
     document.querySelectorAll('[data-edit-address]').forEach(function (b) { b.addEventListener('click', function () { openAddressModal(b.dataset.editAddress); }); });
@@ -1104,18 +1149,7 @@
     document.getElementById('view-reviews').innerHTML = head(biHead('REVIEWS', 'レビュー管理'), 'レビュー待ち、投稿済み、写真付きレビューを管理します。') +
       tabsHtml(reviewTabs, state.reviewFilter, 'data-review-tab') +
       '<div class="review-list">' + (list.length ? list.map(function (r) {
-        return '<article class="review-card">' +
-  '<div class="review-top">' +
-    '<div class="review-product">' + esc(r.product) + '</div>' +
-    '<div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div>' +
-  '</div>' +
-  '<div class="review-body">' + esc(r.body || '') + '</div>' +
-  '<div class="action-row" style="margin-top:12px;">' +
-    '<button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">' +
-      (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') +
-    '</button>' +
-  '</div>' +
-'</article>';
+        return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body || '') + '</div><div class="action-row" style="margin-top:12px;"><button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">' + (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') + '</button></div></article>';
       }).join('') : empty('レビューはありません。')) + '</div>';
     document.querySelectorAll('[data-review-tab]').forEach(function (b) { b.addEventListener('click', function () { state.reviewFilter = b.dataset.reviewTab; renderReviews(); }); });
     document.querySelectorAll('[data-review-id]').forEach(function (b) { b.addEventListener('click', function () { openReviewModal(b.dataset.reviewId); }); });
@@ -1434,7 +1468,18 @@
       if (auth.currentUser) auth.currentUser.sendEmailVerification().then(function () { showToast('確認メールを再送信しました'); }).catch(function () { showToast('送信に失敗しました'); });
     });
     document.getElementById('changePwBtn').addEventListener('click', function () {
-      if (user.email) auth.sendPasswordResetEmail(user.email).then(function () { showToast('パスワード変更メールを送信しました'); }).catch(function () { showToast('送信に失敗しました'); });
+      if (!user.email) return;
+      auth.sendPasswordResetEmail(user.email).then(function () {
+        showToast('パスワード変更メールを送信しました。変更後は全デバイスで再ログインが必要です。');
+        // パスワード変更メール送信後、ローカルセッション情報をクリアして強制ログアウト
+        setTimeout(function () {
+          localStorage.removeItem(TS_LOGIN_KEY);
+          localStorage.removeItem(TS_ACTIVE_KEY);
+          // known devices リストをリセット（全デバイス再認証）
+          if (user.uid) localStorage.removeItem('_hinoka_known_' + user.uid);
+          auth.signOut();
+        }, 3000);
+      }).catch(function () { showToast('送信に失敗しました'); });
     });
     var mktToggle = document.getElementById('marketingToggle');
     var mktLabel  = document.getElementById('marketingLabel');
@@ -1506,12 +1551,27 @@
   }
 
   function showAccount(user) {
-    // Reload user to get latest displayName from Firebase Auth
+    if (checkExpiry()) return;
     user.reload().then(function () {
-      state.user = auth.currentUser || user;
-      _showAccountUI(state.user);
+      var u = auth.currentUser || user;
+      state.user = u;
+      // 新デバイス検出：メール確認済みユーザーのみ検査
+      if (!isKnownDevice(u.uid)) {
+        registerDevice(u.uid); // 初回は登録して通過、2回目以降は既知
+        // Google ログインは検証不要（Google 側で保証）
+        if (u.providerData && u.providerData[0] && u.providerData[0].providerId === 'google.com') {
+          _showAccountUI(u); return;
+        }
+        // メール未確認の場合はモーダルを表示してブロック
+        if (!u.emailVerified) {
+          showNewDeviceModal(u); return;
+        }
+      }
+      touchActivity();
+      _showAccountUI(u);
     }).catch(function () {
       state.user = user;
+      touchActivity();
       _showAccountUI(user);
     });
   }
@@ -1598,13 +1658,24 @@
 
   function login() {
     hideMsg('login-error');
-    var email = document.getElementById('login-email').value.trim();
-    var pass  = document.getElementById('login-pass').value;
+    var email      = document.getElementById('login-email').value.trim();
+    var pass       = document.getElementById('login-pass').value;
+    var rememberEl = document.getElementById('rememberMeCheck');
+    var remember   = rememberEl ? rememberEl.checked : true;
     if (!email || !pass) return showError('login-error', 'メールアドレスとパスワードを入力してください。');
     setLoading('loginBtn', true);
-    auth.signInWithEmailAndPassword(email, pass).catch(function (err) {
-      showError('login-error', authError(err.code));
-    }).finally(function () { setLoading('loginBtn', false); });
+    var persistence = remember
+      ? firebase.auth.Auth.Persistence.LOCAL
+      : firebase.auth.Auth.Persistence.SESSION;
+    auth.setPersistence(persistence)
+      .then(function () { return auth.signInWithEmailAndPassword(email, pass); })
+      .then(function () {
+        var now = Date.now().toString();
+        localStorage.setItem(TS_LOGIN_KEY,  now);
+        localStorage.setItem(TS_ACTIVE_KEY, now);
+      })
+      .catch(function (err) { showError('login-error', authError(err.code)); })
+      .finally(function () { setLoading('loginBtn', false); });
   }
 
   function register() {
