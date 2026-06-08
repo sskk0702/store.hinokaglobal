@@ -466,12 +466,13 @@
     document.getElementById('sideName').textContent  = name;
     document.getElementById('sideEmail').textContent = user.email || '';
 
-    // Update rank chip if it exists
+    // Update rank chip in sidebar
     var chip = document.getElementById('sideRankChip');
     if (chip) {
       var rank = getMemberRank(calcTotalSpend());
       var rankColors = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
-      chip.textContent = rank.label.toUpperCase() + ' MEMBER';
+      var rankIcons  = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
+      chip.textContent = (rankIcons[rank.name] || '🥉') + ' ' + rank.label.toUpperCase() + ' MEMBER';
       chip.style.color = rankColors[rank.name] || '#8b6f47';
       chip.style.borderColor = rankColors[rank.name] || '#8b6f47';
     }
@@ -786,8 +787,8 @@
     var coupons    = getMonthCoupons();
     var rankColors  = { BRONZE: '#cd7f32', SILVER: '#9e9e9e', GOLD: '#8b6f47', DIAMOND: '#6b8cae' };
     var rankColor   = rankColors[rank.name] || '#8b6f47';
-    var rankMedals  = { BRONZE: '✦', SILVER: '✦✦', GOLD: '✦✦✦', DIAMOND: '◆' };
-    var rankMedal   = rankMedals[rank.name] || '✦';
+    var rankIcons   = { BRONZE: '🥉', SILVER: '🥈', GOLD: '🥇', DIAMOND: '💎' };
+    var rankMedal   = rankIcons[rank.name] || '🥉';
     var initial     = ((state.user.displayName || state.user.email || 'H')[0]).toUpperCase();
     var name        = state.user.displayName || 'HINOKA MEMBER';
 
@@ -1837,7 +1838,8 @@
       window.addEventListener(evt, function () {
         buildNavigation();
         renderCurrentView();
-        if (evt === 'profileUpdated') { checkBirthdayCoupon(); renderUser(state.user); }
+        if (evt === 'profileUpdated' || evt === 'orderUpdated') { renderUser(state.user); }
+        if (evt === 'profileUpdated') { checkBirthdayCoupon(); }
       });
     });
   }
