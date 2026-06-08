@@ -1715,23 +1715,46 @@
     document.body.classList.add('is-logged-out');
   }
 
+  function showEmailUnverified(user) {
+    var div = document.createElement('div');
+    div.className = 'modal-mask show';
+    div.innerHTML =
+      '<div class="modal" style="text-align:center;max-width:420px;padding:40px 32px;">' +
+        '<div style="font-size:48px;margin-bottom:16px;">📧</div>' +
+        '<h3 style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:500;margin-bottom:12px;color:#1a1208;">メールアドレスの確認が必要です</h3>' +
+        '<p style="font-size:12px;color:#666;line-height:2;margin-bottom:8px;"><strong>' + esc(user.email) + '</strong> に確認メールを送信しました。<br>メール内のリンクをクリックして本人確認を完了してから<br>再度ログインしてください。</p>' +
+        '<p style="font-size:11px;color:#999;margin-bottom:24px;">メールが届かない場合は迷惑メールフォルダをご確認ください。</p>' +
+        '<button id="evResendBtn" style="background:linear-gradient(135deg,#8b6f47,#c9a96e);border:none;color:#fff;padding:12px 32px;border-radius:8px;font-size:12px;letter-spacing:.1em;cursor:pointer;font-family:inherit;margin-bottom:12px;width:100%;">確認メールを再送信する</button><br>' +
+        '<button id="evRefreshBtn" style="background:none;border:1px solid #c9a96e;color:#8b6f47;padding:10px 24px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:12px;width:100%;">確認済みの場合はここをクリック</button><br>' +
+        '<button id="evLogoutBtn" style="background:none;border:none;color:#999;font-size:11px;cursor:pointer;font-family:inherit;">ログアウト</button>' +
+      '</div>';
+    document.body.appendChild(div);
+    document.getElementById('evResendBtn').addEventListener('click', function () {
+      auth.currentUser && auth.currentUser.sendEmailVerification()
+        .then(function () { showToast('確認メールを再送信しました'); })
+        .catch(function () { showToast('送信に失敗しました'); });
+    });
+    document.getElementById('evRefreshBtn').addEventListener('click', function () {
+      if (!auth.currentUser) return;
+      auth.currentUser.reload().then(function () {
+        if (auth.currentUser.emailVerified) { div.remove(); showAccount(auth.currentUser); }
+        else { showToast('まだ確認が完了していません'); }
+      });
+    });
+    document.getElementById('evLogoutBtn').addEventListener('click', function () { div.remove(); auth.signOut(); });
+  }
+
   function showAccount(user) {
     if (checkExpiry()) return;
     user.reload().then(function () {
       var u = auth.currentUser || user;
       state.user = u;
-      // 新デバイス検出：メール確認済みユーザーのみ検査
-      if (!isKnownDevice(u.uid)) {
-        registerDevice(u.uid); // 初回は登録して通過、2回目以降は既知
-        // Google ログインは検証不要（Google 側で保証）
-        if (u.providerData && u.providerData[0] && u.providerData[0].providerId === 'google.com') {
-          _showAccountUI(u); return;
-        }
-        // メール未確認の場合はモーダルを表示してブロック
-        if (!u.emailVerified) {
-          showNewDeviceModal(u); return;
-        }
+      var isGoogle = u.providerData && u.providerData[0] && u.providerData[0].providerId === 'google.com';
+      // メール未確認ユーザーは全デバイスでブロック（Google ログインは除外）
+      if (!isGoogle && !u.emailVerified) {
+        showEmailUnverified(u); return;
       }
+      registerDevice(u.uid);
       touchActivity();
       _showAccountUI(u);
     }).catch(function () {
@@ -1878,7 +1901,10 @@
       return user.updateProfile({ displayName: last + ' ' + first })
         .then(function () { return createUserDoc(user, { lastName: last, firstName: first, marketingConsent: marketing, provider: 'email' }); })
         .then(function () { return user.sendEmailVerification(); })
-        .then(function () { showSuccess('reg-success', '登録が完了しました。確認メールを送信しました。'); });
+        .then(function () {
+          showSuccess('reg-success', '登録が完了しました。確認メールを送信しました。メール内のリンクをクリックしてからログインしてください。');
+          return auth.signOut();
+        });
     }).catch(function (err) {
       showError('reg-error', authError(err.code));
     }).finally(function () { setLoading('registerBtn', false); });
