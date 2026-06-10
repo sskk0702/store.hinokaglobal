@@ -47,12 +47,14 @@
     }
     .gallery-main {
       position: relative;
-      width: 100%; height: calc(100% - 88px);
+      width: 100%;
+      aspect-ratio: 1 / 1;
       overflow: hidden;
+      background: #f9f6f1;
     }
     .gallery-main img {
       position: absolute; inset: 0;
-      width: 100%; height: 100%; object-fit: cover;
+      width: 100%; height: 100%; object-fit: contain;
       opacity: 0; transition: opacity 0.4s ease;
     }
     .gallery-main img.active { opacity: 1; }
@@ -77,8 +79,8 @@
       overflow-x: auto; background: var(--gray-light);
     }
     .gallery-thumbs img {
-      height: 64px; width: 48px;
-      object-fit: cover; cursor: pointer;
+      height: 64px; width: 64px;
+      object-fit: contain; background: #fff; cursor: pointer;
       opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0;
       border: 1px solid transparent;
     }
