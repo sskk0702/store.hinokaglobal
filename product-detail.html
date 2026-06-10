@@ -63,15 +63,20 @@
       position: absolute; top: 50%;
       transform: translateY(-50%);
       z-index: 5;
-      background: rgba(255,255,255,0.85);
-      border: none; width: 36px; height: 36px;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 50%;
+      width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 16px;
-      transition: background var(--transition);
+      cursor: pointer; font-size: 12px; color: #333;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     }
-    .gallery-arrow:hover { background: var(--white); }
-    .gallery-arrow.prev { left: 12px; }
-    .gallery-arrow.next { right: 12px; }
+    .gallery-arrow:hover { background: rgba(255,255,255,0.95); box-shadow: 0 3px 12px rgba(0,0,0,0.15); }
+    .gallery-arrow.prev { left: 10px; }
+    .gallery-arrow.next { right: 10px; }
 
     .gallery-thumbs {
       display: flex; gap: 8px;
@@ -222,10 +227,37 @@
     }
 
     @media (max-width: 768px) {
+      .breadcrumb { padding: 12px 16px; font-size: 10px; }
       .product-layout { grid-template-columns: 1fr; }
-      .product-gallery { position: relative; height: 70vw; }
-      .breadcrumb { padding: 14px 16px; }
-      .product-info { padding: 24px 16px; }
+      .product-gallery {
+        position: relative;
+        height: auto;
+        background: var(--gray-light);
+      }
+      .gallery-main {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+      }
+      .gallery-thumbs {
+        padding: 8px 12px;
+        height: 72px;
+        gap: 6px;
+      }
+      .gallery-thumbs img {
+        width: 52px; height: 52px;
+      }
+      .gallery-arrow {
+        width: 28px; height: 28px; font-size: 11px;
+      }
+      .gallery-arrow.prev { left: 8px; }
+      .gallery-arrow.next { right: 8px; }
+      .product-info { padding: 20px 16px 40px; }
+      .product-name { font-size: 20px; }
+      .product-price { font-size: 15px; }
+      .color-options { flex-wrap: wrap; gap: 12px; }
+      .size-options { gap: 6px; }
+      .size-btn { min-width: 40px; height: 40px; font-size: 11px; }
+      .add-to-cart-btn { padding: 14px; font-size: 11px; }
     }
   </style>
 </head>
@@ -243,8 +275,8 @@
     <!-- 左：ギャラリー -->
     <div class="product-gallery">
       <div class="gallery-main" id="galleryMain">
-        <button class="gallery-arrow prev" id="galleryPrev">&#8592;</button>
-        <button class="gallery-arrow next" id="galleryNext">&#8594;</button>
+        <button class="gallery-arrow prev" id="galleryPrev"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 2 4 7 9 12"/></svg></button>
+        <button class="gallery-arrow next" id="galleryNext"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 2 10 7 5 12"/></svg></button>
       </div>
       <div class="gallery-thumbs" id="galleryThumbs"></div>
     </div>
