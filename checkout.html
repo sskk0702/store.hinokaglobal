@@ -1017,7 +1017,7 @@
                onerror="this.src='assets/images/placeholder.jpg'">
           <div class="summary-item-info">
             <p class="summary-item-name">${item.name}</p>
-            <p class="summary-item-meta">${item.size ? `サイズ：${item.size} / ` : ''}×${item.qty}</p>
+            <p class="summary-item-meta">${item.colorName && item.colorName !== item.color ? `カラー：${item.colorName} / ` : ''}${item.size ? `サイズ：${item.size} / ` : ''}×${item.qty}</p>
             <p class="summary-item-price">¥${(item.price * item.qty).toLocaleString()}</p>
           </div>`;
         container.appendChild(el);
