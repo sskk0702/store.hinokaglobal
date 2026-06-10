@@ -292,8 +292,8 @@
           <div class="accordion-body">
             通常送料：<strong>550円（税込）</strong><br>
             ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。<br><br>
-            配送方法：標準配送のみ（月〜日 8:00〜21:00）<br>
-            最短お届け：ご注文日の翌々日<br>
+            配送方法：標準配送のみ（月〜金 8:00〜17:00）<br>
+            最短お届け：ご注文日の翌々日（一部受注品はお時間をいただく場合がございます）<br>
             配送エリア：日本国内のみ
           </div>
         </div>
@@ -302,7 +302,7 @@
             <span>返品について</span><span class="accordion-icon">+</span>
           </div>
           <div class="accordion-body">
-            お受け取りから30日以内にお申し込みください。<br><br>
+            お受け取りから7日以内にお申し込みください。<br><br>
             以下の商品は返品・交換不可：カスタマイズ商品 / 香水・フレグランス（ディフューザー含む）/ 開封済み衛生用品 / セール品・返品不可と記載された商品
           </div>
         </div>
@@ -541,7 +541,9 @@
         history.unshift(entry);
         if (history.length > 10) history = history.slice(0, 10);
         localStorage.setItem('hinoka_browsing_history', JSON.stringify(history));
+        // Dispatch immediately (for same-page listeners) and again after firebase-sync auth
         window.dispatchEvent(new Event('historyUpdated'));
+        setTimeout(function() { window.dispatchEvent(new Event('historyUpdated')); }, 3000);
       } catch(e) {}
     })();
 
@@ -608,21 +610,62 @@
     document.getElementById('galleryPrev').addEventListener('click', () => goTo((currentImg - 1 + product.images.length) % product.images.length));
     document.getElementById('galleryNext').addEventListener('click', () => goTo((currentImg + 1) % product.images.length));
 
+    // 受注品表示
+    if (product.madeToOrder) {
+      document.getElementById('productPrice').innerHTML = '<span style="background:#1a3a6b;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;letter-spacing:.1em;">受注品</span><span style="font-size:11px;color:#888;margin-left:10px;">価格はお問い合わせください</span>';
+      const btn = document.getElementById('addToCartBtn');
+      btn.textContent = 'お問い合わせ';
+      btn.addEventListener('click', e => { e.stopImmediatePropagation(); location.href = 'account.html#service'; }, { once: true });
+    }
+
     // ── カラー ──
-    let selectedColor = product.colors[0];
+    let selectedColor = product.colorOptions ? product.colorOptions[0].hex : (product.colors ? product.colors[0] : '');
+    let selectedColorName = product.colorOptions ? product.colorOptions[0].name : '';
     const colorContainer = document.getElementById('colorOptions');
-    product.colors.forEach(c => {
-      const dot = document.createElement('div');
-      dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
-      dot.style.background = c;
-      if (c === '#fff') dot.style.border = '1px solid #ccc';
-      dot.addEventListener('click', () => {
-        selectedColor = c;
-        colorContainer.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-        dot.classList.add('selected');
+
+    if (product.colorOptions && product.colorOptions.length > 0) {
+      product.colorOptions.forEach((co, idx) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin-right:12px;cursor:pointer;';
+        const dot = document.createElement('div');
+        dot.className = 'color-dot' + (idx === 0 ? ' selected' : '');
+        dot.style.background = co.hex;
+        if (co.hex === '#fff' || co.hex === '#f5f5f5') dot.style.border = '1px solid #ccc';
+        const label = document.createElement('span');
+        label.textContent = co.name;
+        label.style.cssText = 'font-size:10px;color:#666;letter-spacing:.05em;';
+        wrap.appendChild(dot); wrap.appendChild(label);
+        wrap.addEventListener('click', () => {
+          selectedColor = co.hex; selectedColorName = co.name;
+          colorContainer.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+          dot.classList.add('selected');
+          // 画像を切り替え
+          if (co.images && co.images.length > 0) {
+            const imgs = galleryMain.querySelectorAll('img');
+            const thumbs = galleryThumbs.querySelectorAll('img');
+            co.images.forEach((src, i) => {
+              if (imgs[i]) { imgs[i].src = src; }
+              if (thumbs[i]) { thumbs[i].src = src; }
+            });
+            goTo(0);
+          }
+        });
+        colorContainer.appendChild(wrap);
       });
-      colorContainer.appendChild(dot);
-    });
+    } else {
+      (product.colors || []).forEach(c => {
+        const dot = document.createElement('div');
+        dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
+        dot.style.background = c;
+        if (c === '#fff') dot.style.border = '1px solid #ccc';
+        dot.addEventListener('click', () => {
+          selectedColor = c;
+          colorContainer.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+          dot.classList.add('selected');
+        });
+        colorContainer.appendChild(dot);
+      });
+    }
 
     // ── サイズ ──
     let selectedSize = '';
@@ -654,19 +697,23 @@
     });
 
     // ── カートに追加 ──
-    document.getElementById('addToCartBtn').addEventListener('click', () => {
-      const items    = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      const existing = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
-      if (existing) { existing.qty++; }
-      else {
-        items.push({ id, name: product.name, price: product.price,
-                     color: selectedColor, size: selectedSize,
-                     img: product.images[0], qty: 1 });
-      }
-      localStorage.setItem('cartItems', JSON.stringify(items));
-      window.dispatchEvent(new Event('cartUpdated'));
-      openCartSidebar();
-    });
+    if (!product.madeToOrder) {
+      document.getElementById('addToCartBtn').addEventListener('click', () => {
+        const moq = product.moq || 1;
+        const items    = JSON.parse(localStorage.getItem('cartItems') || '[]');
+        const existing = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
+        if (existing) {
+          existing.qty = Math.max(existing.qty + 1, moq);
+        } else {
+          items.push({ id, name: product.name, price: product.price,
+                       color: selectedColor, colorName: selectedColorName || selectedColor,
+                       size: selectedSize, img: product.images[0], qty: moq });
+        }
+        localStorage.setItem('cartItems', JSON.stringify(items));
+        window.dispatchEvent(new Event('cartUpdated'));
+        openCartSidebar();
+      });
+    }
 
     // ── カートサイドバー ──
     function renderSidebar() {
@@ -688,7 +735,7 @@
                  onerror="this.src='assets/images/placeholder.jpg'">
             <div class="cart-sidebar-item-info">
               <div class="cart-sidebar-item-name">${item.name}</div>
-              <div class="cart-sidebar-item-opts">${item.size ? `サイズ：${item.size}` : ''}</div>
+              <div class="cart-sidebar-item-opts">${item.colorName && item.colorName !== item.color ? `カラー：${item.colorName}` : ''}${item.size ? `　サイズ：${item.size}` : ''}</div>
               <div class="sidebar-item-qty">
                 <button class="sidebar-qty-btn" data-action="dec" data-idx="${idx}">−</button>
                 <input class="sidebar-qty-num" type="text" value="${item.qty || 1}" readonly>
