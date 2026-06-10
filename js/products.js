@@ -195,65 +195,70 @@
      specs:'内容：棚番号プレート50枚・ラベルシール100枚・インデックスカード50枚・収納ボックス2個'},
 
     // ── For Business — Safety & Workwear / 作業用品・安全用品 ──
-    {id:'B031',name:'耐切創 作業手袋 3双組',price:2200,
+    {id:'B031',name:'耐切創手袋 Level5（1双）',price:499,
      category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b031'),colors:['#808080'],sizes:['S','M','L','LL'],stock:100,moq:2,
-     desc:'耐切創レベル4の高性能グローブ。油に強く作業性も抜群。',
-     specs:'素材：HPPE+ガラス繊維 / 耐切創：Level4 / サイズ：S/M/L/LL / セット：3双'},
+     images:['assets/images/b031_black_1.jpg','assets/images/b031_black_2.jpg','assets/images/b031_black_3.jpg','assets/images/b031_black_4.jpg','assets/images/b031_black_5.jpg','assets/images/b031_black_6.jpg','assets/images/b031_black_7.jpg','assets/images/b031_black_8.jpg','assets/images/b031_black_9.jpg','assets/images/b031_black_10.jpg'],
+     colorOptions:[
+       {name:'黒', hex:'#2c2c2c', images:['assets/images/b031_black_1.jpg','assets/images/b031_black_2.jpg','assets/images/b031_black_3.jpg','assets/images/b031_black_4.jpg','assets/images/b031_black_5.jpg','assets/images/b031_black_6.jpg','assets/images/b031_black_7.jpg','assets/images/b031_black_8.jpg','assets/images/b031_black_9.jpg','assets/images/b031_black_10.jpg']},
+       {name:'紫', hex:'#6b21a8', images:['assets/images/b031_purple_1.jpg','assets/images/b031_purple_2.jpg','assets/images/b031_purple_3.jpg','assets/images/b031_purple_4.jpg','assets/images/b031_purple_5.jpg','assets/images/b031_purple_6.jpg','assets/images/b031_purple_7.jpg','assets/images/b031_purple_8.jpg','assets/images/b031_purple_9.jpg','assets/images/b031_purple_10.jpg']},
+       {name:'グレー', hex:'#808080', images:['assets/images/b031_gray_1.jpg','assets/images/b031_gray_2.jpg','assets/images/b031_gray_3.jpg','assets/images/b031_gray_4.jpg','assets/images/b031_gray_5.jpg','assets/images/b031_gray_6.jpg','assets/images/b031_gray_7.jpg','assets/images/b031_gray_8.jpg','assets/images/b031_gray_9.jpg','assets/images/b031_gray_10.jpg']},
+       {name:'ブルー', hex:'#1a3a6b', images:['assets/images/b031_blue_1.jpg','assets/images/b031_blue_2.jpg','assets/images/b031_blue_3.jpg','assets/images/b031_blue_4.jpg','assets/images/b031_blue_5.jpg','assets/images/b031_blue_6.jpg','assets/images/b031_blue_7.jpg','assets/images/b031_blue_8.jpg','assets/images/b031_blue_9.jpg','assets/images/b031_blue_10.jpg']},
+       {name:'イエロー', hex:'#f6c90e', images:['assets/images/b031_yellow_1.jpg','assets/images/b031_yellow_2.jpg','assets/images/b031_yellow_3.jpg','assets/images/b031_yellow_4.jpg','assets/images/b031_yellow_5.jpg','assets/images/b031_yellow_6.jpg','assets/images/b031_yellow_7.jpg','assets/images/b031_yellow_8.jpg','assets/images/b031_yellow_9.jpg','assets/images/b031_yellow_10.jpg']}
+     ],
+     colors:['#2c2c2c','#6b21a8','#808080','#1a3a6b','#f6c90e'],
+     sizes:['XS','S','M','L'],stock:500,moq:10,
+     desc:'切断防止手袋 労働保護レベル5。耐摩耗防切割、5級防切割標識付き、独立包装。建設現場・工場作業に最適な滑り止め機能付き厚手耐摩耗性手袋。OEM対応可。',
+     specs:'素材：HPPE / 耐切創：Level5 / 産地：中国 / 個装：独立包装 / サイズ展開：XS / S / M / L / 仕様：XS(23×10×1cm 45g) / S(23×10×1cm 45g) / M(23×10×1cm 45g) / L(23×10×1cm 45g) / OEM受注可'},
 
-    {id:'B032',name:'高視認性安全ベスト',price:1980,
+    {id:'B032',name:'多機能ワークベルト',price:1399,
      category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b032'),colors:['#f6c90e','#ff7f00'],sizes:['FREE'],stock:80,moq:1,
-     desc:'JIS T8127対応の高視認性ベスト。反射テープ付きで夜間作業も安全。',
-     specs:'素材：ポリエステル100% / 規格：JIS T8127 / 反射テープ：50mm幅 / サイズ：フリー'},
+     images:['assets/images/b032_black_1.jpg','assets/images/b032_black_2.jpg','assets/images/b032_black_3.jpg','assets/images/b032_black_4.jpg'],
+     colorOptions:[
+       {name:'ブラック', hex:'#2c2c2c', images:['assets/images/b032_black_1.jpg','assets/images/b032_black_2.jpg','assets/images/b032_black_3.jpg','assets/images/b032_black_4.jpg']},
+       {name:'カーキ', hex:'#8b7355', images:['assets/images/b032_khaki_1.jpg','assets/images/b032_khaki_2.jpg','assets/images/b032_khaki_3.jpg','assets/images/b032_khaki_4.jpg']},
+       {name:'ミリタリーグリーン', hex:'#4a5e3a', images:['assets/images/b032_green_1.jpg','assets/images/b032_green_2.jpg','assets/images/b032_green_3.jpg','assets/images/b032_green_4.jpg']}
+     ],
+     colors:['#2c2c2c','#8b7355','#4a5e3a'],
+     sizes:['FREE'],stock:300,moq:3,
+     desc:'工場・建設現場向け多機能腰ベルト。丈夫なオックスフォード布本体と樹脂バックル採用。調節可能で幅広い体型に対応。',
+     specs:'素材：本体オックスフォード布 / バックル：樹脂 / 本体サイズ：69〜139cm×5cm / バックル：7cm×6cm / 重量：172g / 産地：中国'},
 
-    {id:'B033',name:'保護メガネ 防曇加工',price:1540,
+    {id:'B037',name:'企業向けポロシャツ（カスタム）',price:0,madeToOrder:true,
      category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b033'),colors:['#f5f5f5'],sizes:['FREE'],stock:120,moq:2,
-     desc:'防曇コーティング済みの安全保護メガネ。JIS T8147認証品。',
-     specs:'規格：JIS T8147 / レンズ：PC防曇加工 / フレーム：ナイロン / 重量：32g'},
+     images:['assets/images/b037_black_1.jpg','assets/images/b037_black_2.jpg'],
+     colorOptions:[
+       {name:'ブラック', hex:'#2c2c2c', images:['assets/images/b037_black_1.jpg','assets/images/b037_black_2.jpg']},
+       {name:'ネイビー', hex:'#1a3a6b', images:['assets/images/b037_navy_1.jpg','assets/images/b037_navy_2.jpg']}
+     ],
+     colors:['#2c2c2c','#1a3a6b'],
+     sizes:['S','M','L','XL','2XL','3XL','4XL','5XL','6XL','7XL'],stock:999,moq:10,
+     desc:'企業・工場向けカスタムポロシャツ。100%綿素材で透気・快適・伸縮性あり。ロゴ印刷4種工艺対応：シルクスクリーン印刷・刺繍・デジタルダイレクト印刷・ホットプレス転写。胸ポケット付き。受注生産品のため価格はお問い合わせください。',
+     specs:'素材：綿100% / 産地：中国 / ロゴ加工：シルクスクリーン印刷・刺繍・デジタルダイレクト印刷・ホットプレス転写 / サイズ：S〜7XL / S(胸囲46/丈64/肩40.5/袖18.4cm 推奨150-155cm) / M(胸囲48/丈66/肩42/袖19cm 推奨155-160cm) / L(胸囲50/丈68/肩43/袖19.7cm 推奨160-165cm) / XL(胸囲52/丈70/肩44/袖20.3cm 推奨165-170cm) / 2XL(胸囲54/丈72/肩45.5/袖21cm 推奨170-175cm) / 3XL(胸囲56/丈74/肩47/袖21.6cm 推奨175-180cm) / 4XL(胸囲58/丈76/肩48/袖22.3cm 推奨180-185cm) / 5XL(胸囲60/丈78/肩49/袖22.9cm 推奨185-190cm) / 6XL(胸囲62/丈80/肩50.5/袖23.6cm 推奨190-195cm) / 7XL(胸囲64/丈82/肩52/袖24.2cm 推奨195-200cm)'},
 
-    {id:'B034',name:'産業用ヘルメット',price:3300,
+    {id:'B039',name:'薄手作業服セット（上下）',price:6999,
      category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b034'),colors:['#f5f5f5','#f6c90e','#1a3a6b','#8b0000'],sizes:['FREE'],stock:50,moq:1,
-     desc:'JIS T8131認証の産業用ヘルメット。内装は抗菌加工済み。',
-     specs:'規格：JIS T8131 / 素材：ABS樹脂 / 重量：420g / ハンモック：6点式 / サイズ：調節可能'},
+     images:['assets/images/b039_khaki_1.jpg','assets/images/b039_khaki_2.jpg','assets/images/b039_khaki_3.jpg','assets/images/b039_khaki_4.jpg','assets/images/b039_khaki_5.jpg','assets/images/b039_khaki_6.jpg','assets/images/b039_khaki_7.jpg','assets/images/b039_khaki_8.jpg','assets/images/b039_khaki_9.jpg'],
+     colorOptions:[
+       {name:'カーキ', hex:'#8b7355', images:['assets/images/b039_khaki_1.jpg','assets/images/b039_khaki_2.jpg','assets/images/b039_khaki_3.jpg','assets/images/b039_khaki_4.jpg','assets/images/b039_khaki_5.jpg','assets/images/b039_khaki_6.jpg','assets/images/b039_khaki_7.jpg','assets/images/b039_khaki_8.jpg','assets/images/b039_khaki_9.jpg']},
+       {name:'ネイビー', hex:'#1a3a6b', images:['assets/images/b039_navy_1.jpg','assets/images/b039_navy_2.jpg','assets/images/b039_navy_3.jpg','assets/images/b039_navy_4.jpg','assets/images/b039_navy_5.jpg','assets/images/b039_navy_6.jpg','assets/images/b039_navy_7.jpg','assets/images/b039_navy_8.jpg','assets/images/b039_navy_9.jpg']}
+     ],
+     colors:['#8b7355','#1a3a6b'],
+     sizes:['165','170','175','180','185','190','195'],stock:200,moq:5,
+     desc:'薄手耐摩耗性溶接作業服セット（上下）。加裆加固・高反射テープ付きで安全性抜群。吸汗速乾・耐摩耗・防汚・耐熱・柔軟肌触り。胸口ジッパーポケット（ペン収納可）。',
+     specs:'素材：コットン / スタイル：上下セット / 産地：中国 / サイズ：165(身長160-166cm 胸囲106cm) / 170(身長167-172cm 胸囲110cm) / 175(身長173-177cm 胸囲114cm) / 180(身長178-180cm 胸囲118cm) / 185(身長180-185cm 胸囲122cm) / 190(身長185-190cm 胸囲126cm) / 195(身長190-193cm 胸囲130cm)'},
 
-    {id:'B035',name:'安全靴 鋼製先芯 JIS規格',price:8800,
+    {id:'B040',name:'反射ベスト 高視認性',price:1499,
      category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b035'),colors:['#2c2c2c'],sizes:['24.5','25','25.5','26','26.5','27','27.5','28'],stock:30,moq:1,
-     desc:'鋼製先芯入りの安全靴。JIS T8101認証。滑りにくいソール採用。',
-     specs:'規格：JIS T8101 / 先芯：鋼製 / ソール：耐油・耐滑 / アッパー：牛革'},
-
-    {id:'B036',name:'N95防塵マスク 10枚入',price:1980,
-     category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b036'),colors:['#f5f5f5'],sizes:['FREE'],stock:200,moq:5,
-     desc:'NIOSH認証N95規格マスク。微粒子を95%以上カット。',
-     specs:'規格：N95 / フィルター効率：95%以上 / タイプ：カップ型 / 枚数：10枚入'},
-
-    {id:'B037',name:'耳栓 SNR33dB 50ペア',price:2750,
-     category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b037'),colors:['#ff7070'],sizes:['FREE'],stock:80,moq:3,
-     desc:'遮音値SNR33dBの高性能耳栓。ポリウレタンフォーム製で快適装着。',
-     specs:'遮音値：SNR33dB / 素材：ポリウレタン / 入数：50ペア / 収納：ディスペンサーボックス'},
-
-    {id:'B038',name:'フルボディハーネス 墜落制止用',price:22000,
-     category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b038'),colors:['#ff7f00'],sizes:['M','L'],stock:5,moq:1,
-     desc:'新規格対応（2022年）フルボディハーネス型墜落制止用具。',
-     specs:'規格：新規格(2022年) / 適用身長：155-185cm / 耐荷重：100kg / サイズ：M/L'},
-
-    {id:'B039',name:'長袖作業着 上下セット',price:6600,
-     category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b039'),colors:['#1a3a6b','#2c2c2c'],sizes:['S','M','L','LL','3L'],stock:40,moq:1,
-     desc:'帯電防止加工を施した作業着セット。耐久性と動きやすさを両立。',
-     specs:'素材：ポリエステル65%・綿35% / 帯電防止：JIS T8118 / サイズ：S〜3L'},
-
-    {id:'B040',name:'防水エプロン 業務用',price:2860,
-     category:'safety-workwear',parentCat:'for-business',
-     images:imgs('b040'),colors:['#2c2c2c','#1a3a6b'],sizes:['FREE'],stock:60,moq:1,
-     desc:'厚手PVC製の防水エプロン。食品・化学・製造業に。',
-     specs:'素材：PVC / サイズ：W600×H900mm / 厚み：0.5mm / 機能：耐水・耐酸・耐アルカリ'},
+     images:['assets/images/b040_yellow_1.jpg','assets/images/b040_yellow_2.jpg','assets/images/b040_yellow_3.jpg','assets/images/b040_yellow_4.jpg','assets/images/b040_yellow_5.jpg','assets/images/b040_yellow_6.jpg','assets/images/b040_yellow_7.jpg'],
+     colorOptions:[
+       {name:'蛍光イエロー', hex:'#f6c90e', images:['assets/images/b040_yellow_1.jpg','assets/images/b040_yellow_2.jpg','assets/images/b040_yellow_3.jpg','assets/images/b040_yellow_4.jpg','assets/images/b040_yellow_5.jpg','assets/images/b040_yellow_6.jpg','assets/images/b040_yellow_7.jpg']},
+       {name:'グレー', hex:'#808080', images:['assets/images/b040_gray_1.jpg','assets/images/b040_gray_2.jpg','assets/images/b040_gray_3.jpg','assets/images/b040_gray_4.jpg','assets/images/b040_gray_5.jpg','assets/images/b040_gray_6.jpg','assets/images/b040_gray_7.jpg']},
+       {name:'オレンジ', hex:'#ff7f00', images:['assets/images/b040_orange_1.jpg','assets/images/b040_orange_2.jpg','assets/images/b040_orange_3.jpg','assets/images/b040_orange_4.jpg','assets/images/b040_orange_5.jpg','assets/images/b040_orange_6.jpg','assets/images/b040_orange_7.jpg']}
+     ],
+     colors:['#f6c90e','#808080','#ff7f00'],
+     sizes:['L','XL','XXL','XXXL'],stock:200,moq:5,
+     desc:'反射ベスト ポケット付き。施工・環衛・園林・建築・夜間交通誘導に対応。ナイロン120g針布素材で軽量丈夫。高反射テープで夜間視認性を確保。',
+     specs:'素材：ナイロン120g針布 / 産地：中国 / L(胸囲56cm 丈67cm 体重100斤以下) / XL(胸囲58cm 丈68cm 体重100-170斤) / XXL(胸囲60cm 丈70cm) / XXXL(胸囲64cm 丈70cm 体重200斤以上)'},
 
     // ══════════════════════════════════════════════════════
     // FOR LIFE — Home & Living / 生活雑貨
