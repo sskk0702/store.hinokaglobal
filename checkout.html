@@ -1146,6 +1146,65 @@
     }
     initDiscounts();
 
+    // ════════════════════════════════
+    //  ログインしていない場合は割引（クーポン・ポイント・残高）を完全に無効化
+    // ════════════════════════════════
+    (function gateDiscountsByLogin() {
+      var section = document.getElementById('discountSection');
+      if (!section) return;
+
+      function setLoggedOutState() {
+        // 適用済みの割引をすべて解除
+        appliedCoupon = null;
+        appliedPoints = 0;
+        useBalance = false;
+        var sel = document.getElementById('couponSelect');
+        if (sel) sel.value = '';
+        var ptsIn = document.getElementById('pointsInput');
+        if (ptsIn) ptsIn.value = '';
+        var balChk = document.getElementById('balanceUseChk');
+        if (balChk) balChk.checked = false;
+        var couponApplied = document.getElementById('couponApplied');
+        if (couponApplied) couponApplied.style.display = 'none';
+        var couponInput = document.getElementById('couponInput');
+        if (couponInput) couponInput.style.display = '';
+
+        // セクションを操作不可にしてオーバーレイ表示
+        section.style.position = 'relative';
+        section.querySelectorAll('select, input, button').forEach(function(elm){ elm.disabled = true; });
+        if (!document.getElementById('discountLoginOverlay')) {
+          var ov = document.createElement('div');
+          ov.id = 'discountLoginOverlay';
+          ov.style.cssText = 'position:absolute;inset:0;background:rgba(253,248,240,0.82);backdrop-filter:blur(2px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:2px;z-index:5;text-align:center;padding:20px;';
+          ov.innerHTML = '<span style="font-size:22px;">🔒</span>'
+            + '<p style="font-size:12px;color:#2a1c0e;letter-spacing:0.04em;line-height:1.7;">クーポン・ポイント・残高のご利用には<br>ログインが必要です</p>'
+            + '<a href="account.html" style="margin-top:6px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#2a1c0e,#1a1208);color:#e8d5a8;font-size:11px;letter-spacing:0.18em;border-radius:2px;text-decoration:none;">ログインする</a>';
+          section.appendChild(ov);
+        } else {
+          document.getElementById('discountLoginOverlay').style.display = 'flex';
+        }
+        renderSummary();
+      }
+
+      function setLoggedInState() {
+        section.querySelectorAll('select, input, button').forEach(function(elm){ elm.disabled = false; });
+        var ov = document.getElementById('discountLoginOverlay');
+        if (ov) ov.style.display = 'none';
+        // クーポンが0枚のときの無効化は元の挙動を尊重
+        var sel = document.getElementById('couponSelect');
+        if (sel && sel.options.length <= 1) { sel.disabled = true; sel.options[0].textContent = 'クーポンなし'; }
+      }
+
+      // デフォルトはログアウト状態として扱い、認証確認後に解放（未ログインでの利用を完全に防止）
+      setLoggedOutState();
+      if (window.firebase && firebase.auth) {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) setLoggedInState();
+          else setLoggedOutState();
+        });
+      }
+    })();
+
     // 未受取クーポンバナー表示
     (function() {
       var all = [];
