@@ -10,8 +10,9 @@
     body { padding-top: var(--nav-height); }
 
     .page-header {
-      padding: 40px 48px 28px;
+      padding: 28px 48px 20px;
       border-bottom: 1px solid var(--gray-light);
+      background: linear-gradient(135deg, rgba(201,169,110,0.06) 0%, transparent 60%);
     }
     .footer-shipping-badge {
   font-size: 8px;
@@ -20,19 +21,31 @@
   margin-top: 4px;
   line-height: 1.5;
 }
+    /* ── パンくずリスト ── */
     .breadcrumb {
-      font-size: 11px; letter-spacing: 0.1em;
-      color: var(--gray-dark); margin-bottom: 10px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: #999; margin-bottom: 10px;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
     }
-    .breadcrumb a { color: var(--gray-dark); }
-    .breadcrumb span { margin: 0 8px; }
+    .breadcrumb a {
+      color: #888;
+      text-decoration: none;
+      transition: color 0.2s;
+      padding: 2px 0;
+    }
+    .breadcrumb a:hover { color: #2a1c0e; text-decoration: underline; }
+    .breadcrumb .bc-sep { margin: 0 6px; color: #ccc; }
+    .breadcrumb .bc-current { color: #2a1c0e; font-weight: 500; }
+
     .page-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 28px; font-weight: 400; letter-spacing: 0.15em;
+      font-size: 26px; font-weight: 400; letter-spacing: 0.15em;
+      color: #1a1a1a;
     }
 
     .products-section {
-      padding: 48px;
+      padding: 28px 48px 64px;
       background-color: #f9f6f1;
       background-image: radial-gradient(circle, rgba(184,169,138,0.12) 1px, transparent 1px);
       background-size: 28px 28px;
@@ -49,7 +62,7 @@
     .product-image-wrapper {
       position: relative; overflow: hidden;
       aspect-ratio: 3/4;
-      background: var(--gray-light); margin-bottom: 14px;
+      background: #f5ead8; margin-bottom: 14px;
     }
     .product-image-wrapper img {
       position: absolute; inset: 0;
@@ -83,13 +96,6 @@
     .stock-low      { background: #fff8e1; color: #f57f17; }
     .stock-critical { background: #fbe9e7; color: #bf360c; }
     .stock-none     { background: #f5f5f5; color: #9e9e9e; }
-
-    .back-nav {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px; letter-spacing: 0.1em; color: var(--gray-dark);
-      margin-bottom: 12px; transition: color var(--transition);
-    }
-    .back-nav:hover { color: var(--black); }
 
     .subcat-tabs {
       display: flex; flex-wrap: wrap; gap: 8px;
@@ -126,22 +132,23 @@
 
     @media (max-width: 1024px) { .products-grid { grid-template-columns: repeat(3,1fr); } }
     @media (max-width: 768px) {
-      .products-section { padding: 24px 16px; }
-      .page-header { padding: 24px 16px 20px; }
-      .products-grid { grid-template-columns: repeat(2,1fr); gap: 16px 12px; }
+      .products-section { padding: 16px 12px 48px; }
+      .page-header { padding: 18px 16px 14px; }
+      .products-grid { grid-template-columns: repeat(2,1fr); gap: 16px 10px; }
+      .page-title { font-size: 20px; }
     }
   </style>
 </head>
 <body>
 
   <div class="page-header">
-    <a class="back-nav" id="backNav" href="store.html">← 戻る</a>
-    <p class="breadcrumb">
-      <a href="store.html">HOME</a><span>/</span>
-      <a href="#" id="breadcrumbParent" style="display:none;color:var(--gray-dark)"></a>
-      <span id="breadcrumbSep" style="display:none;margin:0 8px;">/</span>
-      <span id="breadcrumbCat">商品一覧</span>
-    </p>
+    <nav class="breadcrumb" id="breadcrumbNav">
+      <a href="store.html">HOME</a>
+      <span class="bc-sep">/</span>
+      <a href="#" id="breadcrumbParent" style="display:none;"></a>
+      <span class="bc-sep" id="breadcrumbSep" style="display:none;"></span>
+      <span class="bc-current" id="breadcrumbCat">商品一覧</span>
+    </nav>
     <h1 class="page-title" id="pageTitle">すべての商品</h1>
     <div class="subcat-tabs" id="subcatTabs"></div>
   </div>
@@ -233,7 +240,6 @@
     const parentCatEl  = document.getElementById('breadcrumbParent');
     const sepEl        = document.getElementById('breadcrumbSep');
     const catEl        = document.getElementById('breadcrumbCat');
-    const backNavEl    = document.getElementById('backNav');
 
     if (PARENT_CAT[cat]) {
       const parentKey = PARENT_CAT[cat];
@@ -241,11 +247,9 @@
       parentCatEl.href = `product-list.html?category=${parentKey}`;
       parentCatEl.style.display = '';
       sepEl.style.display = '';
-      backNavEl.href = `product-list.html?category=${parentKey}`;
       catEl.textContent = CAT_NAMES[cat] || cat;
     } else if (cat) {
       catEl.textContent = CAT_NAMES[cat] || cat;
-      backNavEl.href = 'store.html';
     } else {
       catEl.textContent = query ? `"${query}" の検索結果` : 'すべての商品';
     }
