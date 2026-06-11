@@ -38,6 +38,9 @@ body {
   background-size: 60px 60px;
   min-height: 100vh;
   overflow-x: hidden;
+  /* フッターを常に画面下端に固定（コンテンツが短いページでも余白が出ないように） */
+  display: flex;
+  flex-direction: column;
 }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
@@ -490,7 +493,9 @@ img { display: block; max-width: 100%; }
 .store-footer {
   background: linear-gradient(160deg, #1a1208 0%, #2a1c0e 50%, #1a1208 100%);
   color: rgba(247,244,240,0.6);
-  padding: 60px 48px 32px; margin-top: 80px;
+  padding: 60px 48px 32px;
+  /* コンテンツが短いページでもフッターが画面下端に張り付く */
+  margin-top: auto;
   border-top: 1px solid rgba(201,169,110,0.2);
 }
 .store-footer-grid {
@@ -540,7 +545,7 @@ img { display: block; max-width: 100%; }
   #main-nav { padding: 0 16px; }
   .nav-logo  { font-size: 17px; letter-spacing: 0.2em; }
   .nav-right { gap: 12px; }
-  .store-footer { padding: 40px 18px 24px; margin-top: 48px; }
+  .store-footer { padding: 40px 18px 24px; }
   .store-footer-grid { grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
   .footer-shipping-badge { display: none; }
 }
