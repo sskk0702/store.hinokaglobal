@@ -862,11 +862,13 @@
           }
           const el = document.createElement('div');
           el.className = 'cart-sidebar-item';
+          const detailUrl = `product-detail.html?id=${item.id}`;
           el.innerHTML = `
             <img src="${itemImg}" alt="${item.name}"
+                 onclick="location.href='${detailUrl}'"
                  onerror="this.src='assets/images/placeholder.jpg'">
             <div class="cart-sidebar-item-info">
-              <div class="cart-sidebar-item-name">${item.name}</div>
+              <div class="cart-sidebar-item-name" onclick="location.href='${detailUrl}'">${item.name}</div>
               <div class="cart-sidebar-item-opts">${item.colorName && item.colorName !== item.color ? `カラー：${item.colorName}` : ''}${item.size ? `　サイズ：${item.size}` : ''}</div>
               <div class="sidebar-item-qty">
                 <button class="sidebar-qty-btn" data-action="dec" data-idx="${idx}">−</button>
