@@ -36,7 +36,7 @@
 
     .product-layout {
       display: grid;
-      grid-template-columns: 55% 45%;
+      grid-template-columns: 48% 52%;
       min-height: calc(100vh - var(--nav-height));
     }
 
@@ -52,6 +52,7 @@
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
+      max-height: calc(100vh - var(--nav-height) - 88px);
       overflow: hidden;
       background: #f9f6f1;
     }
@@ -356,11 +357,13 @@
             <span>配送について</span><span class="accordion-icon">+</span>
           </div>
           <div class="accordion-body">
-            通常送料：<strong>550円（税込）</strong><br>
-            ※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。<br><br>
-            配送方法：標準配送のみ（月〜金 8:00〜17:00）<br>
-            最短お届け：ご注文日の翌々日（一部受注品はお時間をいただく場合がございます）<br>
-            配送エリア：日本国内のみ
+            <table class="spec-table"><tbody>
+              <tr><th>通常送料</th><td><strong>550円（税込）</strong></td></tr>
+              <tr><th>配送方法</th><td>標準配送のみ（月〜金 8:00〜17:00）</td></tr>
+              <tr><th>最短お届け</th><td>ご注文日の翌々日<br><span style="font-size:11px;color:#888;">※受注品はお時間をいただく場合があります</span></td></tr>
+              <tr><th>配送エリア</th><td>日本国内のみ</td></tr>
+            </tbody></table>
+            <p style="font-size:11px;color:#999;margin-top:8px;line-height:1.8;">※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。</p>
           </div>
         </div>
         <div class="accordion-item">
@@ -368,8 +371,15 @@
             <span>返品について</span><span class="accordion-icon">+</span>
           </div>
           <div class="accordion-body">
-            お受け取りから7日以内にお申し込みください。<br><br>
-            以下の商品は返品・交換不可：カスタマイズ商品 / 香水・フレグランス（ディフューザー含む）/ 開封済み衛生用品 / セール品・返品不可と記載された商品
+            <table class="spec-table"><tbody>
+              <tr><th>申込期限</th><td>お受け取りから7日以内</td></tr>
+              <tr><th>返品・交換不可</th><td>
+                カスタマイズ商品<br>
+                香水・フレグランス（ディフューザー含む）<br>
+                開封済み衛生用品<br>
+                セール品・返品不可と記載された商品
+              </td></tr>
+            </tbody></table>
           </div>
         </div>
       </div>
@@ -686,8 +696,16 @@
 
     function goTo(index) {
       galleryMain.querySelectorAll('img').forEach((img, i) => img.classList.toggle('active', i === index));
-      galleryThumbs.querySelectorAll('img').forEach((t, i) => t.classList.toggle('active', i === index));
+      const thumbImgs = galleryThumbs.querySelectorAll('img');
+      thumbImgs.forEach((t, i) => t.classList.toggle('active', i === index));
       currentImg = index;
+      // サムネイルを現在位置にスクロール
+      if (thumbImgs[index]) {
+        const t = thumbImgs[index];
+        const container = galleryThumbs;
+        const targetLeft = t.offsetLeft - container.offsetWidth / 2 + t.offsetWidth / 2;
+        container.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      }
     }
 
     document.getElementById('galleryPrev').addEventListener('click', () => goTo((currentImg - 1 + product.images.length) % product.images.length));
@@ -832,10 +850,20 @@
         items.forEach((item, idx) => {
           const lineTotal = item.price * (item.qty || 1);
           subtotal += lineTotal;
+          // カラーに対応した画像を取得
+          const allProds = window.HINOKA_PRODUCTS || [];
+          const pd = allProds.find(p => p.id === item.id);
+          let itemImg = item.img || 'assets/images/placeholder.jpg';
+          if (pd && pd.images && pd.colorOptions) {
+            const co = pd.colorOptions.find(c => c.hex === item.color);
+            if (co && typeof co.imgIndex === 'number' && pd.images[co.imgIndex]) {
+              itemImg = pd.images[co.imgIndex];
+            }
+          }
           const el = document.createElement('div');
           el.className = 'cart-sidebar-item';
           el.innerHTML = `
-            <img src="${item.img || 'assets/images/placeholder.jpg'}" alt="${item.name}"
+            <img src="${itemImg}" alt="${item.name}"
                  onerror="this.src='assets/images/placeholder.jpg'">
             <div class="cart-sidebar-item-info">
               <div class="cart-sidebar-item-name">${item.name}</div>
@@ -882,13 +910,11 @@
       renderSidebar();
       document.getElementById('cartSidebar').classList.add('open');
       document.getElementById('cartSidebarOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
     }
 
     function closeCartSidebar() {
       document.getElementById('cartSidebar').classList.remove('open');
       document.getElementById('cartSidebarOverlay').classList.remove('open');
-      document.body.style.overflow = '';
     }
 
     document.getElementById('cartSidebarClose').addEventListener('click', closeCartSidebar);
