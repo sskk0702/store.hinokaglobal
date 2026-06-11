@@ -649,7 +649,14 @@
           '</tbody></table></div>';
       }
       if (!html && product.specs) {
-        html = product.specs.split('/').map(s => s.trim()).join('<br>');
+        // 旧文字列形式「キー：値 / キー：値」をテーブルに変換（全商品で統一フォーマット）
+        const pairs = product.specs.split(' / ').map(s => s.trim()).filter(Boolean);
+        const rows = pairs.map(p => {
+          const ci = p.indexOf('：');
+          if (ci > 0) return `<tr><th>${p.slice(0, ci)}</th><td>${p.slice(ci + 1)}</td></tr>`;
+          return `<tr><th colspan="2">${p}</th></tr>`;
+        }).join('');
+        html = `<table class="spec-table"><tbody>${rows}</tbody></table>`;
       }
       el.innerHTML = html;
     })();
