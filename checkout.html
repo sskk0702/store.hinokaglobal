@@ -795,6 +795,7 @@
   </footer>
 
   <script src="js/nav.js"></script>
+  <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -1013,7 +1014,7 @@
         const el = document.createElement('div');
         el.className = 'summary-item';
         el.innerHTML = `
-          <img src="${item.img || 'assets/images/placeholder.jpg'}" alt="${item.name}"
+          <img src="${(function(){ const allP=window.HINOKA_PRODUCTS||[]; const pd=allP.find(p=>p.id===item.id); if(pd&&pd.colorOptions&&pd.images){const co=pd.colorOptions.find(c=>c.hex===item.color); if(co&&typeof co.imgIndex==='number'&&pd.images[co.imgIndex])return pd.images[co.imgIndex];} return item.img||'assets/images/placeholder.jpg'; })()}" alt="${item.name}"
                onerror="this.src='assets/images/placeholder.jpg'">
           <div class="summary-item-info">
             <p class="summary-item-name">${item.name}</p>
