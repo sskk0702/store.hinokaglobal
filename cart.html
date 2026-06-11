@@ -23,117 +23,132 @@
       --ca-shadow:    0 4px 24px rgba(139,111,71,0.10), 0 1px 4px rgba(0,0,0,0.04);
     }
 
-    /* ── ページヘッダー ── */
+    /* ═══════════ ページヘッダー ═══════════ */
     .cart-header {
-      max-width: 1100px; margin: 0 auto;
-      padding: 28px 28px 0;
-      display: flex; align-items: baseline; gap: 16px;
+      max-width: 1200px; margin: 0 auto;
+      padding: 32px 40px 24px;
+      display: flex; align-items: center; gap: 20px;
+      border-bottom: 1px solid var(--ca-border2);
+      background: linear-gradient(135deg, rgba(201,169,110,0.06) 0%, transparent 60%);
     }
-    .cart-back {
-      font-size: 10px; letter-spacing: 0.14em; color: var(--ca-text-sub);
-      text-decoration: none; transition: color 0.2s;
-      display: inline-flex; align-items: center; gap: 5px;
-    }
-    .cart-back:hover { color: var(--ca-gold-dark); }
-    .cart-back svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
     .cart-header-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 15px; font-weight: 400; letter-spacing: 0.22em;
-      color: var(--ca-text); flex: 1;
+      font-size: 22px; font-weight: 400; letter-spacing: 0.25em;
+      color: var(--ca-text);
     }
     .cart-header-count {
-      font-size: 10px; letter-spacing: 0.1em;
+      font-size: 11px; letter-spacing: 0.1em;
       color: var(--ca-text-sub);
+      background: rgba(201,169,110,0.14);
+      padding: 3px 10px; border-radius: 12px;
     }
-    .cart-header-divider {
-      max-width: 1100px; margin: 14px 28px 0;
-      border: none; border-top: 1px solid var(--ca-border2);
+    .cart-header-back {
+      margin-left: auto;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--ca-text-sub); text-decoration: none;
+      transition: color 0.2s; display: flex; align-items: center; gap: 5px;
     }
+    .cart-header-back:hover { color: var(--ca-gold-dark); }
 
-    /* ── メインレイアウト ── */
+    /* ═══════════ メインレイアウト ═══════════ */
     .cart-page {
-      max-width: 1100px; margin: 0 auto;
-      padding: 28px 28px 100px;
+      max-width: 1200px; margin: 0 auto;
+      padding: 28px 40px 80px;
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 32px;
+      grid-template-columns: 1fr 360px;
+      gap: 36px;
       align-items: start;
     }
 
-    /* ── 商品アイテム ── */
+    /* ═══════════ 商品リスト ═══════════ */
+    /* PC: テーブル風ヘッダー行 */
+    .cart-list-header {
+      display: grid;
+      grid-template-columns: 120px 1fr 100px 120px 40px;
+      gap: 0;
+      padding: 0 20px 10px;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ca-text-sub); border-bottom: 1px solid var(--ca-border);
+    }
+    .cart-list-header span:nth-child(3),
+    .cart-list-header span:nth-child(4) { text-align: center; }
+
+    /* ═══════════ 商品アイテム ═══════════ */
     .cart-item {
       display: grid;
-      grid-template-columns: 88px 1fr;
-      gap: 18px;
-      padding: 18px 20px;
+      grid-template-columns: 120px 1fr 100px 120px 40px;
+      gap: 0;
+      align-items: center;
+      padding: 20px;
       background: var(--ca-ivory);
       border: 1px solid var(--ca-border);
-      box-shadow: var(--ca-shadow);
-      border-radius: 2px;
-      margin-bottom: 12px;
-      transition: box-shadow 0.2s;
+      border-top: none;
+      box-shadow: 0 2px 8px rgba(139,111,71,0.06);
+      transition: box-shadow 0.2s, background 0.2s;
       position: relative;
     }
-    .cart-item:hover { box-shadow: 0 8px 32px rgba(139,111,71,0.15), 0 1px 4px rgba(0,0,0,0.06); }
-    .cart-item::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-      width: 2px;
-      background: linear-gradient(180deg, var(--ca-gold), var(--ca-gold-dark));
-      opacity: 0; transition: opacity 0.2s;
-    }
-    .cart-item:hover::before { opacity: 1; }
+    .cart-item:first-of-type { border-top: 1px solid var(--ca-border); }
+    .cart-item:hover { background: #fff8f0; box-shadow: 0 4px 20px rgba(139,111,71,0.12); }
 
+    .cart-item-img-wrap { padding-right: 18px; }
     .cart-item-img {
-      width: 88px; aspect-ratio: 3/4;
-      object-fit: cover; background: var(--ca-ivory2);
+      width: 100%; aspect-ratio: 1/1;
+      object-fit: contain; background: #f5ead8;
       border: 1px solid var(--ca-border2);
+      display: block;
     }
 
-    .cart-item-body { display: flex; flex-direction: column; justify-content: space-between; }
+    .cart-item-body { padding-right: 20px; }
     .cart-item-name {
-      font-size: 12px; letter-spacing: 0.06em;
-      color: var(--ca-text); margin-bottom: 4px; line-height: 1.5;
+      font-size: 13px; letter-spacing: 0.04em;
+      color: var(--ca-text); margin-bottom: 6px; line-height: 1.5;
     }
     .cart-item-meta {
-      font-size: 10px; color: var(--ca-text-sub);
-      letter-spacing: 0.06em; margin-bottom: 10px;
-    }
-    .cart-item-footer {
-      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px; color: var(--ca-text-sub);
+      letter-spacing: 0.04em; line-height: 1.7;
     }
 
-    .qty-control { display: flex; align-items: center; gap: 2px; }
+    /* 数量列 */
+    .cart-item-qty-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .qty-control { display: flex; align-items: center; gap: 0; }
     .qty-btn {
-      width: 26px; height: 26px; font-size: 14px;
+      width: 28px; height: 28px; font-size: 15px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(201,169,110,0.12); border: 1px solid var(--ca-border2);
+      background: rgba(201,169,110,0.10); border: 1px solid var(--ca-border2);
       cursor: pointer; color: var(--ca-gold-dark); font-weight: 500;
       transition: background 0.18s, border-color 0.18s;
-      border-radius: 2px;
     }
     .qty-btn:hover { background: rgba(201,169,110,0.28); border-color: var(--ca-gold); }
     .qty-num {
-      width: 30px; text-align: center; font-size: 13px;
-      border: none; outline: none; font-family: inherit;
+      width: 36px; height: 28px; text-align: center; font-size: 13px;
+      border: 1px solid var(--ca-border2); border-left: none; border-right: none;
+      outline: none; font-family: inherit;
       background: none; color: var(--ca-text); font-weight: 500;
     }
 
+    /* 小計列 */
     .cart-item-price {
-      font-size: 13px; letter-spacing: 0.06em;
+      text-align: center;
+      font-size: 14px; letter-spacing: 0.04em;
       color: var(--ca-gold-dark); font-weight: 500;
       font-family: 'Cormorant Garamond', serif;
     }
 
+    /* 削除列 */
     .delete-btn {
-      position: absolute; top: 14px; right: 16px;
-      font-size: 16px; color: var(--ca-text-sub);
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; margin: 0 auto;
+      font-size: 18px; color: var(--ca-text-sub);
       cursor: pointer; background: none; border: none;
-      line-height: 1; transition: color 0.18s;
+      transition: color 0.18s, background 0.18s; border-radius: 50%;
     }
-    .delete-btn:hover { color: #c0392b; }
+    .delete-btn:hover { color: #c0392b; background: rgba(192,57,43,0.08); }
 
-    /* ── 空バッグ ── */
+    /* ─ 空バッグ ─ */
     .cart-empty {
+      grid-column: 1/-1;
       text-align: center; padding: 80px 0;
       background: var(--ca-ivory);
       border: 1px solid var(--ca-border);
@@ -151,7 +166,7 @@
     }
     .cart-empty a:hover { opacity: 0.82; }
 
-    /* ── 注文サマリー ── */
+    /* ═══════════ 注文サマリー ═══════════ */
     .cart-summary {
       background: var(--ca-ivory);
       border: 1px solid var(--ca-border);
@@ -214,7 +229,6 @@
     }
     .summary-notes p { margin-bottom: 2px; }
 
-    /* ── セキュリティバッジ ── */
     .summary-badge {
       display: flex; align-items: center; justify-content: center; gap: 5px;
       padding: 10px 24px;
@@ -222,11 +236,26 @@
       border-top: 1px solid var(--ca-border2);
     }
 
+    /* ═══════════ モバイル（768px以下） ═══════════ */
     @media (max-width: 768px) {
-      .cart-header { padding: 20px 16px 0; }
-      .cart-header-divider { margin: 12px 16px 0; }
-      .cart-page { grid-template-columns: 1fr; gap: 20px; padding: 20px 16px 60px; }
+      .cart-header { padding: 18px 16px 16px; }
+      .cart-header-back { display: none; }
+      .cart-page { grid-template-columns: 1fr; gap: 20px; padding: 16px 16px 60px; }
       .cart-summary { position: static; }
+      .cart-list-header { display: none; }
+      .cart-item {
+        grid-template-columns: 88px 1fr 32px;
+        grid-template-rows: auto auto;
+        padding: 14px 14px;
+        border-top: 1px solid var(--ca-border) !important;
+        margin-bottom: 8px;
+      }
+      .cart-item-img-wrap { grid-row: 1 / 3; padding-right: 14px; }
+      .cart-item-img { aspect-ratio: 1/1; }
+      .cart-item-body { grid-column: 2; grid-row: 1; padding-right: 0; }
+      .cart-item-qty-wrap { grid-column: 2; grid-row: 2; flex-direction: row; align-items: center; justify-content: space-between; padding-top: 8px; }
+      .cart-item-price { text-align: left; font-size: 14px; }
+      .delete-btn { grid-column: 3; grid-row: 1; align-self: start; margin: 0; width: 28px; height: 28px; font-size: 16px; }
     }
   </style>
 </head>
@@ -234,18 +263,21 @@
 
   <!-- ── ページヘッダー ── -->
   <div class="cart-header">
-    <a class="cart-back" href="store.html">
-      <svg viewBox="0 0 12 12"><polyline points="8,2 3,6 8,10"/></svg>
-      ← トップに戻る
-    </a>
-    <h1 class="cart-header-title">ショッピングバッグ</h1>
+    <h1 class="cart-header-title">Shopping Bag</h1>
     <span class="cart-header-count" id="cartCount"></span>
+    <a class="cart-header-back" href="store.html">← ショッピングを続ける</a>
   </div>
-  <hr class="cart-header-divider">
 
   <div class="cart-page">
     <!-- 左：商品リスト -->
     <div>
+      <div class="cart-list-header">
+        <span>商品</span>
+        <span></span>
+        <span>数量</span>
+        <span>小計</span>
+        <span></span>
+      </div>
       <div id="cartItems"></div>
     </div>
 
@@ -364,35 +396,42 @@
       items.forEach((item, index) => {
         subtotal += item.price * item.qty;
 
+        // カラーに対応した画像を取得
+        const allP = window.HINOKA_PRODUCTS || [];
+        const pd   = allP.find(p => p.id === item.id);
+        let itemImg = item.img || 'assets/images/placeholder.jpg';
+        if (pd && pd.images && pd.colorOptions) {
+          const co = pd.colorOptions.find(c => c.hex === item.color);
+          if (co && typeof co.imgIndex === 'number' && pd.images[co.imgIndex]) itemImg = pd.images[co.imgIndex];
+        }
+
         const el = document.createElement('div');
         el.className = 'cart-item';
         el.innerHTML = `
-          <a href="product-detail.html?id=${item.id}" style="display:block;flex-shrink:0;">
-            <img class="cart-item-img"
-                 src="${(function(){ const allP=window.HINOKA_PRODUCTS||[]; const pd=allP.find(p=>p.id===item.id); if(pd&&pd.colorOptions&&pd.images){const co=pd.colorOptions.find(c=>c.hex===item.color); if(co&&typeof co.imgIndex==='number'&&pd.images[co.imgIndex])return pd.images[co.imgIndex];} return item.img||'assets/images/placeholder.jpg'; })()}"
-                 alt="${item.name}"
-                 onerror="this.src='assets/images/placeholder.jpg'">
-          </a>
+          <div class="cart-item-img-wrap">
+            <a href="product-detail.html?id=${item.id}">
+              <img class="cart-item-img" src="${itemImg}" alt="${item.name}"
+                   onerror="this.src='assets/images/placeholder.jpg'">
+            </a>
+          </div>
           <div class="cart-item-body">
-            <div>
-              <a href="product-detail.html?id=${item.id}" style="text-decoration:none;">
-                <p class="cart-item-name">${item.name}</p>
-              </a>
-              <p class="cart-item-meta">
-                ${item.color ? `カラー：<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${item.color};vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,0.15)"></span>${item.colorName && item.colorName !== item.color ? item.colorName : ''}` : ''}
-                ${item.size  ? `　サイズ：${item.size}` : ''}
-                ${item.moq && item.moq > 1 ? `　<span style="color:#b08948;">MOQ：${item.moq}点〜</span>` : ''}
-              </p>
-            </div>
-            <div class="cart-item-footer">
-              <div class="qty-control">
-                <button class="qty-btn" data-action="dec" data-index="${index}">−</button>
-                <input class="qty-num" type="text" value="${item.qty}" readonly>
-                <button class="qty-btn" data-action="inc" data-index="${index}">+</button>
-              </div>
-              <span class="cart-item-price">¥${(item.price * item.qty).toLocaleString()}</span>
+            <a href="product-detail.html?id=${item.id}" style="text-decoration:none;">
+              <p class="cart-item-name">${item.name}</p>
+            </a>
+            <p class="cart-item-meta">
+              ${item.color ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${item.color};vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,0.12)"></span>${item.colorName && item.colorName !== item.color ? item.colorName : ''}<br>` : ''}
+              ${item.size  ? `サイズ：${item.size}` : ''}
+              ${item.moq && item.moq > 1 ? `<br><span style="color:#b08948;font-size:10px;">MOQ：${item.moq}点〜</span>` : ''}
+            </p>
+          </div>
+          <div class="cart-item-qty-wrap">
+            <div class="qty-control">
+              <button class="qty-btn" data-action="dec" data-index="${index}">−</button>
+              <input class="qty-num" type="text" value="${item.qty}" readonly>
+              <button class="qty-btn" data-action="inc" data-index="${index}">+</button>
             </div>
           </div>
+          <div class="cart-item-price">¥${(item.price * item.qty).toLocaleString()}</div>
           <button class="delete-btn" data-index="${index}" title="削除">×</button>
         `;
         container.appendChild(el);
