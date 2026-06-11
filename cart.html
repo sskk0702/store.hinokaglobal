@@ -322,6 +322,7 @@
   </footer>
 
   <script src="js/nav.js" charset="utf-8"></script>
+  <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -368,7 +369,7 @@
         el.innerHTML = `
           <a href="product-detail.html?id=${item.id}" style="display:block;flex-shrink:0;">
             <img class="cart-item-img"
-                 src="${item.img || 'assets/images/placeholder.jpg'}"
+                 src="${(function(){ const allP=window.HINOKA_PRODUCTS||[]; const pd=allP.find(p=>p.id===item.id); if(pd&&pd.colorOptions&&pd.images){const co=pd.colorOptions.find(c=>c.hex===item.color); if(co&&typeof co.imgIndex==='number'&&pd.images[co.imgIndex])return pd.images[co.imgIndex];} return item.img||'assets/images/placeholder.jpg'; })()}"
                  alt="${item.name}"
                  onerror="this.src='assets/images/placeholder.jpg'">
           </a>
