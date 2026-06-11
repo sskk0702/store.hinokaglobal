@@ -9,15 +9,25 @@
   <style>
     body { padding-top: var(--nav-height); }
 
+    /* ── パンくずリスト ── */
     .breadcrumb {
-      padding: 16px 48px;
+      padding: 14px 48px;
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: 13px; font-weight: 400;
-      letter-spacing: 0.04em;
-      color: #888;
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.06em;
+      color: #999;
       border-bottom: 1px solid var(--gray-light);
+      display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+      background: linear-gradient(135deg, rgba(201,169,110,0.05) 0%, transparent 60%);
     }
-    .breadcrumb #breadName { color: #1a1a1a; font-weight: 500; }
+    .breadcrumb a {
+      color: #888;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb a:hover { color: #2a1c0e; text-decoration: underline; }
+    .breadcrumb .bc-sep { margin: 0 6px; color: #ccc; }
+    .breadcrumb .bc-current { color: #2a1c0e; font-weight: 500; }
     .footer-shipping-badge {
   font-size: 8px;
   color: #777;
@@ -25,14 +35,6 @@
   margin-top: 4px;
   line-height: 1.5;
 }
-    /* ★ カテゴリーリンクをクリッカブルに */
-    .breadcrumb a {
-      color: var(--gray-dark);
-      transition: color var(--transition);
-      cursor: pointer;
-    }
-    .breadcrumb a:hover { color: var(--black); text-decoration: underline; }
-    .breadcrumb span { margin: 0 8px; }
 
     .product-layout {
       display: grid;
@@ -262,7 +264,7 @@
     }
 
     @media (max-width: 768px) {
-      .breadcrumb { padding: 12px 16px 10px; font-size: 12px; border-bottom: none; }
+      .breadcrumb { padding: 10px 14px 8px; font-size: 11px; border-bottom: none; }
       .product-layout { grid-template-columns: 1fr; }
       .product-gallery {
         position: relative;
@@ -300,13 +302,15 @@
 </head>
 <body>
 
-  <p class="breadcrumb" id="breadcrumb">
+  <nav class="breadcrumb" id="breadcrumb">
     <a href="store.html">HOME</a>
-    <span>/</span>
+    <span class="bc-sep">/</span>
+    <a href="#" id="breadParentLink" style="display:none;"></a>
+    <span class="bc-sep" id="breadParentSep" style="display:none;"></span>
     <a href="#" id="breadCatLink">カテゴリー</a>
-    <span>/</span>
-    <span id="breadName">商品名</span>
-  </p>
+    <span class="bc-sep">/</span>
+    <span class="bc-current" id="breadName">商品名</span>
+  </nav>
 
   <div class="product-layout">
     <!-- 左：ギャラリー -->
@@ -660,19 +664,28 @@
       el.innerHTML = html;
     })();
 
-    // ★ カテゴリーリンク
-    const catLink      = document.getElementById('productCategoryLink');
-    const breadCatLink = document.getElementById('breadCatLink');
-    const parentKey    = product.parentCat || PARENT_CAT[product.category] || product.category;
-    const catName      = CAT_NAMES[product.category] || product.category;
-    const parentName   = CAT_NAMES[parentKey] || parentKey;
-    const catUrl       = `product-list.html?category=${product.category}`;
-    const parentUrl    = `product-list.html?category=${parentKey}`;
+    // ★ カテゴリーリンク（パンくず）
+    const catLink        = document.getElementById('productCategoryLink');
+    const breadCatLink   = document.getElementById('breadCatLink');
+    const breadParentLink = document.getElementById('breadParentLink');
+    const breadParentSep  = document.getElementById('breadParentSep');
+    const parentKey      = product.parentCat || PARENT_CAT[product.category] || product.category;
+    const catName        = CAT_NAMES[product.category] || product.category;
+    const parentName     = CAT_NAMES[parentKey] || parentKey;
+    const catUrl         = `product-list.html?category=${product.category}`;
+    const parentUrl      = `product-list.html?category=${parentKey}`;
 
     catLink.textContent = `← ${catName}`;
     catLink.href        = catUrl;
-    breadCatLink.textContent = parentName;
-    breadCatLink.href        = parentUrl;
+    // パンくず：カテゴリーと親カテゴリーを別で表示
+    if (parentKey !== product.category) {
+      breadParentLink.textContent = parentName;
+      breadParentLink.href        = parentUrl;
+      breadParentLink.style.display = '';
+      breadParentSep.style.display  = '';
+    }
+    breadCatLink.textContent = catName;
+    breadCatLink.href        = catUrl;
 
     // ── ギャラリー ──
     const galleryMain   = document.getElementById('galleryMain');
