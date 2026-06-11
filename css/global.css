@@ -125,15 +125,8 @@ img { display: block; max-width: 100%; }
   background: var(--black); transition: var(--transition);
 }
 .nav-menu-label {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 9px; letter-spacing: 0.22em;
-  color: var(--black); opacity: 0;  /* ★ 通常は非表示 */
-  text-transform: uppercase;
-  transition: opacity 0.2s;
-  pointer-events: none;
+  display: none; /* PC端では非表示 */
 }
-.nav-left-wrap:hover .nav-menu-label,
-.nav-right-wrap:hover .nav-menu-label { opacity: 0.55; } /* ★ hover時のみ表示 */
 
 /* ── 中央 ── */
 .nav-center {
