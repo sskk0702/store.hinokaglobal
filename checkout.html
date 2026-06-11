@@ -1315,6 +1315,16 @@
         return;
       }
 
+      // MOQ（最低注文数量）チェック — 未満の商品があれば決済不可
+      const moqViolation = cart.find(item => item.moq && item.qty < item.moq);
+      if (moqViolation) {
+        const e = document.getElementById('form-error');
+        e.textContent = `「${moqViolation.name}」の最低注文数量（MOQ）は${moqViolation.moq}点です。カートで数量をご調整ください。`;
+        e.style.display = 'block';
+        e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       payBtn.disabled = true;
       payBtn.style.display = 'none';
       document.getElementById('pay-loading').style.display = 'block';
