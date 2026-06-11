@@ -380,6 +380,7 @@
               <p class="cart-item-meta">
                 ${item.color ? `カラー：<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${item.color};vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,0.15)"></span>${item.colorName && item.colorName !== item.color ? item.colorName : ''}` : ''}
                 ${item.size  ? `　サイズ：${item.size}` : ''}
+                ${item.moq && item.moq > 1 ? `　<span style="color:#b08948;">MOQ：${item.moq}点〜</span>` : ''}
               </p>
             </div>
             <div class="cart-item-footer">
@@ -401,10 +402,14 @@
         btn.addEventListener('click', () => {
           const items = loadCart();
           const i     = parseInt(btn.dataset.index);
+          const minQty = items[i].moq || 1;
           if (btn.dataset.action === 'inc') {
             items[i].qty++;
-          } else if (items[i].qty > 1) {
+          } else if (items[i].qty > minQty) {
             items[i].qty--;
+          } else {
+            alert(`この商品の最低注文数量（MOQ）は${minQty}点です。${minQty}点未満にはできません。`);
+            return;
           }
           saveCart(items);
           render();
