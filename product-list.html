@@ -293,13 +293,13 @@
       if (query) return list.filter(p => p.name.includes(query));
       if (currentSubcat) {
         const children = PARENT_MAP[currentSubcat] || [];
-        return list.filter(p => p.category === currentSubcat || children.includes(p.category));
-      }
-      if (cat) {
+        list = list.filter(p => p.category === currentSubcat || children.includes(p.category));
+      } else if (cat) {
         const children = PARENT_MAP[cat] || [];
-        return list.filter(p => p.category === cat || children.includes(p.category));
+        list = list.filter(p => p.category === cat || children.includes(p.category));
       }
-      return list;
+      // 在庫あり優先ソート
+      return list.sort((a, b) => (a.stock === 0 ? 1 : 0) - (b.stock === 0 ? 1 : 0));
     }
 
     const grid        = document.getElementById('productsGrid');
