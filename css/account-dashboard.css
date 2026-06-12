@@ -43,12 +43,13 @@ button { cursor: pointer; }
 .auth-tab { flex: 1; }
 .auth-tab.active, .tab-btn.active { color: #8b6f47; border-bottom-color: #c9a96e; font-weight: 600; }
 .auth-panel, .view-panel { display: none; }
-.auth-panel.active, .view-panel.active { display: block; }
+.auth-panel.active, .view-panel.active { display: block; width: 100%; }
 .auth-card, .side-panel, .summary-card, .section-block, .data-card, .order-card, .product-card, .message-row, .address-card, .review-card, .service-card, .coupon-card {
   background: rgba(255,255,255,0.78);
   border: 1px solid rgba(201,169,110,0.18);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  box-sizing: border-box;
 }
 .auth-card { padding: 32px; box-shadow: var(--shadow); }
 .form-label { display: block; margin: 16px 0 7px; color: var(--muted); font-size: 11px; letter-spacing: .12em; }
@@ -160,7 +161,7 @@ body.is-logged-out #accountShell { display: none !important; }
 .item-spec, .message-body, .address-detail, .review-body { color: var(--muted); font-size: 12px; line-height: 1.8; }
 .item-price { text-align: right; font-size: 12px; white-space: nowrap; }
 .order-total strong { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; }
-.product-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.product-grid { grid-template-columns: repeat(3,minmax(0,1fr)); width: 100%; }
 .product-card { overflow: hidden; }
 .product-img-wrap { aspect-ratio: 3/4; background: var(--soft); overflow: hidden; }
 .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -186,7 +187,7 @@ body.is-logged-out #accountShell { display: none !important; }
 .info-row { display: grid; grid-template-columns: 150px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); font-size: 12px; }
 .info-row:last-child { border-bottom: 0; }
 .info-label { color: var(--muted); }
-.empty { text-align: center; padding: 56px 20px; color: var(--muted); font-size: 13px; line-height: 1.9; border: 1px dashed var(--line); background: var(--soft); }
+.empty { text-align: center; padding: 56px 20px; color: var(--muted); font-size: 13px; line-height: 1.9; border: 1px dashed var(--line); background: var(--soft); grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
 .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 24px; font-size: 12px; letter-spacing: .06em; opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 9999; white-space: nowrap; }
 .toast.show { opacity: 1; }
 .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 9998; padding: 20px; }
