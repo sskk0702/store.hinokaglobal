@@ -582,12 +582,12 @@
 
         {id:'P009',name:'犬用レインコート（透明四脚防水）',price:3455,
      category:'dog',parentCat:'pet',
-     images:['assets/images/p009_1.jpg','assets/images/p009_2.jpg','assets/images/p009_3.jpg','assets/images/p009_4.jpg','assets/images/p009_5.jpg','assets/images/p009_6.jpg','assets/images/p009_7.jpg','assets/images/p009_8.jpg'],
+     images:['assets/images/p009_1.jpg','assets/images/p009_2.jpg','assets/images/p009_3.jpg','assets/images/p009_4.jpg','assets/images/p009_5.jpg'],
      colorOptions:[
        {name:'ブラック', hex:'#2c2c2c', imgIndex:0},
-       {name:'ピンク',   hex:'#ff91a4', imgIndex:2},
-       {name:'イエロー', hex:'#f6c90e', imgIndex:4},
-       {name:'ブルー',   hex:'#1a90d4', imgIndex:6}
+       {name:'ピンク',   hex:'#ff91a4', imgIndex:1},
+       {name:'イエロー', hex:'#f6c90e', imgIndex:2},
+       {name:'ブルー',   hex:'#1a90d4', imgIndex:3}
      ],
      colors:['#2c2c2c','#ff91a4','#f6c90e','#1a90d4'],
      sizes:['S','M','L','XL','XXL'],
@@ -615,8 +615,8 @@
 
         {id:'P010',name:'ペット外出用 登機キャリーバッグ',price:15400,
      category:'dog',parentCat:'pet',
-     images:['assets/images/p010_1.jpg','assets/images/p010_2.jpg','assets/images/p010_3.jpg','assets/images/p010_4.jpg'],
-     colorOptions:[
+     images:['assets/images/p010_1.jpg','assets/images/p010_2.jpg','assets/images/p010_3.jpg','assets/images/p010_4.jpg','assets/images/p010_5.jpg','assets/images/p010_6.jpg','assets/images/p010_7.jpg','assets/images/p010_8.jpg'],
+    colorOptions:[
        {name:'グレー', hex:'#808080', imgIndex:0},
        {name:'ブラウン', hex:'#8b4513', imgIndex:2}
      ],
@@ -759,7 +759,7 @@
      specs:'最大計量：30kg / 精度：±10g / 表示：LCD / 電源：単4×2本 / 天板：ペット用滑り止め'},
 
     // ── Pet — Toys / おもちゃ ──
-        {id:'P031',name:'クリスマス コーデュロイ ロープトイ（3款）',price:186000,
+        {id:'P031',name:'クリスマス コーデュロイ ロープトイ（3種）',price:186000,
      category:'pet-toys',parentCat:'pet',
      images:['assets/images/p031_1.jpg','assets/images/p031_2.jpg','assets/images/p031_3.jpg','assets/images/p031_4.jpg','assets/images/p031_5.jpg'],
      colorOptions:[
