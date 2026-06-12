@@ -173,6 +173,10 @@
       transition: background var(--transition); margin-bottom: 20px;
     }
     .add-to-cart-btn:hover { background: #333; }
+    .add-to-cart-btn:disabled {
+      background: #bbb; color: #fff; cursor: not-allowed;
+      letter-spacing: 0.25em;
+    }
 
     .product-desc {
       font-size: 13px; line-height: 2;
@@ -586,8 +590,13 @@
     if (!product) { document.location.href = 'store.html'; return; }
 
     // ── ページ情報セット ──
+    let currentPrice = product.price;
+    function updatePriceDisplay(p) {
+      currentPrice = p;
+      document.getElementById('productPrice').textContent = `¥${p.toLocaleString()}（税込）`;
+    }
     document.getElementById('productName').textContent  = product.name;
-    document.getElementById('productPrice').textContent = `¥${product.price.toLocaleString()}（税込）`;
+    updatePriceDisplay(product.price);
     document.getElementById('productDesc').textContent  = product.desc || '';
     document.getElementById('breadName').textContent    = product.name;
     document.title = `HINOKA | ${product.name}`;
@@ -631,9 +640,15 @@
       else if (s <= 10){ cls = 'stock-low';      label = `在庫少（残${s}点）`; }
       else             { cls = 'stock-ok';       label = '在庫あり'; }
       document.getElementById('stockInfo').innerHTML = `<span class="stock-info ${cls}">${label}</span>`;
-      if (s === 0) document.getElementById('addToCartBtn').disabled = true;
+      if (s === 0) {
+        const btn = document.getElementById('addToCartBtn');
+        btn.disabled = true;
+        btn.textContent = 'SOLD OUT';
+      }
     }
-    if (product.moq && product.moq > 1) {
+    if (product.moqNote) {
+      document.getElementById('moqInfo').innerHTML = `<p class="moq-note">${product.moqNote}</p>`;
+    } else if (product.moq && product.moq > 1) {
       document.getElementById('moqInfo').innerHTML = `<p class="moq-note">最低注文数量（MOQ）：${product.moq}点</p>`;
     }
 
@@ -810,6 +825,9 @@
         selectedSize = s;
         sizeContainer.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
+        if (product.priceBySize && product.priceBySize[s] !== undefined) {
+          updatePriceDisplay(product.priceBySize[s]);
+        }
       });
       sizeContainer.appendChild(btn);
     });
@@ -838,7 +856,7 @@
         if (existing) {
           existing.qty = Math.max(existing.qty + 1, moq);
         } else {
-          items.push({ id, name: product.name, price: product.price,
+          items.push({ id, name: product.name, price: currentPrice,
                        color: selectedColor, colorName: selectedColorName || selectedColor,
                        size: selectedSize, img: product.images[0], qty: moq, moq: moq });
         }
