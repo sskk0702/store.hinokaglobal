@@ -66,7 +66,10 @@
       '.quick-count{font-family:"Cormorant Garamond",serif;font-size:22px;color:#111;font-weight:600;}',
       /* ── データカード数値 小さく ── */
       '.data-value{font-family:"Cormorant Garamond",serif;font-size:22px!important;line-height:1;}',
-      '.data-label{color:var(--muted);font-size:10px;letter-spacing:.1em;margin-top:5px;}'
+      '.data-label{color:var(--muted);font-size:10px;letter-spacing:.1em;margin-top:5px;}',
+      /* ── モバイル対応 ── */
+      '@media(max-width:960px){.quick-grid{grid-template-columns:repeat(2,1fr)!important;}.member-benefit-grid{grid-template-columns:repeat(2,1fr)!important;}.hero-stats{grid-template-columns:repeat(3,1fr)!important;}.overview-hero{padding:20px 16px!important;}}',
+      '@media(max-width:640px){.quick-grid{grid-template-columns:repeat(2,1fr)!important;}.member-benefit-grid{grid-template-columns:repeat(2,1fr)!important;}.hero-info-name{font-size:18px!important;}}'
     ].join('');
     document.head.appendChild(s);
   })();
