@@ -33,7 +33,7 @@ button { cursor: pointer; }
 .spinner { width: 32px; height: 32px; margin: 0 auto 20px; border: 2px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.auth-wrap { max-width: 500px; margin: 56px auto; padding: 0 20px 80px; }
+.auth-wrap { width: 100%; min-width: 0; max-width: 500px; margin: 56px auto; padding: 0 20px 80px; }
 .account-title, .view-title, .section-title, .mini-title, .modal-title { font-family: 'Cormorant Garamond', serif; font-weight: 400; letter-spacing: .14em; }
 .account-title { font-size: 30px; text-align: center; margin: 0 0 8px; }
 .account-sub, .muted-copy, .view-desc { color: var(--muted); font-size: 12px; line-height: 1.8; }
@@ -83,7 +83,10 @@ button { cursor: pointer; }
 .msg-error { background: #fff3f2; border: 1px solid #efc5c0; color: var(--danger); }
 .msg-success { background: #f2fbf4; border: 1px solid #b8dfc1; color: var(--success); white-space: pre-line; }
 
-.account-shell { display: none; max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
+/* width:100% + min-width:0 は必須 — body が flex column のため、
+   これが無いと flex アイテムが内容の固有幅(〜1200px)まで広がり、
+   モバイルで「PC版のまま」に見えるバグになる */
+.account-shell { display: none; width: 100%; min-width: 0; max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
 /* ── 排他表示: ログイン状態でのみ対応セクションを表示 ── */
 body.is-logged-in  #authSection  { display: none !important; }
 body.is-logged-out #accountShell { display: none !important; }
