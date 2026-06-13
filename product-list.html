@@ -116,7 +116,7 @@
     }
 
     .sort-bar {
-      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 10px;
       margin-bottom: 24px;
       font-family: 'Noto Sans JP', sans-serif;
     }
@@ -124,32 +124,89 @@
       font-size: 10px; letter-spacing: 0.14em; color: #aaa;
       white-space: nowrap;
     }
-    .sort-group {
-      display: inline-flex;
+    .sort-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .sort-trigger {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px 8px 16px;
       border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid rgba(180,150,100,0.3);
-      box-shadow: 0 2px 8px rgba(160,130,80,0.1), inset 0 1px 0 rgba(255,255,255,0.7);
-      background: rgba(255,255,255,0.6);
-    }
-    .sort-btn {
-      padding: 7px 14px;
-      border: none;
-      border-right: 1px solid rgba(180,150,100,0.2);
-      background: transparent;
+      border: 1px solid rgba(180,150,100,0.35);
+      background: linear-gradient(160deg, #fff 0%, #fdf6ec 100%);
+      box-shadow: 0 2px 8px rgba(160,130,70,0.12), 0 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 0 rgba(180,140,80,0.08) inset;
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: 11px; letter-spacing: 0.05em;
-      color: #7a6540;
+      font-size: 11px; letter-spacing: 0.08em;
+      color: #6b5230;
       cursor: pointer;
-      transition: background 0.18s, color 0.18s;
+      transition: box-shadow 0.2s, background 0.2s;
       white-space: nowrap;
+      user-select: none;
     }
-    .sort-btn:last-child { border-right: none; }
-    .sort-btn:hover { background: rgba(201,169,110,0.12); color: #3a2800; }
-    .sort-btn.active {
-      background: linear-gradient(135deg, #c9a96e 0%, #b8943f 100%);
-      color: #fff;
+    .sort-trigger:hover {
+      background: linear-gradient(160deg, #fffaf2 0%, #f9edda 100%);
+      box-shadow: 0 4px 14px rgba(160,130,70,0.18), 0 1px 0 rgba(255,255,255,0.95) inset;
+    }
+    .sort-trigger .sort-caret {
+      width: 10px; height: 10px;
+      border-right: 1.5px solid #c9a96e;
+      border-bottom: 1.5px solid #c9a96e;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .sort-trigger.open .sort-caret { transform: rotate(225deg) translateY(-2px); }
+    .sort-menu {
+      display: none;
+      position: absolute; top: calc(100% + 8px); left: 0;
+      min-width: 160px;
+      background: #fff;
+      border: 1px solid rgba(180,150,100,0.2);
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(140,110,60,0.18), 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+      z-index: 100;
+      animation: sortMenuIn 0.18s ease;
+    }
+    @keyframes sortMenuIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .sort-menu.open { display: block; }
+    .sort-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px; letter-spacing: 0.06em;
+      color: #5a4520;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid rgba(201,169,110,0.08);
+    }
+    .sort-option:last-child { border-bottom: none; }
+    .sort-option:hover { background: rgba(201,169,110,0.1); }
+    .sort-option.active {
+      background: linear-gradient(90deg, rgba(201,169,110,0.15) 0%, transparent 100%);
+      color: #3a2000;
       font-weight: 500;
+    }
+    .sort-option .sort-check {
+      width: 14px; height: 14px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,169,110,0.4);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sort-option.active .sort-check {
+      background: linear-gradient(135deg, #c9a96e, #b8943f);
+      border-color: #b8943f;
+    }
+    .sort-option.active .sort-check::after {
+      content: ''; display: block;
+      width: 4px; height: 7px;
+      border-right: 1.5px solid #fff;
+      border-bottom: 1.5px solid #fff;
+      transform: rotate(40deg) translate(-1px, -1px);
     }
 
     .subcat-tabs {
@@ -209,12 +266,18 @@
   <section class="products-section">
     <div class="sort-bar" id="sortBar">
       <span class="sort-bar-label">並び替え</span>
-      <div class="sort-group">
-        <button class="sort-btn active" data-sort="recommend">おすすめ順</button>
-        <button class="sort-btn" data-sort="default">新着順</button>
-        <button class="sort-btn" data-sort="price-asc">価格 低↑</button>
-        <button class="sort-btn" data-sort="price-desc">価格 高↓</button>
-        <button class="sort-btn" data-sort="name">商品名順</button>
+      <div class="sort-dropdown" id="sortDropdown">
+        <div class="sort-trigger" id="sortTrigger">
+          <span id="sortLabel">おすすめ順</span>
+          <span class="sort-caret"></span>
+        </div>
+        <div class="sort-menu" id="sortMenu">
+          <div class="sort-option active" data-sort="recommend"><span class="sort-check"></span>おすすめ順</div>
+          <div class="sort-option" data-sort="default"><span class="sort-check"></span>新着順</div>
+          <div class="sort-option" data-sort="price-asc"><span class="sort-check"></span>価格：低い順</div>
+          <div class="sort-option" data-sort="price-desc"><span class="sort-check"></span>価格：高い順</div>
+          <div class="sort-option" data-sort="name"><span class="sort-check"></span>商品名順</div>
+        </div>
       </div>
     </div>
     <div class="products-grid" id="productsGrid"></div>
@@ -436,12 +499,31 @@
       loadMoreBtn.classList.toggle('hidden', displayCount >= products.length);
     }
 
-    document.querySelectorAll('.sort-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentSort = btn.dataset.sort;
+    const sortTrigger = document.getElementById('sortTrigger');
+    const sortMenu    = document.getElementById('sortMenu');
+    const sortLabel   = document.getElementById('sortLabel');
+
+    sortTrigger.addEventListener('click', e => {
+      e.stopPropagation();
+      sortMenu.classList.toggle('open');
+      sortTrigger.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+      sortMenu.classList.remove('open');
+      sortTrigger.classList.remove('open');
+    });
+
+    document.querySelectorAll('.sort-option').forEach(opt => {
+      opt.addEventListener('click', e => {
+        e.stopPropagation();
+        document.querySelectorAll('.sort-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        sortLabel.textContent = opt.textContent.trim();
+        currentSort = opt.dataset.sort;
         displayCount = BATCH;
+        sortMenu.classList.remove('open');
+        sortTrigger.classList.remove('open');
         renderProducts();
       });
     });
