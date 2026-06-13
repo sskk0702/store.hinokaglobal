@@ -110,7 +110,7 @@
     <button class="search-modal-close" id="closeSearchBtn" aria-label="閉じる">&times;</button>
     <div class="search-modal-inner">
       <p class="search-modal-label">Search</p>
-      <input type="text" id="searchInput" placeholder="キーワードを入力">
+      <input type="text" id="searchInput" placeholder="商品名・キーワードで検索">
     </div>
   </div>
 
