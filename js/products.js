@@ -582,12 +582,12 @@
 
         {id:'P009',name:'犬用レインコート（透明四脚防水）',price:3455,
      category:'dog',parentCat:'pet',
-     images:['assets/images/p009_1.jpg','assets/images/p009_2.jpg','assets/images/p009_3.jpg','assets/images/p009_4.jpg','assets/images/p009_5.jpg'],
+     images:['assets/images/p009_1.jpg','assets/images/p009_2.jpg','assets/images/p009_3.jpg','assets/images/p009_4.jpg','assets/images/p009_5.jpg','assets/images/p009_6.jpg','assets/images/p009_7.jpg','assets/images/p009_8.jpg'],
      colorOptions:[
        {name:'ブラック', hex:'#2c2c2c', imgIndex:0},
-       {name:'ピンク',   hex:'#ff91a4', imgIndex:1},
-       {name:'イエロー', hex:'#f6c90e', imgIndex:2},
-       {name:'ブルー',   hex:'#1a90d4', imgIndex:3}
+       {name:'ピンク',   hex:'#ff91a4', imgIndex:2},
+       {name:'イエロー', hex:'#f6c90e', imgIndex:4},
+       {name:'ブルー',   hex:'#1a90d4', imgIndex:6}
      ],
      colors:['#2c2c2c','#ff91a4','#f6c90e','#1a90d4'],
      sizes:['S','M','L','XL','XXL'],
@@ -615,8 +615,8 @@
 
         {id:'P010',name:'ペット外出用 登機キャリーバッグ',price:15400,
      category:'dog',parentCat:'pet',
-     images:['assets/images/p010_1.jpg','assets/images/p010_2.jpg','assets/images/p010_3.jpg','assets/images/p010_4.jpg','assets/images/p010_5.jpg','assets/images/p010_6.jpg','assets/images/p010_7.jpg','assets/images/p010_8.jpg'],
-    colorOptions:[
+     images:['assets/images/p010_1.jpg','assets/images/p010_2.jpg','assets/images/p010_3.jpg','assets/images/p010_4.jpg'],
+     colorOptions:[
        {name:'グレー', hex:'#808080', imgIndex:0},
        {name:'ブラウン', hex:'#8b4513', imgIndex:2}
      ],
@@ -759,7 +759,7 @@
      specs:'最大計量：30kg / 精度：±10g / 表示：LCD / 電源：単4×2本 / 天板：ペット用滑り止め'},
 
     // ── Pet — Toys / おもちゃ ──
-        {id:'P031',name:'クリスマス コーデュロイ ロープトイ（3種）',price:186000,
+        {id:'P031',name:'クリスマス コーデュロイ ロープトイ（3款）',price:186000,
      category:'pet-toys',parentCat:'pet',
      images:['assets/images/p031_1.jpg','assets/images/p031_2.jpg','assets/images/p031_3.jpg','assets/images/p031_4.jpg','assets/images/p031_5.jpg'],
      colorOptions:[
@@ -886,18 +886,18 @@
 
   // ── CAT_NAMES（カテゴリー名称マップ） ──
   window.HINOKA_CAT_NAMES = {
-    'for-business':'For Business', 'for-life':'For Life',
-    'home-living':'Home & Living', 'travel-outdoor':'Travel & Outdoor',
-    'office-supplies':'Office Supplies / オフィス用品',
-    'packaging':'Packaging Materials / 梱包資材',
-    'industrial':'Industrial Products / 工業用品',
-    'safety-workwear':'Safety & Workwear / 作業用品・安全用品',
-    pet:'Pet Supplies', dog:'Dog / 犬用品', cat:'Cat / 猫用品',
-    'pet-care':'Care / ケア用品', 'pet-toys':'Toys / おもちゃ',
-    featured:'Featured Collection',
-    'new-arrival':'New Arrival / 新商品', 'best-sellers':'Best Sellers / 人気商品',
-    'seasonal':'Seasonal Picks / 季節特集', 'recommended':'Recommended by Us / スタッフ厳選',
-    fashion:'ファッション', daily:'生活雑貨', kitchen:'Kitchen / キッチン用品',
+    'for-business':'ビジネス向け', 'for-life':'日用品',
+    'home-living':'生活雑貨', 'travel-outdoor':'トラベル用品',
+    'office-supplies':'オフィス用品',
+    'packaging':'梱包資材',
+    'industrial':'工業用品',
+    'safety-workwear':'作業用品・安全用品',
+    pet:'ペット用品', dog:'犬用品', cat:'猫用品',
+    'pet-care':'ケア用品', 'pet-toys':'おもちゃ',
+    featured:'特集コレクション',
+    'new-arrival':'新着商品', 'best-sellers':'人気商品',
+    'seasonal':'季節特集', 'recommended':'スタッフ厳選',
+    fashion:'ファッション', daily:'生活雑貨', kitchen:'キッチン用品',
     'dog-food':'ドッグフード', 'cat-food':'キャットフード',
     'pet-bed':'ベッド・ハウス', 'pet-collar':'首輪・リード',
     tops:'トップス', bottoms:'ボトムス', outer:'アウター',
