@@ -191,7 +191,12 @@
     .stock-low      { background: #fff8e1; color: #f57f17; }
     .stock-critical { background: #fbe9e7; color: #bf360c; }
     .stock-none     { background: #f5f5f5; color: #9e9e9e; }
-    .moq-note { font-size: 11px; color: var(--gray-dark); margin-bottom: 16px; letter-spacing: 0.05em; }
+    .moq-note {
+  font-size: 12px; color: #8b6f47; margin-bottom: 16px;
+  letter-spacing: 0.05em; padding: 8px 12px;
+  background: rgba(201,169,110,0.1); border-left: 3px solid #c9a96e;
+  border-radius: 0 4px 4px 0;
+}
 
     .info-accordion { border-top: 1px solid var(--gray-light); }
     .accordion-item { border-bottom: 1px solid var(--gray-light); }
@@ -324,16 +329,26 @@
 
     <!-- 右：商品情報 -->
     <div class="product-info">
+      <h1 class="product-name" id="productName"></h1>
+      <p class="product-price" id="productPrice"></p>
+
       <div class="product-info-top">
         <!-- ★ カテゴリーをリンクに変更 -->
         <button class="wish-btn" id="wishBtn" aria-label="ウィッシュリスト">
           <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
+        <button class="share-btn" id="shareBtn" aria-label="URLをコピー" title="URLをコピー" style="background:none;border:none;cursor:pointer;padding:4px;margin-left:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
       </div>
 
-      <h1 class="product-name" id="productName"></h1>
-      <p class="product-price" id="productPrice"></p>
       <hr class="divider">
+
+      <div id="stockInfo"></div>
+      <div id="moqInfo"></div>
 
       <p class="option-label">カラー</p>
       <div class="color-options" id="colorOptions"></div>
@@ -341,10 +356,16 @@
       <p class="option-label">サイズ</p>
       <div class="size-options" id="sizeOptions"></div>
 
-      <div id="stockInfo"></div>
-      <div id="moqInfo"></div>
+      <div style="margin-bottom:20px;">
+        <p class="option-label">数量</p>
+        <div style="display:flex;align-items:center;gap:0;width:120px;">
+          <button type="button" id="qtyDecBtn" style="width:36px;height:36px;border:1px solid #ccc;background:#f9f6f1;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
+          <input type="number" id="qtyInput" value="1" min="1" style="width:48px;height:36px;text-align:center;border:1px solid #ccc;border-left:none;border-right:none;font-size:14px;outline:none;">
+          <button type="button" id="qtyIncBtn" style="width:36px;height:36px;border:1px solid #ccc;background:#f9f6f1;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+      </div>
 
-      <button class="add-to-cart-btn" id="addToCartBtn">カートに追加する</button>
+      <button class="add-to-cart-btn" id="addToCartBtn">カートに入れる</button>
 
       <p class="product-desc" id="productDesc"></p>
 
@@ -389,11 +410,50 @@
     </div>
   </div>
 
+  <!-- ── カスタマーレビュー ── -->
+  <section class="reviews-section" id="reviewsSection" style="max-width:960px;margin:0 auto;padding:40px 48px 60px;">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;letter-spacing:0.12em;margin-bottom:8px;">カスタマーレビュー</h2>
+    <div id="reviewSummary" style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #ebe6dc;">
+      <div id="reviewAvgStars" style="font-size:28px;letter-spacing:0.05em;color:#c9a96e;"></div>
+      <div>
+        <div id="reviewAvgScore" style="font-family:'Cormorant Garamond',serif;font-size:36px;color:#2a1c0e;line-height:1;"></div>
+        <div id="reviewCount" style="font-size:11px;color:#888;margin-top:4px;letter-spacing:0.05em;"></div>
+      </div>
+    </div>
+    <div id="reviewList" style="display:grid;gap:16px;margin-bottom:32px;"></div>
+
+    <!-- レビュー投稿フォーム -->
+    <div id="reviewFormWrap" style="background:#faf7f2;border:1px solid rgba(201,169,110,0.2);padding:24px;border-radius:4px;">
+      <h3 style="font-size:13px;letter-spacing:0.1em;margin-bottom:16px;font-weight:500;">レビューを投稿する</h3>
+      <div id="reviewLoginNotice" style="display:none;font-size:12px;color:#888;padding:12px 0;">
+        <a href="account.html" style="color:#8b6f47;text-decoration:underline;">ログイン</a> するとレビューを投稿できます。
+      </div>
+      <div id="reviewFormInner">
+        <div style="margin-bottom:14px;">
+          <p style="font-size:11px;letter-spacing:0.1em;margin-bottom:8px;">評価</p>
+          <div id="starSelect" style="display:flex;gap:6px;font-size:28px;cursor:pointer;">
+            <span class="star-sel" data-v="1" style="color:#ddd;transition:color 0.15s;">★</span>
+            <span class="star-sel" data-v="2" style="color:#ddd;transition:color 0.15s;">★</span>
+            <span class="star-sel" data-v="3" style="color:#ddd;transition:color 0.15s;">★</span>
+            <span class="star-sel" data-v="4" style="color:#ddd;transition:color 0.15s;">★</span>
+            <span class="star-sel" data-v="5" style="color:#ddd;transition:color 0.15s;">★</span>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <p style="font-size:11px;letter-spacing:0.1em;margin-bottom:8px;">コメント</p>
+          <textarea id="reviewText" rows="3" placeholder="ご使用感やおすすめポイントをお聞かせください（任意）" style="width:100%;border:1px solid #ddd;padding:10px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;line-height:1.8;background:rgba(255,255,255,0.8);"></textarea>
+        </div>
+        <button id="reviewSubmitBtn" style="padding:11px 28px;background:#2a1c0e;color:#e8d5a8;font-size:11px;letter-spacing:0.18em;border:none;cursor:pointer;font-family:inherit;transition:opacity 0.2s;">投稿する</button>
+        <span id="reviewSubmitMsg" style="margin-left:14px;font-size:11px;color:#2e7d32;display:none;">✓ レビューを投稿しました</span>
+      </div>
+    </div>
+  </section>
+
   <!-- カートサイドバー -->
   <div class="cart-sidebar-overlay" id="cartSidebarOverlay"></div>
   <aside class="cart-sidebar" id="cartSidebar">
     <div class="cart-sidebar-header">
-      <span>Shopping Bag</span>
+      <span>ショッピングバッグ</span>
       <button class="cart-sidebar-close" id="cartSidebarClose">&times;</button>
     </div>
     <div class="cart-sidebar-items" id="cartSidebarItems"></div>
@@ -448,48 +508,6 @@
       <span class="footer-shipping-badge"></span>
     </div>
   </footer>
-
-  <!-- モーダル：商品詳細 -->
-  <div class="modal-overlay" id="modalDetail">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalDetail">×</button>
-      <h3>商品詳細</h3>
-      <p>産地：日本</p>
-      <p>素材：コットン 100%</p>
-      <p>サイズ詳細：S（着丈65cm / 身幅48cm）M（着丈68cm / 身幅51cm）L（着丈71cm / 身幅54cm）</p>
-      <p>ケア方法：洗濯機可（ネット使用）／ 乾燥機不可</p>
-    </div>
-  </div>
-
-  <!-- モーダル：配送 -->
-  <div class="modal-overlay" id="modalShipping">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalShipping">×</button>
-      <h3>配送について</h3>
-      <p>通常送料：<strong>550円（税込）</strong></p>
-      <p>※北海道・沖縄・離島、一部大型商品は追加送料が発生する場合があります。</p><br>
-      <p>現在ご利用いただける配送方法は標準配送のみとなります（月〜日 8:00〜21:00）。</p>
-      <p>最短でのお届けはご注文日の翌々日となります。</p><br>
-      <p>※配送は日本国内のみとなります。</p>
-    </div>
-  </div>
-
-  <!-- モーダル：返品 -->
-  <div class="modal-overlay" id="modalReturn">
-    <div class="modal-box">
-      <button class="modal-close" data-close="modalReturn">×</button>
-      <h3>返品について</h3>
-      <p>お受け取りから30日以内にお申し込みください。</p><br>
-      <p>以下の商品は返品・交換不可：</p>
-      <ul>
-        <li>カスタマイズ商品</li>
-        <li>香水・フレグランス（ディフューザー含む）</li>
-        <li>衛生テープが取り外された水着・下着</li>
-        <li>開封済みマスク</li>
-        <li>セール品・返品不可と記載された商品</li>
-      </ul>
-    </div>
-  </div>
 
   <script src="js/nav.js"></script>
   <script src="js/products.js"></script>
@@ -847,25 +865,6 @@
       wishBtn.classList.toggle('active');
     });
 
-    // ── カートに追加 ──
-    if (!product.madeToOrder) {
-      document.getElementById('addToCartBtn').addEventListener('click', () => {
-        const moq = product.moq || 1;
-        const items    = JSON.parse(localStorage.getItem('cartItems') || '[]');
-        const existing = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
-        if (existing) {
-          existing.qty = Math.max(existing.qty + 1, moq);
-        } else {
-          items.push({ id, name: product.name, price: currentPrice,
-                       color: selectedColor, colorName: selectedColorName || selectedColor,
-                       size: selectedSize, img: product.images[0], qty: moq, moq: moq });
-        }
-        localStorage.setItem('cartItems', JSON.stringify(items));
-        window.dispatchEvent(new Event('cartUpdated'));
-        openCartSidebar();
-      });
-    }
-
     // ── カートサイドバー ──
     function renderSidebar() {
       const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
@@ -958,6 +957,143 @@
         h.parentElement.classList.toggle('open');
       });
     });
+
+    // ── 数量ボタン ──
+    const qtyInput  = document.getElementById('qtyInput');
+    const qtyDecBtn = document.getElementById('qtyDecBtn');
+    const qtyIncBtn = document.getElementById('qtyIncBtn');
+    const minQtyVal = product.moq || 1;
+    if (qtyInput) {
+      qtyInput.value = minQtyVal;
+      qtyInput.min   = minQtyVal;
+      qtyDecBtn.addEventListener('click', () => { const v = parseInt(qtyInput.value)||1; if(v > minQtyVal) qtyInput.value = v - 1; });
+      qtyIncBtn.addEventListener('click', () => { qtyInput.value = (parseInt(qtyInput.value)||1) + 1; });
+    }
+
+    // ── カートに入れる（数量対応） ──
+    document.getElementById('addToCartBtn').removeEventListener('click', () => {});
+    if (!product.madeToOrder) {
+      document.getElementById('addToCartBtn').addEventListener('click', function cartAdd() {
+        const moq   = product.moq || 1;
+        const qty   = qtyInput ? Math.max(parseInt(qtyInput.value)||1, moq) : moq;
+        const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+        const exist = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
+        if (exist) { exist.qty += qty; }
+        else {
+          items.push({ id, name: product.name, price: currentPrice,
+                       color: selectedColor, colorName: selectedColorName || selectedColor,
+                       size: selectedSize, img: product.images[0], qty, moq });
+        }
+        localStorage.setItem('cartItems', JSON.stringify(items));
+        window.dispatchEvent(new Event('cartUpdated'));
+        openCartSidebar();
+      });
+    }
+
+    // ── シェアボタン ──
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        const url = location.href;
+        if (navigator.share) {
+          navigator.share({ title: product.name, url }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(url).then(() => {
+            const orig = shareBtn.title;
+            shareBtn.title = 'コピーしました！';
+            shareBtn.querySelector('svg').setAttribute('stroke','#c9a96e');
+            setTimeout(() => { shareBtn.title = orig; shareBtn.querySelector('svg').setAttribute('stroke','#555'); }, 2000);
+          });
+        }
+      });
+    }
+
+    // ── レビュー ──
+    (function initReviews() {
+      const STORAGE_KEY = 'hinoka_reviews_' + product.id;
+      function getReviews() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; }
+      }
+      function saveReviews(list) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      }
+
+      function renderStars(n, filled) {
+        return [1,2,3,4,5].map(i => `<span style="color:${i<=n ? (filled||'#c9a96e') : '#ddd'}">★</span>`).join('');
+      }
+
+      function renderReviews() {
+        const reviews = getReviews();
+        const list    = document.getElementById('reviewList');
+        if (!list) return;
+
+        if (reviews.length === 0) {
+          document.getElementById('reviewAvgStars').innerHTML = renderStars(0);
+          document.getElementById('reviewAvgScore').textContent = '';
+          document.getElementById('reviewCount').textContent = 'まだレビューはありません';
+          list.innerHTML = '<p style="font-size:12px;color:#999;text-align:center;padding:20px 0;">最初のレビューを投稿してみましょう。</p>';
+          return;
+        }
+        const avg = reviews.reduce((s,r)=>s+r.rating,0)/reviews.length;
+        document.getElementById('reviewAvgStars').innerHTML = renderStars(Math.round(avg));
+        document.getElementById('reviewAvgScore').textContent = avg.toFixed(1);
+        document.getElementById('reviewCount').textContent = reviews.length + '件のレビュー';
+
+        list.innerHTML = reviews.slice().reverse().map(r => `
+          <div style="padding:16px;background:#fff;border:1px solid rgba(201,169,110,0.18);border-radius:4px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:14px;">${renderStars(r.rating)}</span>
+              <span style="font-size:11px;font-weight:500;color:#2a1c0e;">${r.rating}.0</span>
+              <span style="margin-left:auto;font-size:10px;color:#aaa;">${r.date}</span>
+            </div>
+            ${r.name ? `<p style="font-size:11px;color:#888;margin-bottom:4px;">${r.name}</p>` : ''}
+            ${r.text ? `<p style="font-size:13px;color:#444;line-height:1.9;">${r.text}</p>` : ''}
+          </div>`).join('');
+      }
+
+      // 星選択
+      let selectedRating = 0;
+      const starEls = document.querySelectorAll('.star-sel');
+      starEls.forEach(s => {
+        s.addEventListener('mouseenter', () => {
+          const v = parseInt(s.dataset.v);
+          starEls.forEach((el,i) => el.style.color = i < v ? '#c9a96e' : '#ddd');
+        });
+        s.addEventListener('mouseleave', () => {
+          starEls.forEach((el,i) => el.style.color = i < selectedRating ? '#c9a96e' : '#ddd');
+        });
+        s.addEventListener('click', () => {
+          selectedRating = parseInt(s.dataset.v);
+          starEls.forEach((el,i) => el.style.color = i < selectedRating ? '#c9a96e' : '#ddd');
+        });
+      });
+
+      // 投稿ボタン
+      const submitBtn = document.getElementById('reviewSubmitBtn');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+          if (!selectedRating) { alert('星評価を選択してください'); return; }
+          const text    = (document.getElementById('reviewText').value || '').trim();
+          const reviews = getReviews();
+          const now     = new Date();
+          reviews.push({
+            rating: selectedRating,
+            text,
+            name: '',
+            date: now.toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'})
+          });
+          saveReviews(reviews);
+          selectedRating = 0;
+          starEls.forEach(el => el.style.color = '#ddd');
+          document.getElementById('reviewText').value = '';
+          const msg = document.getElementById('reviewSubmitMsg');
+          if (msg) { msg.style.display = 'inline'; setTimeout(()=>{ msg.style.display='none'; }, 3000); }
+          renderReviews();
+        });
+      }
+
+      renderReviews();
+    })();
   })();
   </script>
 </body>
