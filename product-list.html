@@ -450,9 +450,9 @@
 
       if (products.length === 0) {
         grid.innerHTML = `<div class="featured-coming">
-          <h2>${cat === 'featured' ? 'Featured Collection' : '商品が見つかりません'}</h2>
-          <p>${cat === 'featured' ? 'スタッフ厳選のフィーチャードコレクションは現在準備中です。' : '条件に一致する商品はありません。'}</p>
-          ${cat === 'featured' ? '<p style="margin-top:8px;font-size:12px;color:#bbb;">Coming Soon — お楽しみに。</p>' : ''}
+          <h2>${cat === 'featured' ? '特集コレクション' : '商品が見つかりません'}</h2>
+          <p>${cat === 'featured' ? 'スタッフ厳選の特集コレクションは現在準備中です。' : '条件に一致する商品はありません。'}</p>
+          ${cat === 'featured' ? '<p style="margin-top:8px;font-size:12px;color:#bbb;">近日公開 — お楽しみに。</p>' : ''}
         </div>`;
         loadMoreBtn.classList.add('hidden');
         return;
