@@ -107,6 +107,30 @@
     .stock-critical { background: #fbe9e7; color: #bf360c; }
     .stock-none     { background: #f5f5f5; color: #9e9e9e; }
 
+    .moq-badge {
+      display: inline-block; font-size: 10px; letter-spacing: 0.06em;
+      padding: 2px 8px; border-radius: 10px;
+      border: 1px solid #c9a96e; color: #8a6a30;
+      background: rgba(201,169,110,0.08);
+      margin-top: 4px;
+    }
+
+    .sort-bar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 12px; color: #666;
+    }
+    .sort-bar select {
+      padding: 6px 12px; border: 1px solid var(--gray-mid);
+      background: #fff; font-family: inherit; font-size: 12px;
+      letter-spacing: 0.05em; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px;
+    }
+
     .subcat-tabs {
       display: flex; flex-wrap: wrap; gap: 8px;
       margin: 16px 0 0;
@@ -162,6 +186,15 @@
   </div>
 
   <section class="products-section">
+    <div class="sort-bar" id="sortBar">
+      <label for="sortSelect">並び替え：</label>
+      <select id="sortSelect">
+        <option value="default">新着順</option>
+        <option value="price-asc">価格：低い順</option>
+        <option value="price-desc">価格：高い順</option>
+        <option value="name">商品名順</option>
+      </select>
+    </div>
     <div class="products-grid" id="productsGrid"></div>
     <div class="load-more-wrap">
       <button class="load-more-btn" id="loadMoreBtn">さらに読み込む</button>
@@ -173,14 +206,14 @@
       <div>
         <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">Bridging Insight and Action.<br>知見を、成果へ</div>
+        <div class="footer-tagline">洞察から、行動へ。</div>
       </div>
       <div class="footer-col">
-        <h4>Shop</h4>
-        <a href="product-list.html?category=for-business">For Business</a>
-        <a href="product-list.html?category=for-life">For Life</a>
-        <a href="product-list.html?category=pet">Pet Supplies</a>
-        <a href="product-list.html?category=featured">Featured</a>
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
       </div>
       <div class="footer-col">
         <h4>マイアカウント</h4>
@@ -239,6 +272,7 @@
     const BATCH = 12;
     let displayCount = BATCH;
     let currentSubcat = '';
+    let currentSort = 'default';
 
     const params = new URLSearchParams(location.search);
     const cat    = params.get('category') || '';
@@ -288,18 +322,32 @@
     }
 
     function getFilteredProducts() {
-      if (cat === 'featured') return [];
       let list = ALL_PRODUCTS;
-      if (query) return list.filter(p => p.name.includes(query));
-      if (currentSubcat) {
+      if (query) {
+        list = list.filter(p => p.name.includes(query));
+      } else if (currentSubcat) {
         const children = PARENT_MAP[currentSubcat] || [];
         list = list.filter(p => p.category === currentSubcat || children.includes(p.category));
       } else if (cat) {
         const children = PARENT_MAP[cat] || [];
-        list = list.filter(p => p.category === cat || children.includes(p.category));
+        list = list.filter(p =>
+          p.category === cat || children.includes(p.category) ||
+          (p.category && p.category.toLowerCase() === cat.toLowerCase())
+        );
       }
-      // 在庫あり優先ソート
-      return list.sort((a, b) => (a.stock === 0 ? 1 : 0) - (b.stock === 0 ? 1 : 0));
+
+      // Apply sort
+      if (currentSort === 'price-asc') {
+        list = list.slice().sort((a, b) => a.price - b.price);
+      } else if (currentSort === 'price-desc') {
+        list = list.slice().sort((a, b) => b.price - a.price);
+      } else if (currentSort === 'name') {
+        list = list.slice().sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+      } else {
+        // 新着順: 在庫あり優先
+        list = list.slice().sort((a, b) => (a.stock === 0 ? 1 : 0) - (b.stock === 0 ? 1 : 0));
+      }
+      return list;
     }
 
     const grid        = document.getElementById('productsGrid');
@@ -312,11 +360,11 @@
       grid.innerHTML = '';
       const products = getFilteredProducts();
 
-      if (cat === 'featured') {
+      if (products.length === 0) {
         grid.innerHTML = `<div class="featured-coming">
-          <h2>Featured Collection</h2>
-          <p>スタッフ厳選のフィーチャードコレクションは現在準備中です。</p>
-          <p style="margin-top:8px;font-size:12px;color:#bbb;">Coming Soon — お楽しみに。</p>
+          <h2>${cat === 'featured' ? 'Featured Collection' : '商品が見つかりません'}</h2>
+          <p>${cat === 'featured' ? 'スタッフ厳選のフィーチャードコレクションは現在準備中です。' : '条件に一致する商品はありません。'}</p>
+          ${cat === 'featured' ? '<p style="margin-top:8px;font-size:12px;color:#bbb;">Coming Soon — お楽しみに。</p>' : ''}
         </div>`;
         loadMoreBtn.classList.add('hidden');
         return;
@@ -335,7 +383,7 @@
           <div class="product-image-wrapper">
             <img class="main-img" src="${img1}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
             <img class="sub-img"  src="${img2}" alt="${p.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            ${p.stock === 0 ? '<div class="soldout-overlay"><span>SOLD OUT</span></div>' : ''}
+            ${p.stock === 0 ? '<div class="soldout-overlay"><span>入荷準備中</span></div>' : ''}
             <button class="product-wish ${isWished ? 'active' : ''}" data-id="${p.id}" aria-label="ウィッシュリスト">
               <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
@@ -343,6 +391,7 @@
           <p class="product-name">${p.name}</p>
           <p class="product-price">¥${p.price.toLocaleString()}（税込）</p>
           ${p.stock !== undefined ? stockBadge(p.stock) : ''}
+          ${p.moq && p.moq > 1 ? `<span class="moq-badge">最低注文: ${p.moq}点</span>` : ''}
         `;
 
         card.querySelector('.product-wish').addEventListener('click', e => {
@@ -361,6 +410,13 @@
 
       loadMoreBtn.classList.toggle('hidden', displayCount >= products.length);
     }
+
+    const sortSelect = document.getElementById('sortSelect');
+    sortSelect.addEventListener('change', () => {
+      currentSort = sortSelect.value;
+      displayCount = BATCH;
+      renderProducts();
+    });
 
     loadMoreBtn.addEventListener('click', () => { displayCount += BATCH; renderProducts(); });
     renderProducts();
