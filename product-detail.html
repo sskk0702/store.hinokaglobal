@@ -272,9 +272,11 @@
       .breadcrumb { padding: 10px 14px 8px; font-size: 11px; border-bottom: none; }
       .product-layout { grid-template-columns: 1fr; }
       .product-gallery {
-        position: relative;
+        position: relative !important;
+        top: auto !important;
         height: auto;
         background: #fff;
+        z-index: 0;
       }
       .gallery-main {
         aspect-ratio: 1 / 1;
@@ -472,14 +474,15 @@
       <div>
         <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">Bridging Insight and Action.<br>知見を、成果へ</div>
+        <div class="footer-tagline">洞察から、行動へ。</div>
       </div>
       <div class="footer-col">
-        <h4>Shop</h4>
-        <a href="product-list.html?category=for-business">For Business</a>
-        <a href="product-list.html?category=for-life">For Life</a>
-        <a href="product-list.html?category=pet">Pet Supplies</a>
-        <a href="product-list.html?category=featured">Featured</a>
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
+        <a href="b2b.html">法人向けサービス</a>
       </div>
       <div class="footer-col">
         <h4>マイアカウント</h4>
