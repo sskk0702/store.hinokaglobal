@@ -116,19 +116,42 @@
     }
 
     .sort-bar {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 24px;
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: 12px; color: #666;
+      font-size: 11px; color: #888;
+      letter-spacing: 0.06em;
     }
-    .sort-bar select {
-      padding: 6px 12px; border: 1px solid var(--gray-mid);
-      background: #fff; font-family: inherit; font-size: 12px;
-      letter-spacing: 0.05em; cursor: pointer;
-      appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-      padding-right: 28px;
+    .sort-bar-label {
+      font-size: 10px; letter-spacing: 0.12em; color: #aaa;
+      padding-right: 4px;
+      white-space: nowrap;
+    }
+    .sort-btn {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(180,160,120,0.3);
+      background: rgba(255,255,255,0.7);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px; letter-spacing: 0.06em;
+      color: #6b5c3e;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(180,140,80,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .sort-btn:hover {
+      background: rgba(201,169,110,0.12);
+      border-color: rgba(201,169,110,0.55);
+      color: #3a2800;
+      box-shadow: 0 2px 8px rgba(180,140,80,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .sort-btn.active {
+      background: linear-gradient(135deg, #c9a96e 0%, #b8943f 100%);
+      border-color: #b8943f;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(180,140,60,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+      font-weight: 500;
     }
 
     .subcat-tabs {
@@ -187,13 +210,12 @@
 
   <section class="products-section">
     <div class="sort-bar" id="sortBar">
-      <label for="sortSelect">並び替え：</label>
-      <select id="sortSelect">
-        <option value="default">新着順</option>
-        <option value="price-asc">価格：低い順</option>
-        <option value="price-desc">価格：高い順</option>
-        <option value="name">商品名順</option>
-      </select>
+      <span class="sort-bar-label">並び替え</span>
+      <button class="sort-btn active" data-sort="recommend">おすすめ順</button>
+      <button class="sort-btn" data-sort="default">新着順</button>
+      <button class="sort-btn" data-sort="price-asc">価格：低い順</button>
+      <button class="sort-btn" data-sort="price-desc">価格：高い順</button>
+      <button class="sort-btn" data-sort="name">商品名順</button>
     </div>
     <div class="products-grid" id="productsGrid"></div>
     <div class="load-more-wrap">
@@ -273,7 +295,7 @@
     const BATCH = 12;
     let displayCount = BATCH;
     let currentSubcat = '';
-    let currentSort = 'default';
+    let currentSort = 'recommend';
 
     const params = new URLSearchParams(location.search);
     const cat    = params.get('category') || '';
@@ -338,7 +360,9 @@
       }
 
       // Apply sort
-      if (currentSort === 'price-asc') {
+      if (currentSort === 'recommend') {
+        list = list.slice().sort((a, b) => (a.stock === 0 ? 1 : 0) - (b.stock === 0 ? 1 : 0));
+      } else if (currentSort === 'price-asc') {
         list = list.slice().sort((a, b) => a.price - b.price);
       } else if (currentSort === 'price-desc') {
         list = list.slice().sort((a, b) => b.price - a.price);
@@ -412,11 +436,14 @@
       loadMoreBtn.classList.toggle('hidden', displayCount >= products.length);
     }
 
-    const sortSelect = document.getElementById('sortSelect');
-    sortSelect.addEventListener('change', () => {
-      currentSort = sortSelect.value;
-      displayCount = BATCH;
-      renderProducts();
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSort = btn.dataset.sort;
+        displayCount = BATCH;
+        renderProducts();
+      });
     });
 
     loadMoreBtn.addEventListener('click', () => { displayCount += BATCH; renderProducts(); });
