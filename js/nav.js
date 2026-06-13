@@ -26,49 +26,49 @@
     <div class="side-menu-header">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Bridging Insight and Action.</div>
+        <div class="side-menu-tagline">洞察から、行動へ。</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn" aria-label="閉じる">&times;</button>
     </div>
     <div class="side-menu-body">
-      <div class="menu-section-label">PRODUCTS</div>
+      <div class="menu-section-label">商品カテゴリ</div>
 
       <div class="menu-category">
-        <div class="menu-category-header"><span>For Business<em>ビジネスソリューション</em></span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header"><span>ビジネス向け<em>法人・オフィス向け商品</em></span><span class="menu-plus">+</span></div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=office-supplies">Office Supplies　オフィス用品</a>
-          <a href="product-list.html?category=packaging">Packaging Materials　梱包資材</a>
-          <a href="product-list.html?category=industrial">Industrial Products　工業用品</a>
-          <a href="product-list.html?category=safety-workwear">Safety &amp; Workwear　作業用品</a>
+          <a href="product-list.html?category=office-supplies">オフィス用品</a>
+          <a href="product-list.html?category=packaging">梱包資材</a>
+          <a href="product-list.html?category=industrial">工業用品</a>
+          <a href="product-list.html?category=safety-workwear">作業用品</a>
         </div>
       </div>
 
       <div class="menu-category">
-        <div class="menu-category-header"><span>For Life<em>暮らしを豊かにする商品</em></span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header"><span>日用品<em>暮らしを豊かにする商品</em></span><span class="menu-plus">+</span></div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=home-living">Home &amp; Living　生活雑貨</a>
-          <a href="product-list.html?category=kitchen">Kitchen　キッチン用品</a>
-          <a href="product-list.html?category=travel-outdoor">Travel &amp; Outdoor　トラベル</a>
+          <a href="product-list.html?category=home-living">生活雑貨</a>
+          <a href="product-list.html?category=kitchen">キッチン用品</a>
+          <a href="product-list.html?category=travel-outdoor">トラベル用品</a>
         </div>
       </div>
 
       <div class="menu-category">
-        <div class="menu-category-header"><span>Pet Supplies<em>ペット用品</em></span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header"><span>ペット用品<em>愛するペットのために</em></span><span class="menu-plus">+</span></div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=dog">Dog　犬用品</a>
-          <a href="product-list.html?category=cat">Cat　猫用品</a>
-          <a href="product-list.html?category=pet-care">Care　ケア用品</a>
-          <a href="product-list.html?category=pet-toys">Toys　おもちゃ</a>
+          <a href="product-list.html?category=dog">犬用品</a>
+          <a href="product-list.html?category=cat">猫用品</a>
+          <a href="product-list.html?category=pet-care">ケア用品</a>
+          <a href="product-list.html?category=pet-toys">おもちゃ</a>
         </div>
       </div>
 
       <div class="menu-category">
-        <div class="menu-category-header"><span>Featured Collection<em>特集商品</em></span><span class="menu-plus">+</span></div>
+        <div class="menu-category-header"><span>特集コレクション<em>編集部おすすめ</em></span><span class="menu-plus">+</span></div>
         <div class="menu-subcategory">
-          <a href="product-list.html?category=new-arrival">New Arrival　新商品</a>
-          <a href="product-list.html?category=best-sellers">Best Sellers　人気商品</a>
-          <a href="product-list.html?category=seasonal">Seasonal Picks　季節特集</a>
-          <a href="product-list.html?category=recommended">Recommended　おすすめ</a>
+          <a href="product-list.html?category=new-arrival">新着商品</a>
+          <a href="product-list.html?category=best-sellers">人気商品</a>
+          <a href="product-list.html?category=seasonal">季節特集</a>
+          <a href="product-list.html?category=recommended">おすすめ</a>
         </div>
       </div>
 
@@ -80,7 +80,7 @@
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">Bridging Insight and Action.</div>
+        <div class="side-menu-tagline">洞察から、行動へ。</div>
       </div>
       <button class="close-menu-btn" id="closeDrawerBtn" aria-label="閉じる">&times;</button>
     </div>
@@ -109,7 +109,7 @@
   <div class="search-modal" id="searchModal">
     <button class="search-modal-close" id="closeSearchBtn" aria-label="閉じる">&times;</button>
     <div class="search-modal-inner">
-      <p class="search-modal-label">Search</p>
+      <p class="search-modal-label">商品を検索</p>
       <input type="text" id="searchInput" placeholder="商品名・キーワードで検索">
     </div>
   </div>
