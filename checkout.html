@@ -501,12 +501,12 @@
   <div class="co-header">
     <a class="co-back" href="cart.html">
       <svg viewBox="0 0 14 14"><polyline points="9,2 4,7 9,12"/></svg>
-      バッグに戻る
+      カートに戻る
     </a>
 <div class="co-steps">
-      <span class="step">バッグ</span>
+      <span class="step">カート</span>
       <span class="sep">›</span>
-      <span class="step active">お会計</span>
+      <span class="step active">ご注文手続き</span>
       <span class="sep">›</span>
       <span class="step">確認</span>
     </div>
@@ -659,6 +659,32 @@
               PayPalまたはクレジット・デビットカードでお支払いいただけます。<br>
               Visa · Mastercard · JCB · American Express 対応（PayPalアカウント不要）
             </p>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+  <!-- Visa -->
+  <svg width="50" height="32" viewBox="0 0 780 500" style="border:1px solid #e0e0e0;border-radius:4px;background:#fff;padding:3px 6px;" aria-label="Visa">
+    <path d="M293.2 348.73l33.359-195.76h53.358l-33.384 195.76h-53.333zM553.77 158.86c-10.569-3.966-27.135-8.222-47.821-8.222-52.726 0-89.863 26.551-90.181 64.604-.297 28.129 26.515 43.822 46.754 53.185 20.771 9.586 27.752 15.716 27.652 24.283-.133 13.123-16.586 19.116-31.924 19.116-21.355 0-32.701-2.967-50.225-10.273l-6.878-3.098-7.487 43.578c12.463 5.466 35.508 10.199 59.438 10.445 56.09 0 92.502-26.248 92.916-66.885.199-22.27-13.993-39.215-44.734-53.196-18.627-9.055-30.039-15.099-29.916-24.269 0-8.137 9.654-16.838 30.517-16.838 17.421-.27 30.041 3.535 39.887 7.5l4.781 2.25 7.221-42.178m137.14-4.14h-41.23c-12.772 0-22.332 3.486-27.94 16.234l-79.245 179.4h56.032s9.159-24.121 11.231-29.418c6.131 0 60.543.084 68.336.084 1.596 6.853 6.492 29.334 6.492 29.334h49.512l-43.188-195.64zm-65.418 126.41c4.412-11.279 21.26-54.724 21.26-54.724-.3.496 4.383-11.336 7.075-18.688l3.606 16.878s10.217 46.729 12.353 56.534h-44.294z" fill="#1a1f71"/>
+    <path d="M230.17 152.86l-52.438 133.61-5.607-27.247c-9.756-31.405-40.155-65.44-74.129-82.471l47.894 171.48.031-.011h55.77l82.988-195.35-54.509-.011" fill="#1a1f71"/>
+    <path d="M131.93 152.86H47.004l-.682 3.966c66.939 16.204 111.23 55.363 129.56 102.4l-18.684-89.455c-3.229-12.396-12.597-16.568-24.269-16.911" fill="#f9a533"/>
+  </svg>
+  <!-- Mastercard -->
+  <svg width="50" height="32" viewBox="0 0 131.39 86.9" style="border:1px solid #e0e0e0;border-radius:4px;background:#fff;padding:3px 6px;" aria-label="Mastercard">
+    <rect width="131.39" height="86.9" rx="7" fill="#fff"/>
+    <circle cx="47.5" cy="43.45" r="30" fill="#EB001B"/>
+    <circle cx="83.89" cy="43.45" r="30" fill="#F79E1B"/>
+    <path d="M65.7 19.68a30 30 0 0 1 0 47.54 30 30 0 0 1 0-47.54z" fill="#FF5F00"/>
+  </svg>
+  <!-- JCB -->
+  <span style="display:inline-flex;align-items:center;justify-content:center;width:50px;height:32px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;font-size:11px;font-weight:700;letter-spacing:0.05em;color:#003087;padding:0 4px;">JCB</span>
+  <!-- Amex -->
+  <span style="display:inline-flex;align-items:center;justify-content:center;width:50px;height:32px;border:1px solid #e0e0e0;border-radius:4px;background:#006FCF;font-size:9px;font-weight:700;color:#fff;letter-spacing:0.05em;padding:0 4px;">AMEX</span>
+  <!-- PayPal -->
+  <svg width="68" height="32" viewBox="0 0 124 33" style="border:1px solid #e0e0e0;border-radius:4px;background:#fff;padding:3px 6px;" aria-label="PayPal">
+    <path d="M 4.5,4 L 4.5,28 A 2,2 0 0 0 6.5,30 L 118,30 A 2,2 0 0 0 120,28 L 120,4 A 2,2 0 0 0 118,2 L 6.5,2 A 2,2 0 0 0 4.5,4 Z" fill="#fff"/>
+    <text x="12" y="21" font-family="Arial" font-size="12" font-weight="bold">
+      <tspan fill="#253B80">Pay</tspan><tspan fill="#179BD7">Pal</tspan>
+    </text>
+  </svg>
+</div>
             <div class="security-note" style="margin-bottom:14px;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
@@ -672,21 +698,33 @@
 
         <!-- ② 銀行振込 -->
         <div class="pay-panel" id="panel-bank">
-          <div class="info-box">
-            <strong>【銀行振込のご案内】</strong><br>
-            ご注文確定後、登録のメールアドレスへ振込先口座情報をお送りします。<br><br>
-            🏦 振込先口座：<br>
-            　銀行名：<strong id="bank-name-display"></strong><br>
-            　支店名：<strong id="bank-branch-display"></strong><br>
-            　口座種別：普通　口座番号：<strong id="bank-number-display"></strong><br>
-            　口座名義：<strong id="bank-holder-display"></strong><br><br>
-            ⏰ お振込期限：ご注文日より <strong>3営業日以内</strong><br>
-            振込手数料はお客様ご負担となります。
-            <div class="info-highlight">
-              ✉️ ご注文確定後の自動返信メールに振込先の詳細情報が記載されます。
-            </div>
-          </div>
-        </div>
+  <div class="info-box">
+    <strong>【銀行振込のご案内】</strong><br>
+    ご注文確定後、ご登録のメールアドレスへ自動返信メールにて振込先口座情報をお送りします。<br><br>
+    🏦 <strong>振込先口座</strong><br>
+    　銀行名：<strong id="bank-name-display"></strong><br>
+    　支店名：<strong id="bank-branch-display"></strong><br>
+    　口座種別：普通　口座番号：<strong id="bank-number-display"></strong><br>
+    　口座名義：<strong id="bank-holder-display"></strong><br><br>
+    📝 <strong>振込時の重要事項</strong><br>
+    <ul style="padding-left:16px;margin:8px 0;font-size:12px;line-height:2;">
+      <li>振込依頼人名欄（備考欄）に必ず <strong>「注文番号 + お名前」</strong> を入力してください</li>
+      <li>例：<code style="background:#f5f0e8;padding:2px 6px;">ORDER12345 ヤマダタロウ</code></li>
+    </ul>
+    ⏰ <strong>お振込期限：ご注文日より3営業日以内</strong><br>
+    振込手数料はお客様ご負担となります。<br><br>
+    ✅ <strong>お支払い確認後の流れ</strong><br>
+    <ul style="padding-left:16px;margin:8px 0;font-size:12px;line-height:2;">
+      <li>ご入金確認後、<strong>1営業日以内</strong>にメールにてご連絡します</li>
+      <li>確認後、発送手続きを開始いたします</li>
+      <li>発送後、追跡番号をメールにてお知らせします</li>
+    </ul>
+    <div class="info-highlight">
+      ✉️ ご注文確定後の自動返信メールに振込先の詳細情報が記載されます。<br>
+      　　メールが届かない場合は迷惑メールフォルダをご確認の上、<a href="mailto:info@hinokaglobal.com" style="color:#8b6f47;">info@hinokaglobal.com</a> までご連絡ください。
+    </div>
+  </div>
+</div>
 
 
 <button class="pay-btn" id="payBtn" style="display:none;">注文を確定する</button>
@@ -757,14 +795,14 @@
       <div>
         <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">Bridging Insight and Action.<br>知見を、成果へ</div>
+        <div class="footer-tagline">洞察から、行動へ。</div>
       </div>
       <div class="footer-col">
-        <h4>Shop</h4>
-        <a href="product-list.html?category=for-business">For Business</a>
-        <a href="product-list.html?category=for-life">For Life</a>
-        <a href="product-list.html?category=pet">Pet Supplies</a>
-        <a href="product-list.html?category=featured">Featured</a>
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
       </div>
       <div class="footer-col">
         <h4>マイアカウント</h4>
