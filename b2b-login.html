@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | 法人会員ログイン</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    :root {
+      --gold: #c9a96e;
+      --gold-dark: #a8884f;
+      --ivory: #fdf8f0;
+      --dark: #1a1710;
+      --gray-line: #e6e0d4;
+      --gray-text: #6b6256;
+      --error: #b94a3a;
+    }
+    body {
+      padding-top: var(--nav-height);
+      background: var(--ivory);
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--dark);
+    }
+
+    /* Breadcrumb */
+    .b2b-crumb {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--gray-text);
+    }
+    .b2b-crumb a { color: var(--gray-text); text-decoration: none; }
+    .b2b-crumb a:hover { color: var(--dark); }
+    .b2b-crumb .sep { margin: 0 8px; opacity: 0.5; }
+    .b2b-crumb .current { color: var(--dark); }
+
+    /* Hero */
+    .b2b-hero {
+      background: var(--dark);
+      color: var(--ivory);
+      padding: 72px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .b2b-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(201,169,110,0.18), transparent 60%);
+      pointer-events: none;
+    }
+    .b2b-hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 44px;
+      letter-spacing: 0.02em;
+      margin: 0 0 8px;
+      position: relative;
+    }
+    .b2b-hero .hero-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .b2b-hero .hero-note {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      color: rgba(253,248,240,0.7);
+      position: relative;
+    }
+
+    /* Main layout */
+    .b2b-main {
+      max-width: 1100px;
+      margin: -40px auto 0;
+      padding: 0 24px 80px;
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 520px) minmax(0, 1fr);
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* Login card */
+    .login-card {
+      background: #fff;
+      border: 1px solid var(--gold);
+      box-shadow: 0 18px 50px rgba(26,23,16,0.12);
+      padding: 48px;
+      position: relative;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: var(--gold);
+    }
+    .login-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 26px;
+      letter-spacing: 0.06em;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+    .login-card .card-sub {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--gold-dark);
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--gray-text);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .form-group label .hint {
+      font-size: 10px; color: #aaa;
+      margin-left: 6px; letter-spacing: 0.04em;
+    }
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--gray-line);
+      background: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--dark);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.15);
+    }
+
+    .form-check {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--gray-text);
+      margin-bottom: 24px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .form-check input { accent-color: var(--gold); }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--dark);
+      color: var(--gold);
+      border: 1px solid var(--dark);
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 0.24em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .login-btn:hover:not(:disabled) {
+      background: var(--gold);
+      color: var(--dark);
+    }
+    .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .login-btn.loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-msg {
+      margin-top: 16px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      display: none;
+      border-left: 3px solid;
+    }
+    .form-msg.error { background: #fdf0ed; color: var(--error); border-color: var(--error); display: block; }
+    .form-msg.success { background: #f0f7ec; color: #4a7a3a; border-color: #4a7a3a; display: block; }
+
+    .login-links {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--gray-line);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+    .login-links a {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--gray-text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .login-links a:hover { color: var(--gold-dark); }
+    .login-links .register-link {
+      color: var(--dark);
+      font-weight: 500;
+    }
+    .login-links .register-link:hover { color: var(--gold-dark); }
+
+    /* Right column */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .info-box {
+      background: #fff;
+      border: 1px solid var(--gray-line);
+      padding: 32px;
+    }
+    .info-box h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      margin: 0 0 12px;
+    }
+    .info-box p {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--gray-text);
+      margin: 0 0 20px;
+    }
+    .info-actions {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .btn-primary, .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 14px 20px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--dark);
+      border: 1px solid var(--gold);
+    }
+    .btn-primary:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--dark);
+      border: 1px solid var(--dark);
+    }
+    .btn-secondary:hover { background: var(--dark); color: var(--ivory); }
+
+    .info-note {
+      font-size: 11px;
+      color: var(--gray-text);
+      line-height: 1.7;
+      padding-top: 16px;
+      border-top: 1px dashed var(--gray-line);
+    }
+    .info-note a { color: var(--gold-dark); }
+
+    .trust-box {
+      background: var(--dark);
+      color: var(--ivory);
+      padding: 32px;
+    }
+    .trust-box h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      margin: 0 0 4px;
+      color: var(--gold);
+    }
+    .trust-box .trust-sub {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      color: rgba(253,248,240,0.5);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .trust-list {
+      list-style: none;
+      padding: 0; margin: 0;
+    }
+    .trust-list li {
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(253,248,240,0.08);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .trust-list li:last-child { border-bottom: none; }
+    .trust-list .check {
+      color: var(--gold);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(26,23,16,0.6);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      max-width: 440px;
+      width: 100%;
+      padding: 36px;
+      border-top: 3px solid var(--gold);
+    }
+    .modal h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      font-size: 22px;
+      margin: 0 0 8px;
+    }
+    .modal p {
+      font-size: 12px;
+      color: var(--gray-text);
+      line-height: 1.7;
+      margin: 0 0 20px;
+    }
+    .modal-actions {
+      display: flex; gap: 12px; margin-top: 20px;
+    }
+    .modal-actions button { flex: 1; }
+
+    /* Footer (reused styling from global.css store-footer) */
+
+    @media (max-width: 768px) {
+      .b2b-hero { padding: 56px 20px 64px; }
+      .b2b-hero h1 { font-size: 32px; }
+      .b2b-main {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin-top: -32px;
+      }
+      .login-card { padding: 32px 24px; }
+      .info-box, .trust-box { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Breadcrumb -->
+  <div class="b2b-crumb">
+    <a href="store.html">ホーム</a>
+    <span class="sep">&gt;</span>
+    <a href="b2b.html">法人ポータル</a>
+    <span class="sep">&gt;</span>
+    <span class="current">ログイン</span>
+  </div>
+
+  <!-- Hero -->
+  <section class="b2b-hero">
+    <div class="hero-sub">Corporate Member Login</div>
+    <h1>法人会員ログイン</h1>
+    <div class="hero-note">法人専用ポータルへログインしてください</div>
+  </section>
+
+  <!-- Main -->
+  <main class="b2b-main">
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <h2>法人会員ログイン</h2>
+      <div class="card-sub">For Registered Business Members</div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">メールアドレス <span class="hint">（B2B登録時のメール）</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">パスワード</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+
+        <label class="form-check">
+          <input type="checkbox" id="remember" checked>
+          <span>ログイン状態を保存する</span>
+        </label>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <span class="spinner"></span>
+          <span class="btn-label">ログイン</span>
+        </button>
+
+        <div class="form-msg" id="formMsg"></div>
+      </form>
+
+      <div class="login-links">
+        <a href="#" id="forgotLink">パスワードをお忘れの方</a>
+        <a href="b2b-register.html" class="register-link">新規法人会員登録はこちら →</a>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="right-col">
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <h3>法人会員でない方へ</h3>
+        <p>法人特別価格・専任担当者サポート・請求書払いをご利用いただくには、法人会員登録が必要です。</p>
+        <div class="info-actions">
+          <a href="b2b-register.html" class="btn-primary">法人会員登録（無料）→</a>
+          <a href="mailto:info@hinokaglobal.com" class="btn-secondary">お問い合わせ</a>
+        </div>
+        <div class="info-note">
+          個人のお客様は通常の<a href="account.html">一般会員ログイン</a>をご利用ください。
+        </div>
+      </div>
+
+      <!-- Trust -->
+      <div class="trust-box">
+        <h3>法人会員特典</h3>
+        <div class="trust-sub">Member Benefits</div>
+        <ul class="trust-list">
+          <li><span class="check">✓</span><span>法人特別価格（最大25%OFF）</span></li>
+          <li><span class="check">✓</span><span>請求書払い（月末締め翌月末払い）</span></li>
+          <li><span class="check">✓</span><span>専任営業担当者</span></li>
+          <li><span class="check">✓</span><span>大量注文の見積り対応</span></li>
+          <li><span class="check">✓</span><span>法人インボイス対応</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Password Reset Modal -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal">
+      <h3>パスワード再設定</h3>
+      <p>ご登録のメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。</p>
+      <div class="form-group">
+        <label for="resetEmail">メールアドレス</label>
+        <input type="email" id="resetEmail" autocomplete="email">
+      </div>
+      <div class="form-msg" id="resetMsg"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="resetCancel">キャンセル</button>
+        <button type="button" class="btn-primary" id="resetSend">送信</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">洞察から、行動へ</div>
+      </div>
+      <div class="footer-col">
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
+        <a href="b2b.html">法人向けサービス</a>
+      </div>
+      <div class="footer-col">
+        <h4>マイアカウント</h4>
+        <a href="account.html">マイページ</a>
+        <a href="account.html#orders">注文状況の確認</a>
+        <a href="account.html#orders">注文履歴</a>
+        <a href="account.html#service">返品 / 交換</a>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
+      </div>
+      <div class="footer-col">
+        <h4>カスタマーサービス</h4>
+        <a href="legal.html#faq">よくある質問（FAQ）</a>
+        <a href="legal.html#shipping">配送について</a>
+        <a href="legal.html#return">返品ポリシー</a>
+        <a href="mailto:info@hinokaglobal.com">お問い合わせ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    var _firebaseConfig = {
+      apiKey: 'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
+      authDomain: 'hinoka-0304.firebaseapp.com',
+      projectId: 'hinoka-0304',
+      storageBucket: 'hinoka-0304.firebasestorage.app',
+      messagingSenderId: '275098198657',
+      appId: '1:275098198657:web:d9b11ff1086c972ac6e380'
+    };
+    if (!firebase.apps.length) firebase.initializeApp(_firebaseConfig);
+
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+
+    var form = document.getElementById('loginForm');
+    var emailInput = document.getElementById('email');
+    var passwordInput = document.getElementById('password');
+    var rememberInput = document.getElementById('remember');
+    var loginBtn = document.getElementById('loginBtn');
+    var formMsg = document.getElementById('formMsg');
+
+    function showMsg(text, type) {
+      formMsg.textContent = text;
+      formMsg.className = 'form-msg ' + (type || 'error');
+    }
+    function clearMsg() {
+      formMsg.textContent = '';
+      formMsg.className = 'form-msg';
+      formMsg.style.display = 'none';
+    }
+    function setLoading(loading) {
+      if (loading) {
+        loginBtn.disabled = true;
+        loginBtn.classList.add('loading');
+        loginBtn.querySelector('.btn-label').textContent = '認証中...';
+      } else {
+        loginBtn.disabled = false;
+        loginBtn.classList.remove('loading');
+        loginBtn.querySelector('.btn-label').textContent = 'ログイン';
+      }
+    }
+
+    function authErrorMessage(code) {
+      switch (code) {
+        case 'auth/invalid-email': return 'メールアドレスの形式が正しくありません。';
+        case 'auth/user-disabled': return 'このアカウントは無効化されています。サポートまでお問い合わせください。';
+        case 'auth/user-not-found': return 'このメールアドレスに該当する会員が見つかりませんでした。';
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          return 'メールアドレスまたはパスワードが正しくありません。';
+        case 'auth/too-many-requests': return '試行回数が多すぎます。しばらく時間をおいて再度お試しください。';
+        case 'auth/network-request-failed': return 'ネットワークエラーが発生しました。接続をご確認ください。';
+        default: return 'ログインに失敗しました。時間をおいて再度お試しください。';
+      }
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      clearMsg();
+
+      var email = emailInput.value.trim();
+      var password = passwordInput.value;
+
+      if (!email || !password) {
+        showMsg('メールアドレスとパスワードを入力してください。', 'error');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showMsg('メールアドレスの形式が正しくありません。', 'error');
+        return;
+      }
+
+      setLoading(true);
+
+      var persistence = rememberInput.checked
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+
+      auth.setPersistence(persistence)
+        .then(function() {
+          return auth.signInWithEmailAndPassword(email, password);
+        })
+        .then(function(cred) {
+          var uid = cred.user.uid;
+          return db.collection('users').doc(uid).get().then(function(doc) {
+            if (!doc.exists || doc.data().accountType !== 'b2b') {
+              return auth.signOut().then(function() {
+                throw { code: 'not-b2b' };
+              });
+            }
+            window.location.href = 'b2b-dashboard.html';
+          });
+        })
+        .catch(function(err) {
+          setLoading(false);
+          if (err && err.code === 'not-b2b') {
+            showMsg('このメールアドレスは法人会員として登録されておりません。法人会員登録をお願いします。', 'error');
+          } else {
+            showMsg(authErrorMessage(err && err.code), 'error');
+          }
+        });
+    });
+
+    // Password reset modal
+    var resetModal = document.getElementById('resetModal');
+    var resetEmail = document.getElementById('resetEmail');
+    var resetMsg = document.getElementById('resetMsg');
+    var resetSend = document.getElementById('resetSend');
+    var resetCancel = document.getElementById('resetCancel');
+
+    document.getElementById('forgotLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      resetEmail.value = emailInput.value.trim();
+      resetMsg.textContent = ''; resetMsg.className = 'form-msg';
+      resetModal.classList.add('show');
+    });
+    resetCancel.addEventListener('click', function() {
+      resetModal.classList.remove('show');
+    });
+    resetModal.addEventListener('click', function(e) {
+      if (e.target === resetModal) resetModal.classList.remove('show');
+    });
+    resetSend.addEventListener('click', function() {
+      var em = resetEmail.value.trim();
+      resetMsg.className = 'form-msg';
+      resetMsg.textContent = '';
+      if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+        resetMsg.textContent = '有効なメールアドレスを入力してください。';
+        resetMsg.className = 'form-msg error';
+        return;
+      }
+      resetSend.disabled = true;
+      auth.sendPasswordResetEmail(em)
+        .then(function() {
+          resetMsg.textContent = 'パスワード再設定メールを送信しました。受信ボックスをご確認ください。';
+          resetMsg.className = 'form-msg success';
+          resetSend.disabled = false;
+        })
+        .catch(function(err) {
+          resetMsg.textContent = authErrorMessage(err && err.code);
+          resetMsg.className = 'form-msg error';
+          resetSend.disabled = false;
+        });
+    });
+
+    // Auto-redirect if already logged in as B2B
+    auth.onAuthStateChanged(function(user) {
+      if (!user) return;
+      db.collection('users').doc(user.uid).get().then(function(doc) {
+        if (doc.exists && doc.data().accountType === 'b2b') {
+          window.location.href = 'b2b-dashboard.html';
+        }
+      }).catch(function(){});
+    });
+  </script>
+</body>
+</html>
