@@ -238,20 +238,6 @@
     }
     .err-msg.show { display: block; }
 
-    /* ─── パスワード表示切替 ─── */
-    .pw-wrap {
-      position: relative;
-    }
-    .pw-wrap .form-input { padding-right: 44px; }
-    .pw-toggle {
-      position: absolute; right: 10px; top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      color: var(--b2b-text-sub); font-size: 13px;
-      padding: 4px; line-height: 1;
-    }
-    .pw-toggle:hover { color: var(--b2b-gold-dark); }
-
     /* ─── 郵便番号検索 ─── */
     .postal-row {
       display: flex; gap: 10px; align-items: flex-start;
@@ -719,24 +705,10 @@
           <div class="err-msg" data-for="emailConfirm">メールアドレスが一致しません</div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">ご希望のパスワード <span class="req">必須</span></label>
-            <div class="pw-wrap">
-              <input type="password" class="form-input" id="password" placeholder="8文字以上">
-              <button type="button" class="pw-toggle" data-target="password" title="表示切替">👁</button>
-            </div>
-            <p class="hint">英数字を含む8文字以上で設定してください</p>
-            <div class="err-msg" data-for="password">8文字以上で入力してください</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">パスワード (再入力) <span class="req">必須</span></label>
-            <div class="pw-wrap">
-              <input type="password" class="form-input" id="passwordConfirm" placeholder="再度入力">
-              <button type="button" class="pw-toggle" data-target="passwordConfirm" title="表示切替">👁</button>
-            </div>
-            <div class="err-msg" data-for="passwordConfirm">パスワードが一致しません</div>
-          </div>
+        <div class="notice-box" style="margin-top:0;margin-bottom:18px;">
+          <strong>🔑 パスワードについて</strong><br>
+          法人確認完了後、ご登録のメールアドレス宛にパスワード設定用のメールをお送りいたします。<br>
+          お客様ご自身で安全なパスワードを設定していただけます。
         </div>
 
         <div class="form-group">
@@ -925,20 +897,6 @@
         .catch(function() { btn.textContent = '住所検索'; showErr('postal', '検索に失敗しました'); });
     });
 
-    // ─── パスワード表示切替 ───
-    document.querySelectorAll('.pw-toggle').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var input = document.getElementById(btn.dataset.target);
-        if (input.type === 'password') {
-          input.type = 'text';
-          btn.textContent = '🔒';
-        } else {
-          input.type = 'password';
-          btn.textContent = '👁';
-        }
-      });
-    });
-
     // ─── ステップ切り替え ───
     var currentStep = 1;
     function gotoStep(n) {
@@ -1012,10 +970,6 @@
       if (!emailRe.test(email)) { showErr('email'); ok = false; }
       var emailConf = document.getElementById('emailConfirm').value.trim();
       if (!emailConf || email !== emailConf) { showErr('emailConfirm'); ok = false; }
-      var pw = document.getElementById('password').value;
-      if (pw.length < 8) { showErr('password'); ok = false; }
-      var pwc = document.getElementById('passwordConfirm').value;
-      if (pw !== pwc) { showErr('passwordConfirm'); ok = false; }
       return ok;
     }
 
@@ -1040,8 +994,7 @@
         ['フリガナ', val('lastNameKana') + ' ' + val('firstNameKana')],
         ['部署・役職', val('department')],
         ['電話番号', val('phone')],
-        ['メールアドレス', val('email') + '<br><span style="font-size:10px;color:var(--b2b-text-sub);">（ログインID）</span>'],
-        ['パスワード', '••••••••（設定済み）'],
+        ['メールアドレス', val('email') + '<br><span style="font-size:10px;color:var(--b2b-text-sub);">（ログインID・パスワード設定メール送付先）</span>'],
         ['当社を知ったきっかけ', val('referral')]
       ];
       function buildRows(data) {
