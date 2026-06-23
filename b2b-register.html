@@ -238,6 +238,38 @@
     }
     .err-msg.show { display: block; }
 
+    /* ─── パスワード表示切替 ─── */
+    .pw-wrap {
+      position: relative;
+    }
+    .pw-wrap .form-input { padding-right: 44px; }
+    .pw-toggle {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--b2b-text-sub); font-size: 13px;
+      padding: 4px; line-height: 1;
+    }
+    .pw-toggle:hover { color: var(--b2b-gold-dark); }
+
+    /* ─── 郵便番号検索 ─── */
+    .postal-row {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .postal-row .form-input { max-width: 200px; }
+    .btn-postal {
+      padding: 11px 16px;
+      font-size: 11px; letter-spacing: 0.08em;
+      font-family: inherit;
+      background: rgba(201,169,110,0.12);
+      border: 1px solid rgba(201,169,110,0.35);
+      color: var(--b2b-gold-dark);
+      border-radius: 2px; cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-postal:hover { background: rgba(201,169,110,0.22); }
+
     /* ─── ボタン ─── */
     .b2b-actions {
       display: flex; justify-content: space-between;
@@ -415,9 +447,9 @@
       margin-bottom: 4px;
     }
     .ref-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      letter-spacing: 0.1em;
+      font-family: 'Noto Sans JP', monospace;
+      font-size: 18px;
+      letter-spacing: 0.14em;
       color: var(--b2b-gold-dark);
       font-weight: 500;
     }
@@ -587,7 +619,11 @@
 
         <div class="form-group">
           <label class="form-label">郵便番号 <span class="req">必須</span></label>
-          <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8" style="max-width:200px;">
+          <div class="postal-row">
+            <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8">
+            <button type="button" class="btn-postal" id="postalSearch">住所検索</button>
+          </div>
+          <p class="hint">郵便番号を入力後「住所検索」で自動入力されます</p>
           <div class="err-msg" data-for="postal">郵便番号を入力してください</div>
         </div>
 
@@ -686,13 +722,19 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">ご希望のパスワード <span class="req">必須</span></label>
-            <input type="password" class="form-input" id="password" placeholder="8文字以上">
+            <div class="pw-wrap">
+              <input type="password" class="form-input" id="password" placeholder="8文字以上">
+              <button type="button" class="pw-toggle" data-target="password" title="表示切替">👁</button>
+            </div>
             <p class="hint">英数字を含む8文字以上で設定してください</p>
             <div class="err-msg" data-for="password">8文字以上で入力してください</div>
           </div>
           <div class="form-group">
             <label class="form-label">パスワード (再入力) <span class="req">必須</span></label>
-            <input type="password" class="form-input" id="passwordConfirm" placeholder="再度入力">
+            <div class="pw-wrap">
+              <input type="password" class="form-input" id="passwordConfirm" placeholder="再度入力">
+              <button type="button" class="pw-toggle" data-target="passwordConfirm" title="表示切替">👁</button>
+            </div>
             <div class="err-msg" data-for="passwordConfirm">パスワードが一致しません</div>
           </div>
         </div>
@@ -766,8 +808,8 @@
           </div>
 
           <p class="success-msg">
-            ご登録のメールアドレス宛に確認メールを送信いたしました。<br>
-            担当者にて法人確認の上、<strong>2営業日以内</strong>にログイン情報をご連絡いたします。<br>
+            お申し込み内容を受け付けました。<br>
+            担当者にて法人確認の上、<strong>2営業日以内</strong>にご登録のメールアドレス宛にご連絡いたします。<br>
             お急ぎの場合は <a href="mailto:info@hinokaglobal.com" style="color:var(--b2b-gold-dark);">info@hinokaglobal.com</a> までお問い合わせください。
           </p>
 
@@ -856,6 +898,45 @@
     document.getElementById('postal').addEventListener('input', function() {
       var v = this.value.replace(/\D/g, '');
       this.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
+    });
+
+    // ─── 郵便番号→住所自動入力 ───
+    document.getElementById('postalSearch').addEventListener('click', function() {
+      var raw = document.getElementById('postal').value.replace(/\D/g, '');
+      if (raw.length !== 7) { showErr('postal', '7桁の郵便番号を入力してください'); return; }
+      this.textContent = '検索中...';
+      var btn = this;
+      fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + raw)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          btn.textContent = '住所検索';
+          if (data.results && data.results.length > 0) {
+            var r = data.results[0];
+            var prefSel = document.getElementById('prefecture');
+            for (var i = 0; i < prefSel.options.length; i++) {
+              if (prefSel.options[i].text === r.address1) { prefSel.selectedIndex = i; break; }
+            }
+            document.getElementById('city').value = r.address2 + r.address3;
+            clearErr('postal'); clearErr('prefecture'); clearErr('city');
+          } else {
+            showErr('postal', '該当する住所が見つかりません');
+          }
+        })
+        .catch(function() { btn.textContent = '住所検索'; showErr('postal', '検索に失敗しました'); });
+    });
+
+    // ─── パスワード表示切替 ───
+    document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var input = document.getElementById(btn.dataset.target);
+        if (input.type === 'password') {
+          input.type = 'text';
+          btn.textContent = '🔒';
+        } else {
+          input.type = 'password';
+          btn.textContent = '👁';
+        }
+      });
     });
 
     // ─── ステップ切り替え ───
