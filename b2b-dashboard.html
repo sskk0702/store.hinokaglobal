@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | 法人会員ポータル</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    :root {
+      --gold: #c9a96e;
+      --gold-dark: #a8884f;
+      --gold-light: #e6d5b3;
+      --ivory: #fdf8f0;
+      --dark: #1a1710;
+      --muted: #6b6457;
+      --border: #ece3d2;
+    }
+    body {
+      padding-top: var(--nav-height);
+      background: var(--ivory);
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--dark);
+    }
+    h1, h2, h3, .serif {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+    }
+
+    .loading-wrap {
+      min-height: 60vh; display: flex; align-items: center;
+      justify-content: center; flex-direction: column; gap: 14px;
+      color: var(--muted); font-size: 13px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border); border-top-color: var(--gold);
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .dash-shell { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
+
+    /* Welcome header */
+    .welcome-bar {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 24px 28px; background: #fff; border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      box-shadow: 0 2px 12px rgba(26,23,16,0.04);
+      margin-bottom: 28px; gap: 24px; flex-wrap: wrap;
+    }
+    .welcome-bar .vip-badge {
+      display: inline-block; font-size: 10px; letter-spacing: 0.2em;
+      color: var(--gold-dark); padding: 4px 10px;
+      border: 1px solid var(--gold); background: var(--ivory);
+      margin-bottom: 10px; text-transform: uppercase;
+    }
+    .welcome-bar h1 { font-size: 24px; margin: 0 0 4px; }
+    .welcome-bar .welcome-name { font-size: 14px; color: var(--muted); }
+    .welcome-meta { text-align: right; font-size: 12px; color: var(--muted); }
+    .welcome-meta .last-login { margin-bottom: 8px; }
+    .logout-btn {
+      background: none; border: 1px solid var(--dark); color: var(--dark);
+      padding: 8px 16px; font-size: 12px; cursor: pointer;
+      letter-spacing: 0.08em; font-family: inherit;
+      transition: all .2s;
+    }
+    .logout-btn:hover { background: var(--dark); color: #fff; }
+
+    /* Layout */
+    .dash-grid {
+      display: grid; grid-template-columns: 1fr 280px; gap: 28px;
+    }
+
+    /* Stats */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #fff; border: 1px solid var(--border);
+      padding: 20px 18px; position: relative;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(201,169,110,0.15);
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--gold);
+    }
+    .stat-label {
+      font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; color: var(--dark); font-weight: 500;
+    }
+    .stat-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
+
+    /* Section heading */
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-head h2 {
+      font-size: 18px; margin: 0;
+    }
+    .section-head .head-sub {
+      font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+    }
+
+    /* Quick actions */
+    .actions-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 14px; margin-bottom: 32px;
+    }
+    .action-card {
+      background: #fff; border: 1px solid var(--border);
+      padding: 22px 24px; text-decoration: none; color: var(--dark);
+      display: flex; align-items: center; gap: 18px;
+      transition: all .2s;
+    }
+    .action-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 4px 14px rgba(201,169,110,0.12);
+    }
+    .action-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--ivory); border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-dark); font-size: 18px;
+    }
+    .action-text .action-title {
+      font-size: 14px; font-weight: 500; margin-bottom: 4px;
+    }
+    .action-text .action-desc {
+      font-size: 11px; color: var(--muted);
+    }
+    .action-arrow { margin-left: auto; color: var(--gold); font-size: 18px; }
+
+    /* Special pricing banner */
+    .pricing-banner {
+      background: linear-gradient(135deg, #1a1710 0%, #2a241a 100%);
+      color: var(--ivory); padding: 24px 28px;
+      margin-bottom: 28px; position: relative; overflow: hidden;
+      border: 1px solid var(--gold);
+    }
+    .pricing-banner::before {
+      content: ''; position: absolute; top: 0; right: 0; bottom: 0;
+      width: 4px; background: var(--gold);
+    }
+    .pricing-banner h3 {
+      font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+      font-size: 16px; color: var(--gold-light); margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .pricing-banner p { font-size: 13px; margin-bottom: 16px; opacity: 0.9; }
+    .pricing-cta {
+      display: inline-block; padding: 10px 24px;
+      background: var(--gold); color: var(--dark);
+      text-decoration: none; font-size: 12px;
+      letter-spacing: 0.1em; font-weight: 500;
+      transition: background .2s;
+    }
+    .pricing-cta:hover { background: var(--gold-light); }
+
+    /* Activity table */
+    .activity-card {
+      background: #fff; border: 1px solid var(--border);
+      padding: 24px; margin-bottom: 28px;
+    }
+    .activity-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .activity-table th {
+      text-align: left; padding: 10px 12px; font-weight: 500;
+      font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-table td {
+      padding: 14px 12px; border-bottom: 1px solid var(--border);
+    }
+    .activity-table tr:last-child td { border-bottom: none; }
+    .status-pill {
+      display: inline-block; padding: 3px 10px; font-size: 11px;
+      border-radius: 2px; letter-spacing: 0.05em;
+    }
+    .status-pill.completed { background: #e8f3ec; color: #2d6b3f; }
+    .status-pill.processing { background: #fff4e0; color: #7a5510; }
+    .status-pill.quote { background: var(--ivory); color: var(--gold-dark); border: 1px solid var(--gold-light); }
+    .sample-tag {
+      font-size: 10px; color: #999; margin-left: 6px;
+    }
+    .empty-state {
+      text-align: center; padding: 36px 12px; color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Sidebar */
+    .sidebar-col { display: flex; flex-direction: column; gap: 20px; }
+    .side-card {
+      background: #fff; border: 1px solid var(--border); padding: 22px;
+    }
+    .side-card h3 {
+      font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+      font-size: 13px; letter-spacing: 0.08em; color: var(--gold-dark);
+      padding-bottom: 10px; margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 8px 0; font-size: 13px;
+    }
+    .info-row .info-label {
+      font-size: 10px; color: var(--muted); letter-spacing: 0.06em;
+    }
+    .info-row .info-val { color: var(--dark); }
+    .gold-status {
+      color: var(--gold-dark); font-weight: 500;
+    }
+    .gold-status::before {
+      content: '●'; color: var(--gold); margin-right: 6px;
+    }
+    .edit-info-btn {
+      width: 100%; margin-top: 12px;
+      padding: 9px; background: none; border: 1px solid var(--gold);
+      color: var(--gold-dark); font-size: 12px; cursor: pointer;
+      font-family: inherit; letter-spacing: 0.06em;
+      transition: all .2s;
+    }
+    .edit-info-btn:hover { background: var(--gold); color: #fff; }
+
+    .support-card {
+      background: var(--ivory); border: 1px solid var(--gold-light);
+    }
+    .support-card h3 { color: var(--gold-dark); }
+    .support-row {
+      font-size: 12px; padding: 6px 0; color: var(--dark);
+    }
+    .support-row strong {
+      display: block; font-size: 10px; color: var(--muted);
+      letter-spacing: 0.06em; font-weight: 400; margin-bottom: 2px;
+    }
+    .support-row a { color: var(--dark); text-decoration: none; }
+    .support-row a:hover { color: var(--gold-dark); }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .actions-grid { grid-template-columns: 1fr; }
+      .welcome-bar { flex-direction: column; align-items: flex-start; }
+      .welcome-meta { text-align: left; }
+    }
+    @media (max-width: 480px) {
+      .dash-shell { padding: 20px 14px 48px; }
+      .welcome-bar h1 { font-size: 20px; }
+      .stat-value { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingSection" class="loading-wrap">
+    <div class="spinner"></div>
+    法人ポータルを読み込み中...
+  </div>
+
+  <main class="dash-shell" id="dashSection" style="display:none;">
+
+    <!-- Welcome Header -->
+    <section class="welcome-bar">
+      <div>
+        <span class="vip-badge">★ B2B GOLD MEMBER</span>
+        <h1 id="welcomeCompany">— 様</h1>
+        <div class="welcome-name" id="welcomeContact">担当者名 様、ようこそ</div>
+      </div>
+      <div class="welcome-meta">
+        <div class="last-login">前回ログイン: <span id="lastLogin">—</span></div>
+        <button class="logout-btn" id="logoutBtn" type="button">ログアウト →</button>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">今月の注文数</div>
+        <div class="stat-value" id="statOrders">—<span class="stat-unit">件</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">進行中の見積り</div>
+        <div class="stat-value" id="statQuotes">—<span class="stat-unit">件</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">今月のご利用金額</div>
+        <div class="stat-value" id="statMonth">¥—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">累計ご注文金額</div>
+        <div class="stat-value" id="statTotal">¥—</div>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <!-- Main column -->
+      <div>
+
+        <!-- Special Pricing Notice -->
+        <section class="pricing-banner">
+          <h3>★ 法人会員様限定 — 全商品 10% OFF 適用中</h3>
+          <p>100点以上のご注文で更に 5% OFF が自動適用されます。</p>
+          <a href="product-list.html" class="pricing-cta">商品を見る →</a>
+        </section>
+
+        <!-- Quick Actions -->
+        <div class="section-head">
+          <h2>QUICK ACTIONS</h2>
+          <span class="head-sub">よく使う機能</span>
+        </div>
+        <section class="actions-grid">
+          <a href="b2b.html#quote-section" class="action-card">
+            <div class="action-icon">✎</div>
+            <div class="action-text">
+              <div class="action-title">新規見積りを依頼する</div>
+              <div class="action-desc">数量・仕様に応じたお見積り</div>
+            </div>
+            <div class="action-arrow">→</div>
+          </a>
+          <a href="product-list.html" class="action-card">
+            <div class="action-icon">▤</div>
+            <div class="action-text">
+              <div class="action-title">商品カタログを見る</div>
+              <div class="action-desc">全商品ラインナップを表示</div>
+            </div>
+            <div class="action-arrow">→</div>
+          </a>
+          <a href="account.html#orders" class="action-card">
+            <div class="action-icon">▦</div>
+            <div class="action-text">
+              <div class="action-title">注文履歴を確認する</div>
+              <div class="action-desc">過去のご注文の詳細・追跡</div>
+            </div>
+            <div class="action-arrow">→</div>
+          </a>
+          <a href="mailto:info@hinokaglobal.com" class="action-card">
+            <div class="action-icon">✉</div>
+            <div class="action-text">
+              <div class="action-title">担当者に連絡する</div>
+              <div class="action-desc">専任担当者がご対応します</div>
+            </div>
+            <div class="action-arrow">→</div>
+          </a>
+        </section>
+
+        <!-- Recent Activity -->
+        <div class="section-head">
+          <h2>RECENT ACTIVITY</h2>
+          <span class="head-sub">最近のご注文・見積り</span>
+        </div>
+        <section class="activity-card">
+          <div id="activityArea">
+            <table class="activity-table">
+              <thead>
+                <tr>
+                  <th>日付</th>
+                  <th>番号</th>
+                  <th>種別</th>
+                  <th>金額</th>
+                  <th>ステータス</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>2026/06/18</td>
+                  <td>Q-2026-0418<span class="sample-tag">(サンプル表示)</span></td>
+                  <td>見積り</td>
+                  <td>¥348,000</td>
+                  <td><span class="status-pill quote">確認中</span></td>
+                </tr>
+                <tr>
+                  <td>2026/06/10</td>
+                  <td>ORD-2026-1287<span class="sample-tag">(サンプル表示)</span></td>
+                  <td>注文</td>
+                  <td>¥126,500</td>
+                  <td><span class="status-pill processing">出荷準備中</span></td>
+                </tr>
+                <tr>
+                  <td>2026/05/28</td>
+                  <td>ORD-2026-1142<span class="sample-tag">(サンプル表示)</span></td>
+                  <td>注文</td>
+                  <td>¥84,200</td>
+                  <td><span class="status-pill completed">完了</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+              まだご注文・見積り履歴がありません。<br>
+              新規見積もりからお気軽にご相談ください。
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar-col">
+
+        <!-- Company Info -->
+        <div class="side-card">
+          <h3>会社情報</h3>
+          <div class="info-row">
+            <span class="info-label">会社名</span>
+            <span class="info-val" id="infoCompany">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">担当者名</span>
+            <span class="info-val" id="infoContact">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">メールアドレス</span>
+            <span class="info-val" id="infoEmail">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">電話番号</span>
+            <span class="info-val" id="infoPhone">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">法人会員ステータス</span>
+            <span class="info-val gold-status">認証済み（GOLD）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">適用割引率</span>
+            <span class="info-val">10% OFF（標準）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">支払方法</span>
+            <span class="info-val">銀行振込（現在）</span>
+          </div>
+          <button class="edit-info-btn" id="editInfoBtn" type="button">情報を編集</button>
+        </div>
+
+        <!-- Support -->
+        <div class="side-card support-card">
+          <h3>サポート窓口</h3>
+          <div class="support-row">
+            <strong>担当者</strong>
+            田中 太郎
+          </div>
+          <div class="support-row">
+            <strong>メール</strong>
+            <a href="mailto:info@hinokaglobal.com">info@hinokaglobal.com</a>
+          </div>
+          <div class="support-row">
+            <strong>電話</strong>
+            <a href="tel:0671669902">06-7166-9902</a>
+          </div>
+          <div class="support-row">
+            <strong>受付時間</strong>
+            平日 9:00 〜 17:00
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+  </main>
+
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">洞察から、行動へ</div>
+      </div>
+      <div class="footer-col">
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
+        <a href="b2b.html">法人向けサービス</a>
+      </div>
+      <div class="footer-col">
+        <h4>マイアカウント</h4>
+        <a href="account.html">マイページ</a>
+        <a href="b2b-dashboard.html">法人ポータル</a>
+        <a href="account.html#orders">注文履歴</a>
+        <a href="account.html#service">返品 / 交換</a>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
+      </div>
+      <div class="footer-col">
+        <h4>カスタマーサービス</h4>
+        <a href="legal.html#faq">よくある質問（FAQ）</a>
+        <a href="legal.html#shipping">配送について</a>
+        <a href="legal.html#return">返品ポリシー</a>
+        <a href="mailto:info@hinokaglobal.com">お問い合わせ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    var _firebaseConfig = {
+      apiKey: 'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
+      authDomain: 'hinoka-0304.firebaseapp.com',
+      projectId: 'hinoka-0304',
+      storageBucket: 'hinoka-0304.firebasestorage.app',
+      messagingSenderId: '275098198657',
+      appId: '1:275098198657:web:d9b11ff1086c972ac6e380'
+    };
+    if (!firebase.apps.length) firebase.initializeApp(_firebaseConfig);
+
+    var _loadFallback = setTimeout(function(){
+      window.location.href = 'b2b-login.html';
+    }, 6000);
+
+    function fmtDateTime(d) {
+      if (!d) return '—';
+      try {
+        var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+        return d.getFullYear() + '/' + pad(d.getMonth()+1) + '/' + pad(d.getDate()) +
+               ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      } catch (e) { return '—'; }
+    }
+
+    function setText(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = val || '—';
+    }
+
+    firebase.auth().onAuthStateChanged(async function(user) {
+      clearTimeout(_loadFallback);
+      if (!user) {
+        window.location.href = 'b2b-login.html';
+        return;
+      }
+      try {
+        var doc = await firebase.firestore().collection('users').doc(user.uid).get();
+        var data = doc.exists ? doc.data() : {};
+        if (!data || data.accountType !== 'b2b') {
+          window.location.href = 'account.html';
+          return;
+        }
+
+        var companyName = data.companyName || '法人会員';
+        var contactName = data.contactName || (data.lastName || '') + ' ' + (data.firstName || '');
+        contactName = contactName.trim() || 'ご担当者';
+        var email = data.email || user.email || '—';
+        var phone = data.phone || data.phoneNumber || '—';
+
+        document.getElementById('welcomeCompany').textContent = companyName + ' 様';
+        document.getElementById('welcomeContact').textContent = contactName + ' 様、ようこそ';
+
+        setText('infoCompany', companyName);
+        setText('infoContact', contactName);
+        setText('infoEmail', email);
+        setText('infoPhone', phone);
+
+        // Last login
+        var last = null;
+        if (user.metadata && user.metadata.lastSignInTime) {
+          last = new Date(user.metadata.lastSignInTime);
+        }
+        setText('lastLogin', fmtDateTime(last));
+
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('dashSection').style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('dashSection').style.display = 'block';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      firebase.auth().signOut().then(function(){
+        window.location.href = 'b2b-login.html';
+      });
+    });
+
+    document.getElementById('editInfoBtn').addEventListener('click', function() {
+      alert('近日対応予定です。\n会社情報の編集は、担当者までご連絡ください（info@hinokaglobal.com）。');
+    });
+  </script>
+</body>
+</html>
