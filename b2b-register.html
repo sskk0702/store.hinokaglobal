@@ -1,1 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | 法人会員登録</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    :root {
+      --b2b-gold:       #c9a96e;
+      --b2b-gold-dark:  #b8943f;
+      --b2b-gold-light: #e8d5a8;
+      --b2b-ivory:      #fdf8f0;
+      --b2b-ivory2:     #f5ead8;
+      --b2b-dark:       #1a1710;
+      --b2b-text:       #2a1c0e;
+      --b2b-text-sub:   rgba(58,40,20,0.55);
+      --b2b-border:     rgba(201,169,110,0.22);
+      --b2b-border2:    rgba(201,169,110,0.14);
+      --b2b-gray-bg:    #f4f1ec;
+      --b2b-shadow:     0 4px 24px rgba(139,111,71,0.10), 0 1px 4px rgba(0,0,0,0.04);
+    }
 
+    body {
+      padding-top: var(--nav-height);
+      background: var(--b2b-gray-bg);
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--b2b-text);
+    }
+
+    /* ─── パンくず ─── */
+    .b2b-crumb {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 28px 0;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--b2b-text-sub);
+    }
+    .b2b-crumb a { color: var(--b2b-text-sub); text-decoration: none; transition: color .2s; }
+    .b2b-crumb a:hover { color: var(--b2b-dark); }
+    .b2b-crumb .sep { margin: 0 8px; color: var(--b2b-gold-light); }
+
+    /* ─── ヘッダー ─── */
+    .b2b-head {
+      max-width: 980px;
+      margin: 16px auto 0;
+      padding: 0 28px;
+      text-align: center;
+    }
+    .b2b-head h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px; font-weight: 400;
+      letter-spacing: 0.18em;
+      color: var(--b2b-dark);
+      margin-bottom: 6px;
+    }
+    .b2b-head .sub {
+      font-size: 12px; letter-spacing: 0.14em;
+      color: var(--b2b-text-sub);
+    }
+    .b2b-head .sub::after {
+      content: '';
+      display: block; width: 36px; height: 2px;
+      background: linear-gradient(90deg, var(--b2b-gold), var(--b2b-gold-dark));
+      margin: 16px auto 0;
+    }
+
+    /* ─── プログレスバー ─── */
+    .b2b-progress {
+      max-width: 760px;
+      margin: 32px auto 0;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    .b2b-progress::before {
+      content: '';
+      position: absolute;
+      left: calc(28px + 18px);
+      right: calc(28px + 18px);
+      top: 18px;
+      height: 2px;
+      background: #e0d8c8;
+      z-index: 0;
+    }
+    .b2b-progress .bar-fill {
+      position: absolute;
+      left: calc(28px + 18px);
+      top: 18px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--b2b-gold), var(--b2b-gold-dark));
+      z-index: 1;
+      transition: width .4s;
+    }
+    .b2b-step {
+      position: relative; z-index: 2;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+    .b2b-step .dot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--b2b-ivory);
+      border: 2px solid #d8cdb6;
+      color: #b0a48a;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      margin: 0 auto 8px;
+      transition: all .3s;
+    }
+    .b2b-step .label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: #a89e85;
+      transition: color .3s;
+    }
+    .b2b-step.active .dot {
+      background: var(--b2b-ivory);
+      border-color: var(--b2b-gold);
+      color: var(--b2b-gold-dark);
+      box-shadow: 0 0 0 4px rgba(201,169,110,0.15);
+    }
+    .b2b-step.active .label {
+      color: var(--b2b-dark);
+      font-weight: 500;
+    }
+    .b2b-step.done .dot {
+      background: linear-gradient(135deg, var(--b2b-gold), var(--b2b-gold-dark));
+      border-color: var(--b2b-gold-dark);
+      color: #fff;
+    }
+    .b2b-step.done .label { color: var(--b2b-text); }
+
+    /* ─── カード ─── */
+    .b2b-wrap {
+      max-width: 820px;
+      margin: 40px auto 80px;
+      padding: 0 28px;
+    }
+    .b2b-card {
+      background: var(--b2b-ivory);
+      border: 1px solid var(--b2b-border);
+      border-radius: 3px;
+      box-shadow: var(--b2b-shadow);
+      padding: 40px 44px;
+    }
+    .b2b-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 400;
+      letter-spacing: 0.16em;
+      color: var(--b2b-dark);
+      padding-bottom: 14px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--b2b-border2);
+      position: relative;
+    }
+    .b2b-card h2::after {
+      content: ''; position: absolute;
+      left: 0; bottom: -1px;
+      width: 44px; height: 2px;
+      background: linear-gradient(90deg, var(--b2b-gold), transparent);
+    }
+    .b2b-card h2 .ja {
+      display: block;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 11px; letter-spacing: 0.16em;
+      color: var(--b2b-text-sub);
+      margin-top: 6px; font-weight: 400;
+    }
+
+    /* ─── フォーム ─── */
+    .b2b-step-panel { display: none; }
+    .b2b-step-panel.active { display: block; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--b2b-text-sub);
+      margin-bottom: 7px;
+    }
+    .form-label .req {
+      background: #c0392b; color: #fff;
+      font-size: 9px; padding: 1px 5px;
+      letter-spacing: 0; border-radius: 2px;
+    }
+    .form-label .opt {
+      background: #e8e3d6; color: #7a6e54;
+      font-size: 9px; padding: 1px 5px;
+      letter-spacing: 0; border-radius: 2px;
+    }
+
+    .form-input {
+      width: 100%;
+      border: 1px solid rgba(139,111,71,0.25);
+      padding: 11px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      background: rgba(255,255,255,0.7);
+      border-radius: 2px;
+      color: var(--b2b-text);
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .form-input::placeholder { color: rgba(139,111,71,0.4); }
+    .form-input:focus {
+      border-color: var(--b2b-gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
+      background: #fff;
+    }
+    .form-input.err {
+      border-color: #c0392b;
+      background: #fff7f7;
+    }
+    select.form-input {
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a96e'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .hint {
+      font-size: 10px; color: var(--b2b-text-sub);
+      margin-top: 5px; letter-spacing: 0.03em; line-height: 1.7;
+    }
+    .err-msg {
+      font-size: 11px; color: #c0392b;
+      margin-top: 5px; display: none;
+    }
+    .err-msg.show { display: block; }
+
+    /* ─── ボタン ─── */
+    .b2b-actions {
+      display: flex; justify-content: space-between;
+      gap: 14px; margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid var(--b2b-border2);
+    }
+    .btn-next, .btn-back, .btn-submit {
+      padding: 14px 36px;
+      font-size: 11px; letter-spacing: 0.2em;
+      font-family: inherit;
+      border: none; cursor: pointer;
+      border-radius: 2px;
+      transition: opacity .2s, box-shadow .2s;
+    }
+    .btn-next, .btn-submit {
+      background: linear-gradient(135deg, #2a1c0e 0%, #1a1208 60%, #2a1c0e 100%);
+      color: var(--b2b-gold-light);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      margin-left: auto;
+    }
+    .btn-next:hover, .btn-submit:hover { opacity: 0.88; box-shadow: 0 6px 24px rgba(0,0,0,0.22); }
+    .btn-next:disabled, .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-back {
+      background: transparent;
+      color: var(--b2b-text-sub);
+      border: 1px solid rgba(139,111,71,0.3);
+    }
+    .btn-back:hover { color: var(--b2b-dark); border-color: var(--b2b-dark); }
+
+    /* ─── 確認テーブル ─── */
+    .review-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.5);
+      border: 1px solid var(--b2b-border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .review-table tr { border-bottom: 1px solid var(--b2b-border2); }
+    .review-table tr:last-child { border-bottom: none; }
+    .review-table th {
+      width: 180px;
+      text-align: left;
+      padding: 12px 18px;
+      background: rgba(201,169,110,0.07);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--b2b-text-sub);
+      font-weight: 500;
+      vertical-align: top;
+    }
+    .review-table td {
+      padding: 12px 18px;
+      color: var(--b2b-text);
+      line-height: 1.7;
+      word-break: break-all;
+    }
+    .review-section-title {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--b2b-gold-dark);
+      margin: 24px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--b2b-border2);
+    }
+    .review-section-title:first-of-type { margin-top: 0; }
+
+    .agree-box {
+      background: rgba(255,255,255,0.5);
+      border: 1px solid var(--b2b-border);
+      border-radius: 2px;
+      padding: 20px 24px;
+      margin-top: 18px;
+    }
+    .agree-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 12px; line-height: 1.8;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+    .agree-row input[type="checkbox"] {
+      margin-top: 3px;
+      accent-color: var(--b2b-gold-dark);
+      flex-shrink: 0;
+    }
+    .agree-row a {
+      color: var(--b2b-gold-dark);
+      text-decoration: underline;
+    }
+    .notice-box {
+      background: rgba(201,169,110,0.07);
+      border: 1px solid var(--b2b-border);
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--b2b-text);
+      line-height: 1.9;
+      margin-top: 18px;
+      border-radius: 2px;
+    }
+    .notice-box strong { color: var(--b2b-gold-dark); }
+
+    /* ─── ローディング ─── */
+    .loading-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(26,18,8,0.55);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 42px; height: 42px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: var(--b2b-gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      color: var(--b2b-gold-light);
+      font-size: 11px; letter-spacing: 0.16em;
+      margin-top: 16px; text-align: center;
+    }
+    .loading-overlay > div { text-align: center; }
+
+    /* ─── 成功画面 ─── */
+    .success-card {
+      text-align: center;
+      padding: 64px 44px;
+    }
+    .success-icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--b2b-gold), var(--b2b-gold-dark));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 24px rgba(184,148,63,0.35);
+    }
+    .success-icon svg {
+      width: 40px; height: 40px;
+      stroke: #fff; fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400;
+      letter-spacing: 0.16em;
+      color: var(--b2b-dark);
+      margin-bottom: 8px;
+    }
+    .success-jp {
+      font-size: 14px; letter-spacing: 0.06em;
+      color: var(--b2b-text);
+      margin-bottom: 28px;
+    }
+    .ref-box {
+      display: inline-block;
+      padding: 14px 28px;
+      background: rgba(255,255,255,0.7);
+      border: 1px dashed var(--b2b-gold);
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+    .ref-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--b2b-text-sub);
+      margin-bottom: 4px;
+    }
+    .ref-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      letter-spacing: 0.1em;
+      color: var(--b2b-gold-dark);
+      font-weight: 500;
+    }
+    .success-msg {
+      font-size: 12px; color: var(--b2b-text-sub);
+      line-height: 2;
+      max-width: 460px;
+      margin: 0 auto 32px;
+    }
+    .success-actions {
+      display: flex; gap: 14px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .success-btn {
+      padding: 13px 32px;
+      font-size: 11px; letter-spacing: 0.18em;
+      font-family: inherit;
+      cursor: pointer; border-radius: 2px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .success-btn.primary {
+      background: linear-gradient(135deg, #2a1c0e, #1a1208);
+      color: var(--b2b-gold-light);
+      border: none;
+    }
+    .success-btn.secondary {
+      background: transparent;
+      color: var(--b2b-dark);
+      border: 1px solid var(--b2b-gold);
+    }
+
+    /* ─── レスポンシブ ─── */
+    @media (max-width: 768px) {
+      .b2b-head h1 { font-size: 24px; }
+      .b2b-progress { padding: 0 20px; }
+      .b2b-progress::before, .b2b-progress .bar-fill { left: calc(20px + 14px); right: calc(20px + 14px); }
+      .b2b-step .dot { width: 28px; height: 28px; font-size: 12px; }
+      .b2b-step .label { font-size: 10px; }
+      .b2b-wrap { padding: 0 16px; margin: 24px auto 60px; }
+      .b2b-card { padding: 28px 22px; }
+      .b2b-card h2 { font-size: 18px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .btn-next, .btn-back, .btn-submit { padding: 12px 22px; font-size: 10px; letter-spacing: 0.14em; }
+      .review-table th { width: 110px; padding: 10px 12px; font-size: 10px; }
+      .review-table td { padding: 10px 12px; font-size: 12px; }
+      .b2b-actions { flex-direction: column-reverse; }
+      .btn-next, .btn-submit { margin-left: 0; width: 100%; }
+      .btn-back { width: 100%; }
+      .success-card { padding: 44px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- パンくず -->
+  <div class="b2b-crumb">
+    <a href="store.html">ホーム</a><span class="sep">›</span>
+    <a href="b2b.html">法人ポータル</a><span class="sep">›</span>
+    <span>法人会員登録</span>
+  </div>
+
+  <!-- ヘッダー -->
+  <div class="b2b-head">
+    <h1>B2B Registration</h1>
+    <div class="sub">法人会員登録</div>
+  </div>
+
+  <!-- プログレス -->
+  <div class="b2b-progress" id="b2bProgress">
+    <div class="bar-fill" id="barFill" style="width:0%;"></div>
+    <div class="b2b-step active" data-step="1">
+      <div class="dot">1</div>
+      <div class="label">基本情報</div>
+    </div>
+    <div class="b2b-step" data-step="2">
+      <div class="dot">2</div>
+      <div class="label">担当者情報</div>
+    </div>
+    <div class="b2b-step" data-step="3">
+      <div class="dot">3</div>
+      <div class="label">ご確認・送信</div>
+    </div>
+  </div>
+
+  <!-- フォーム -->
+  <div class="b2b-wrap">
+    <div class="b2b-card" id="formCard">
+
+      <!-- ════ Step 1 ════ -->
+      <div class="b2b-step-panel active" id="step1">
+        <h2>Company Info <span class="ja">基本情報</span></h2>
+
+        <div class="form-group">
+          <label class="form-label">会社名 / 屋号 <span class="req">必須</span></label>
+          <input type="text" class="form-input" id="company" placeholder="株式会社サンプル">
+          <div class="err-msg" data-for="company">会社名を入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">会社名 (フリガナ) <span class="req">必須</span></label>
+          <input type="text" class="form-input" id="companyKana" placeholder="カブシキガイシャサンプル">
+          <div class="err-msg" data-for="companyKana">フリガナを入力してください</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">法人番号 <span class="opt">任意</span></label>
+            <input type="text" class="form-input" id="corpNum" placeholder="13桁の数字" maxlength="13">
+            <p class="hint">国税庁が指定する法人番号（任意）</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">設立年 <span class="opt">任意</span></label>
+            <select class="form-input" id="foundedYear">
+              <option value="">選択してください</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">業種 <span class="req">必須</span></label>
+            <select class="form-input" id="industry">
+              <option value="">選択してください</option>
+              <option>小売業</option>
+              <option>飲食業</option>
+              <option>医療・介護</option>
+              <option>製造業</option>
+              <option>物流</option>
+              <option>オフィス</option>
+              <option>教育</option>
+              <option>その他</option>
+            </select>
+            <div class="err-msg" data-for="industry">業種を選択してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">従業員数 <span class="opt">任意</span></label>
+            <select class="form-input" id="employees">
+              <option value="">選択してください</option>
+              <option>1-10名</option>
+              <option>11-50名</option>
+              <option>51-100名</option>
+              <option>101-300名</option>
+              <option>301名以上</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">月間想定購入金額 <span class="opt">任意</span></label>
+          <select class="form-input" id="monthlyBudget">
+            <option value="">選択してください</option>
+            <option>〜10万円</option>
+            <option>10〜50万円</option>
+            <option>50〜100万円</option>
+            <option>100万円〜</option>
+          </select>
+          <p class="hint">概算金額をお選びください。お見積もり提案の参考にいたします。</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">郵便番号 <span class="req">必須</span></label>
+          <input type="text" class="form-input" id="postal" placeholder="000-0000" maxlength="8" style="max-width:200px;">
+          <div class="err-msg" data-for="postal">郵便番号を入力してください</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">都道府県 <span class="req">必須</span></label>
+            <select class="form-input" id="prefecture">
+              <option value="">選択してください</option>
+              <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+              <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+              <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+              <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+              <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+              <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+              <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+              <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+              <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+              <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+              <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+              <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+            </select>
+            <div class="err-msg" data-for="prefecture">都道府県を選択してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">市区町村 <span class="req">必須</span></label>
+            <input type="text" class="form-input" id="city" placeholder="大阪市浪速区">
+            <div class="err-msg" data-for="city">市区町村を入力してください</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">番地・建物名 <span class="req">必須</span></label>
+          <input type="text" class="form-input" id="address" placeholder="大国2丁目12-3 〇〇ビル 5F">
+          <div class="err-msg" data-for="address">番地を入力してください</div>
+        </div>
+
+        <div class="b2b-actions">
+          <button type="button" class="btn-next" data-next="2">次へ →</button>
+        </div>
+      </div>
+
+      <!-- ════ Step 2 ════ -->
+      <div class="b2b-step-panel" id="step2">
+        <h2>Contact Info <span class="ja">担当者情報</span></h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">担当者 姓 <span class="req">必須</span></label>
+            <input type="text" class="form-input" id="lastName" placeholder="山田">
+            <div class="err-msg" data-for="lastName">姓を入力してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">担当者 名 <span class="req">必須</span></label>
+            <input type="text" class="form-input" id="firstName" placeholder="太郎">
+            <div class="err-msg" data-for="firstName">名を入力してください</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">姓 (フリガナ) <span class="req">必須</span></label>
+            <input type="text" class="form-input" id="lastNameKana" placeholder="ヤマダ">
+            <div class="err-msg" data-for="lastNameKana">フリガナを入力してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">名 (フリガナ) <span class="req">必須</span></label>
+            <input type="text" class="form-input" id="firstNameKana" placeholder="タロウ">
+            <div class="err-msg" data-for="firstNameKana">フリガナを入力してください</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">部署・役職 <span class="opt">任意</span></label>
+          <input type="text" class="form-input" id="department" placeholder="営業部 / 部長">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">電話番号 <span class="req">必須</span></label>
+          <input type="tel" class="form-input" id="phone" placeholder="06-0000-0000（携帯OK）">
+          <div class="err-msg" data-for="phone">電話番号を入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">メールアドレス <span class="req">必須</span></label>
+          <input type="email" class="form-input" id="email" placeholder="contact@example.co.jp">
+          <p class="hint">こちらのメールアドレスがログインIDになります。</p>
+          <div class="err-msg" data-for="email">有効なメールアドレスを入力してください</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">メールアドレス (再入力) <span class="req">必須</span></label>
+          <input type="email" class="form-input" id="emailConfirm" placeholder="contact@example.co.jp">
+          <div class="err-msg" data-for="emailConfirm">メールアドレスが一致しません</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ご希望のパスワード <span class="req">必須</span></label>
+            <input type="password" class="form-input" id="password" placeholder="8文字以上">
+            <p class="hint">英数字を含む8文字以上で設定してください</p>
+            <div class="err-msg" data-for="password">8文字以上で入力してください</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">パスワード (再入力) <span class="req">必須</span></label>
+            <input type="password" class="form-input" id="passwordConfirm" placeholder="再度入力">
+            <div class="err-msg" data-for="passwordConfirm">パスワードが一致しません</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">当社をどこで知りましたか？ <span class="opt">任意</span></label>
+          <select class="form-input" id="referral">
+            <option value="">選択してください</option>
+            <option>検索エンジン</option>
+            <option>ご紹介</option>
+            <option>SNS</option>
+            <option>広告</option>
+            <option>その他</option>
+          </select>
+        </div>
+
+        <div class="b2b-actions">
+          <button type="button" class="btn-back" data-back="1">← 戻る</button>
+          <button type="button" class="btn-next" data-next="3">次へ →</button>
+        </div>
+      </div>
+
+      <!-- ════ Step 3 ════ -->
+      <div class="b2b-step-panel" id="step3">
+        <h2>Confirmation <span class="ja">ご確認・送信</span></h2>
+
+        <div class="review-section-title">基本情報</div>
+        <table class="review-table" id="reviewCompany"></table>
+
+        <div class="review-section-title">担当者情報</div>
+        <table class="review-table" id="reviewContact"></table>
+
+        <div class="notice-box">
+          <strong>📋 ご登録後の流れ</strong><br>
+          ご登録後、担当者にて法人確認をさせていただきます。確認完了後（通常<strong>2営業日以内</strong>）、ログイン情報をメールでお送りいたします。
+        </div>
+
+        <div class="agree-box">
+          <label class="agree-row">
+            <input type="checkbox" id="agreeTerms">
+            <span><a href="legal.html#terms" target="_blank">利用規約</a>に同意します</span>
+          </label>
+          <label class="agree-row">
+            <input type="checkbox" id="agreePrivacy">
+            <span><a href="legal.html#privacy" target="_blank">プライバシーポリシー</a>に同意します</span>
+          </label>
+          <label class="agree-row">
+            <input type="checkbox" id="agreeConfirm">
+            <span>入力内容に間違いがないことを確認しました</span>
+          </label>
+        </div>
+
+        <div class="b2b-actions">
+          <button type="button" class="btn-back" data-back="2">← 戻る</button>
+          <button type="button" class="btn-submit" id="submitBtn" disabled>登録を申し込む</button>
+        </div>
+      </div>
+
+      <!-- ════ Success ════ -->
+      <div class="b2b-step-panel" id="stepSuccess">
+        <div class="success-card">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24"><polyline points="4,12 10,18 20,6"/></svg>
+          </div>
+          <div class="success-title">Thank You</div>
+          <div class="success-jp">ご登録お申し込みありがとうございました</div>
+
+          <div class="ref-box">
+            <div class="ref-label">APPLICATION NO.</div>
+            <div class="ref-num" id="refNum">HK-B2B-000000</div>
+          </div>
+
+          <p class="success-msg">
+            ご登録のメールアドレス宛に確認メールを送信いたしました。<br>
+            担当者にて法人確認の上、<strong>2営業日以内</strong>にログイン情報をご連絡いたします。<br>
+            お急ぎの場合は <a href="mailto:info@hinokaglobal.com" style="color:var(--b2b-gold-dark);">info@hinokaglobal.com</a> までお問い合わせください。
+          </p>
+
+          <div class="success-actions">
+            <a href="store.html" class="success-btn primary">ホームへ戻る</a>
+            <a href="mailto:info@hinokaglobal.com" class="success-btn secondary">お問い合わせ</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div class="loading-overlay" id="loading">
+    <div>
+      <div class="spinner"></div>
+      <div class="loading-text">送信中... しばらくお待ちください</div>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="store-footer">
+    <div class="store-footer-grid">
+      <div>
+        <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
+        <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
+        <div class="footer-tagline">洞察から、行動へ</div>
+      </div>
+      <div class="footer-col">
+        <h4>ショップ</h4>
+        <a href="product-list.html?category=for-business">ビジネス向け</a>
+        <a href="product-list.html?category=for-life">日用品</a>
+        <a href="product-list.html?category=pet">ペット用品</a>
+        <a href="product-list.html?category=featured">特集</a>
+        <a href="b2b.html">法人向けサービス</a>
+      </div>
+      <div class="footer-col">
+        <h4>マイアカウント</h4>
+        <a href="account.html">マイページ</a>
+        <a href="account.html#orders">注文状況の確認</a>
+        <a href="account.html#orders">注文履歴</a>
+        <a href="account.html#service">返品 / 交換</a>
+      </div>
+      <div class="footer-col">
+        <h4>会社情報</h4>
+        <a href="legal.html#company">特定商取引法に基づく表記</a>
+        <a href="legal.html#terms">利用規約</a>
+        <a href="legal.html#privacy">プライバシーポリシー</a>
+        <a href="https://hinokaglobal.com/" target="_blank" rel="noopener">運営会社</a>
+      </div>
+      <div class="footer-col">
+        <h4>カスタマーサービス</h4>
+        <a href="legal.html#faq">よくある質問（FAQ）</a>
+        <a href="legal.html#shipping">配送について</a>
+        <a href="legal.html#return">返品ポリシー</a>
+        <a href="mailto:info@hinokaglobal.com">お問い合わせ</a>
+      </div>
+    </div>
+    <div class="store-footer-bottom">
+      <span class="footer-copy">COPYRIGHT &copy; HINOKA Co., Ltd. ALL RIGHTS RESERVED.</span>
+      <span class="footer-shipping-badge"></span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    var FORMSPREE_URL = 'https://formspree.io/f/mqejbkdn';
+
+    // ─── 設立年セレクト埋め ───
+    (function() {
+      var sel = document.getElementById('foundedYear');
+      var now = new Date().getFullYear();
+      for (var y = now; y >= 1900; y--) {
+        var o = document.createElement('option');
+        o.value = y;
+        o.textContent = y + '年';
+        sel.appendChild(o);
+      }
+    })();
+
+    // ─── 郵便番号フォーマット ───
+    document.getElementById('postal').addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '');
+      this.value = v.length > 3 ? v.slice(0,3) + '-' + v.slice(3,7) : v;
+    });
+
+    // ─── ステップ切り替え ───
+    var currentStep = 1;
+    function gotoStep(n) {
+      document.querySelectorAll('.b2b-step-panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      var target = (n === 'success') ? 'stepSuccess' : 'step' + n;
+      document.getElementById(target).classList.add('active');
+
+      if (n === 'success') {
+        document.getElementById('b2bProgress').style.display = 'none';
+      } else {
+        currentStep = n;
+        updateProgress(n);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgress(n) {
+      var steps = document.querySelectorAll('.b2b-step');
+      steps.forEach(function(s) {
+        var sn = parseInt(s.dataset.step);
+        s.classList.remove('active', 'done');
+        if (sn < n) s.classList.add('done');
+        else if (sn === n) s.classList.add('active');
+      });
+      var pct = ((n - 1) / 2) * 100;
+      document.getElementById('barFill').style.width = pct + '%';
+    }
+
+    // ─── バリデーション ───
+    function showErr(id, msg) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('err');
+      var em = document.querySelector('.err-msg[data-for="' + id + '"]');
+      if (em) {
+        if (msg) em.textContent = msg;
+        em.classList.add('show');
+      }
+    }
+    function clearErr(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('err');
+      var em = document.querySelector('.err-msg[data-for="' + id + '"]');
+      if (em) em.classList.remove('show');
+    }
+    function clearAllErr(stepId) {
+      document.querySelectorAll('#' + stepId + ' .form-input').forEach(function(e) { e.classList.remove('err'); });
+      document.querySelectorAll('#' + stepId + ' .err-msg').forEach(function(e) { e.classList.remove('show'); });
+    }
+
+    function validateStep1() {
+      clearAllErr('step1');
+      var ok = true;
+      var required = ['company','companyKana','industry','postal','prefecture','city','address'];
+      required.forEach(function(id) {
+        if (!document.getElementById(id).value.trim()) { showErr(id); ok = false; }
+      });
+      return ok;
+    }
+
+    function validateStep2() {
+      clearAllErr('step2');
+      var ok = true;
+      var required = ['lastName','firstName','lastNameKana','firstNameKana','phone'];
+      required.forEach(function(id) {
+        if (!document.getElementById(id).value.trim()) { showErr(id); ok = false; }
+      });
+      var email = document.getElementById('email').value.trim();
+      var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRe.test(email)) { showErr('email'); ok = false; }
+      var emailConf = document.getElementById('emailConfirm').value.trim();
+      if (!emailConf || email !== emailConf) { showErr('emailConfirm'); ok = false; }
+      var pw = document.getElementById('password').value;
+      if (pw.length < 8) { showErr('password'); ok = false; }
+      var pwc = document.getElementById('passwordConfirm').value;
+      if (pw !== pwc) { showErr('passwordConfirm'); ok = false; }
+      return ok;
+    }
+
+    // ─── 確認画面描画 ───
+    function val(id) {
+      var el = document.getElementById(id);
+      return (el && el.value.trim()) ? el.value.trim() : '—';
+    }
+    function renderReview() {
+      var company = [
+        ['会社名 / 屋号', val('company')],
+        ['フリガナ', val('companyKana')],
+        ['法人番号', val('corpNum')],
+        ['設立年', val('foundedYear') !== '—' ? val('foundedYear') + '年' : '—'],
+        ['業種', val('industry')],
+        ['従業員数', val('employees')],
+        ['月間想定購入金額', val('monthlyBudget')],
+        ['所在地', '〒' + val('postal') + '<br>' + val('prefecture') + ' ' + val('city') + ' ' + val('address')]
+      ];
+      var contact = [
+        ['担当者名', val('lastName') + ' ' + val('firstName')],
+        ['フリガナ', val('lastNameKana') + ' ' + val('firstNameKana')],
+        ['部署・役職', val('department')],
+        ['電話番号', val('phone')],
+        ['メールアドレス', val('email') + '<br><span style="font-size:10px;color:var(--b2b-text-sub);">（ログインID）</span>'],
+        ['パスワード', '••••••••（設定済み）'],
+        ['当社を知ったきっかけ', val('referral')]
+      ];
+      function buildRows(data) {
+        return data.map(function(r) {
+          return '<tr><th>' + r[0] + '</th><td>' + r[1] + '</td></tr>';
+        }).join('');
+      }
+      document.getElementById('reviewCompany').innerHTML = buildRows(company);
+      document.getElementById('reviewContact').innerHTML = buildRows(contact);
+    }
+
+    // ─── ボタンイベント ───
+    document.querySelectorAll('.btn-next').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var next = parseInt(btn.dataset.next);
+        if (next === 2 && !validateStep1()) return;
+        if (next === 3) {
+          if (!validateStep2()) return;
+          renderReview();
+        }
+        gotoStep(next);
+      });
+    });
+    document.querySelectorAll('.btn-back').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        gotoStep(parseInt(btn.dataset.back));
+      });
+    });
+
+    // フィールド変更でエラー解除
+    document.querySelectorAll('.form-input').forEach(function(el) {
+      el.addEventListener('input', function() { clearErr(el.id); });
+      el.addEventListener('change', function() { clearErr(el.id); });
+    });
+
+    // ─── 同意チェック ───
+    var agreeIds = ['agreeTerms','agreePrivacy','agreeConfirm'];
+    function updateSubmit() {
+      var allChecked = agreeIds.every(function(id) {
+        return document.getElementById(id).checked;
+      });
+      document.getElementById('submitBtn').disabled = !allChecked;
+    }
+    agreeIds.forEach(function(id) {
+      document.getElementById(id).addEventListener('change', updateSubmit);
+    });
+
+    // ─── 送信 ───
+    function makeRef() {
+      var ts = Date.now().toString(36).toUpperCase();
+      var rnd = Math.random().toString(36).slice(2,5).toUpperCase();
+      return 'HK-B2B-' + ts + rnd;
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+      var ref = makeRef();
+      var payload = {
+        _subject: '【HINOKA】法人会員登録のお申し込み (詳細版)',
+        申込番号: ref,
+        申込日時: new Date().toLocaleString('ja-JP'),
+        '── 基本情報 ──': '',
+        会社名: val('company'),
+        会社名フリガナ: val('companyKana'),
+        法人番号: val('corpNum'),
+        設立年: val('foundedYear'),
+        業種: val('industry'),
+        従業員数: val('employees'),
+        月間想定購入金額: val('monthlyBudget'),
+        郵便番号: val('postal'),
+        都道府県: val('prefecture'),
+        市区町村: val('city'),
+        番地建物: val('address'),
+        '── 担当者情報 ──': '',
+        担当者姓: val('lastName'),
+        担当者名: val('firstName'),
+        担当者姓カナ: val('lastNameKana'),
+        担当者名カナ: val('firstNameKana'),
+        部署役職: val('department'),
+        電話番号: val('phone'),
+        メールアドレス: val('email'),
+        知ったきっかけ: val('referral')
+      };
+
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('submitBtn').disabled = true;
+
+      try {
+        var res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('送信失敗');
+
+        // localStorageに保存
+        try {
+          localStorage.setItem('hinoka_b2b_application', JSON.stringify({
+            ref: ref,
+            company: val('company'),
+            email: val('email'),
+            submittedAt: new Date().toISOString(),
+            status: 'pending'
+          }));
+        } catch(e) {}
+
+        document.getElementById('refNum').textContent = ref;
+        gotoStep('success');
+      } catch(e) {
+        alert('送信に失敗しました。お手数ですが再度お試しください。\n問題が続く場合は info@hinokaglobal.com までご連絡ください。');
+        document.getElementById('submitBtn').disabled = false;
+      } finally {
+        document.getElementById('loading').classList.remove('show');
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
