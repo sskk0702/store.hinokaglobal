@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HINOKA | 法人・ビジネス向けサービス</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <title>HINOKA | 法人・業者向け B2B ポータル</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/global.css">
   <style>
     body { padding-top: var(--nav-height); background: var(--ivory, #fdf8f0); }
 
-    /* ── Page Header ── */
+    /* ── Hero ── */
     .b2b-hero {
       background: #1a1710;
-      padding: 72px 24px 60px;
+      padding: 88px 24px 80px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -27,51 +27,186 @@
         rgba(201,169,110,0.04) 40px,
         rgba(201,169,110,0.04) 41px
       );
+      pointer-events: none;
     }
+    .b2b-hero-inner { position: relative; max-width: 880px; margin: 0 auto; }
     .b2b-hero-label {
-      font-size: 10px; letter-spacing: 0.35em;
+      font-size: 11px; letter-spacing: 0.32em;
       text-transform: uppercase; color: #c9a96e;
-      margin-bottom: 18px; display: block;
+      margin-bottom: 22px; display: inline-block;
+      border: 1px solid rgba(201,169,110,0.4);
+      padding: 8px 18px; border-radius: 2px;
     }
     .b2b-hero h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(28px, 5vw, 52px);
-      font-weight: 300; letter-spacing: 0.15em;
-      color: #f5f0e8; margin-bottom: 12px;
+      font-size: clamp(30px, 5vw, 54px);
+      font-weight: 300; letter-spacing: 0.12em;
+      color: #f5f0e8; margin: 0 0 16px;
       line-height: 1.2;
     }
-    .b2b-hero-sub {
-      font-size: 11px; letter-spacing: 0.4em;
-      color: rgba(201,169,110,0.7); text-transform: uppercase;
+    .b2b-hero-jp {
+      font-size: clamp(15px, 2vw, 18px);
+      color: #f5f0e8;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
     }
+    .b2b-hero-sub {
+      font-size: 13px; color: rgba(245,240,232,0.7);
+      letter-spacing: 0.06em; line-height: 1.8;
+      margin-bottom: 36px;
+    }
+    .b2b-hero-ctas {
+      display: flex; justify-content: center;
+      gap: 16px; flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .b2b-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 36px;
+      font-size: 14px; letter-spacing: 0.12em;
+      text-decoration: none;
+      border-radius: 2px; font-weight: 500;
+      transition: all 0.2s ease;
+      min-width: 260px; justify-content: center;
+    }
+    .b2b-cta.primary {
+      background: linear-gradient(135deg, #c9a96e 0%, #e8d5a8 100%);
+      color: #1a1710;
+      box-shadow: 0 4px 18px rgba(201,169,110,0.3);
+    }
+    .b2b-cta.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(201,169,110,0.45);
+    }
+    .b2b-cta.ghost {
+      background: transparent;
+      color: #c9a96e;
+      border: 1px solid #c9a96e;
+    }
+    .b2b-cta.ghost:hover {
+      background: #c9a96e; color: #1a1710;
+    }
+    .b2b-hero-note {
+      font-size: 12px; color: rgba(201,169,110,0.8);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Quick Access ── */
+    .quick-access-wrap {
+      background: #fff;
+      border-bottom: 1px solid rgba(201,169,110,0.2);
+      padding: 32px 24px;
+    }
+    .quick-access {
+      max-width: 1100px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .quick-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 22px;
+      background: #fdf8f0;
+      border: 1px solid rgba(201,169,110,0.25);
+      border-radius: 3px;
+      text-decoration: none;
+      color: #1a1710;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .quick-card:hover {
+      background: #fff;
+      border-color: #c9a96e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(201,169,110,0.15);
+    }
+    .quick-card-icon {
+      width: 44px; height: 44px;
+      background: #1a1710; color: #c9a96e;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; font-size: 18px;
+      flex-shrink: 0;
+    }
+    .quick-card-body { flex: 1; min-width: 0; }
+    .quick-card-title {
+      font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; margin-bottom: 4px;
+    }
+    .quick-card-desc {
+      font-size: 11px; color: #7a7268;
+      letter-spacing: 0.03em; line-height: 1.5;
+    }
+    .quick-card-arrow {
+      font-size: 18px; color: #c9a96e;
+      margin-left: 4px;
+      transition: transform 0.2s;
+    }
+    .quick-card:hover .quick-card-arrow { transform: translateX(4px); }
 
     /* ── Layout ── */
     .b2b-container {
-      max-width: 960px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 64px 24px;
+      padding: 72px 24px;
     }
 
     /* ── Section titles ── */
     .section-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 24px; font-weight: 400;
+      font-size: 26px; font-weight: 400;
       letter-spacing: 0.12em; color: #1a1710;
       margin-bottom: 6px;
     }
     .section-label {
       font-size: 10px; letter-spacing: 0.3em;
       text-transform: uppercase; color: #c9a96e;
-      margin-bottom: 32px; display: block;
+      margin-bottom: 36px; display: block;
     }
-    .b2b-section {
-      margin-bottom: 80px;
+    .section-header { text-align: center; margin-bottom: 44px; }
+    .section-header .section-label { margin-bottom: 0; margin-top: 8px; }
+    .b2b-section { margin-bottom: 96px; }
+
+    /* ── Benefits Grid ── */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .benefit-card {
+      background: #fff;
+      border: 1px solid rgba(201,169,110,0.25);
+      padding: 36px 24px;
+      text-align: center;
+      transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+      border-radius: 3px;
+    }
+    .benefit-card:hover {
+      box-shadow: 0 6px 24px rgba(201,169,110,0.14);
+      border-color: rgba(201,169,110,0.55);
+      transform: translateY(-3px);
+    }
+    .benefit-icon {
+      width: 56px; height: 56px;
+      margin: 0 auto 18px;
+      background: linear-gradient(135deg, #c9a96e 0%, #e8d5a8 100%);
+      color: #1a1710;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; font-size: 22px;
+    }
+    .benefit-title {
+      font-size: 15px; font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #1a1710; margin-bottom: 10px;
+    }
+    .benefit-desc {
+      font-size: 12px;
+      color: #7a7268;
+      line-height: 1.8;
+      letter-spacing: 0.03em;
     }
 
     /* ── Discount Table ── */
-    .discount-table-wrap {
-      overflow-x: auto;
-    }
+    .discount-table-wrap { overflow-x: auto; background: #fff; border-radius: 3px; border: 1px solid rgba(201,169,110,0.2); }
     .discount-table {
       width: 100%;
       border-collapse: collapse;
@@ -82,7 +217,7 @@
       color: #c9a96e;
     }
     .discount-table thead th {
-      padding: 14px 24px;
+      padding: 16px 24px;
       font-weight: 400;
       letter-spacing: 0.12em;
       font-size: 11px;
@@ -90,24 +225,20 @@
       text-align: left;
     }
     .discount-table tbody tr {
-      border-bottom: 1px solid rgba(201,169,110,0.2);
+      border-bottom: 1px solid rgba(201,169,110,0.18);
       transition: background 0.15s;
     }
-    .discount-table tbody tr:hover {
-      background: rgba(201,169,110,0.06);
-    }
-    .discount-table tbody tr:last-child {
-      background: rgba(201,169,110,0.08);
-    }
+    .discount-table tbody tr:hover { background: rgba(201,169,110,0.06); }
+    .discount-table tbody tr:last-child { background: rgba(201,169,110,0.08); border-bottom: none; }
     .discount-table td {
-      padding: 16px 24px;
+      padding: 18px 24px;
       color: #2a2520;
       letter-spacing: 0.04em;
       line-height: 1.6;
     }
     .discount-table td:first-child {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 400;
       letter-spacing: 0.08em;
     }
@@ -121,53 +252,70 @@
       padding: 4px 14px;
       border-radius: 2px;
     }
-    .discount-badge.consult {
-      background: #1a1710;
-      color: #c9a96e;
-    }
+    .discount-badge.consult { background: #1a1710; color: #c9a96e; }
+    .price-compare { font-size: 12px; color: #7a7268; letter-spacing: 0.04em; }
+    .price-compare s { color: #b0a89e; margin-right: 6px; }
+    .price-compare strong { color: #1a1710; font-weight: 500; }
 
-    /* ── Benefits Grid ── */
-    .benefits-grid {
+    /* ── Service Flow ── */
+    .flow-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 24px;
+      position: relative;
     }
-    .benefit-card {
+    .flow-step {
       background: #fff;
       border: 1px solid rgba(201,169,110,0.25);
-      padding: 32px 24px;
+      padding: 32px 22px;
       text-align: center;
-      transition: box-shadow 0.2s, border-color 0.2s;
+      border-radius: 3px;
+      position: relative;
     }
-    .benefit-card:hover {
-      box-shadow: 0 4px 24px rgba(201,169,110,0.12);
-      border-color: rgba(201,169,110,0.5);
-    }
-    .benefit-icon {
-      font-size: 28px;
-      margin-bottom: 16px;
-      display: block;
-      line-height: 1;
-    }
-    .benefit-title {
+    .flow-step-num {
+      width: 40px; height: 40px;
+      background: #1a1710; color: #c9a96e;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; margin: 0 auto 16px;
       font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
-      letter-spacing: 0.1em;
-      color: #1a1710;
+      font-size: 18px; letter-spacing: 0.05em;
+    }
+    .flow-step-label {
+      font-size: 10px; letter-spacing: 0.25em;
+      text-transform: uppercase; color: #c9a96e;
       margin-bottom: 8px;
     }
-    .benefit-desc {
-      font-size: 12px;
-      color: #7a7268;
-      line-height: 1.8;
-      letter-spacing: 0.03em;
+    .flow-step-title {
+      font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; color: #1a1710;
+      line-height: 1.6;
     }
+    .flow-step::after {
+      content: '→';
+      position: absolute;
+      right: -18px; top: 50%;
+      transform: translateY(-50%);
+      color: #c9a96e; font-size: 20px;
+      z-index: 1;
+    }
+    .flow-step:last-child::after { display: none; }
 
-    /* ── Forms ── */
+    /* ── Quote section ── */
+    .quote-intro {
+      background: #fff;
+      border-left: 3px solid #c9a96e;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      font-size: 13px; color: #1a1710;
+      letter-spacing: 0.04em; line-height: 1.7;
+    }
+    .quote-intro strong { color: #c9a96e; }
+
     .b2b-form {
       background: #fff;
       border: 1px solid rgba(201,169,110,0.2);
-      padding: 40px 40px;
+      padding: 40px;
+      border-radius: 3px;
     }
     .form-grid-2 {
       display: grid;
@@ -175,22 +323,15 @@
       gap: 20px;
     }
     .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 20px;
+      display: flex; flex-direction: column;
+      gap: 6px; margin-bottom: 20px;
     }
     .form-group.full { grid-column: 1 / -1; }
     .form-group label {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      color: #5a5248;
-      font-weight: 500;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: #5a5248; font-weight: 500;
     }
-    .form-group label .req {
-      color: #c9a96e;
-      margin-left: 4px;
-    }
+    .form-group label .req { color: #c9a96e; margin-left: 4px; }
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -210,48 +351,123 @@
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      outline: none;
-      border-color: #c9a96e;
-      background: #fff;
+      outline: none; border-color: #c9a96e; background: #fff;
     }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
     .b2b-submit {
       display: inline-block;
-      background: #1a1710;
-      color: #c9a96e;
+      background: linear-gradient(135deg, #c9a96e 0%, #e8d5a8 100%);
+      color: #1a1710;
       border: none;
-      padding: 14px 40px;
+      padding: 16px 48px;
       font-family: 'Noto Sans JP', sans-serif;
-      font-size: 13px;
+      font-size: 14px; font-weight: 500;
       letter-spacing: 0.15em;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: all 0.3s ease;
       margin-top: 8px;
+      box-shadow: 0 4px 16px rgba(201,169,110,0.25);
+      border-radius: 4px;
     }
     .b2b-submit:hover {
-      background: #c9a96e;
-      color: #1a1710;
+      background: linear-gradient(135deg, #e8d5a8 0%, #c9a96e 100%);
+      box-shadow: 0 6px 24px rgba(201,169,110,0.4);
+      transform: translateY(-2px);
     }
+    .b2b-submit:active { transform: translateY(0); }
     .form-note {
-      font-size: 11px;
-      color: #7a7268;
-      margin-top: 14px;
-      letter-spacing: 0.04em;
+      font-size: 11px; color: #7a7268;
+      margin-top: 14px; letter-spacing: 0.04em;
       line-height: 1.8;
     }
-    .form-note::before {
-      content: '※ ';
-      color: #c9a96e;
+    .form-note::before { content: '※ '; color: #c9a96e; }
+    .form-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(201,169,110,0.2);
     }
-    .forms-grid {
+    .form-header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 400;
+      letter-spacing: 0.1em; color: #1a1710;
+      margin-bottom: 6px;
+    }
+    .form-header-sub {
+      font-size: 12px; color: #7a7268;
+      letter-spacing: 0.05em;
+    }
+    .form-header-time {
+      font-size: 11px; color: #c9a96e;
+      margin-top: 8px; font-weight: 500;
+    }
+
+    /* ── Trust Indicators ── */
+    .trust-section {
+      background: #fff;
+      padding: 64px 24px;
+      border-top: 1px solid rgba(201,169,110,0.2);
+      border-bottom: 1px solid rgba(201,169,110,0.2);
+    }
+    .trust-inner { max-width: 1100px; margin: 0 auto; }
+    .trust-stats {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      align-items: start;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
     }
+    .trust-stat {
+      text-align: center;
+      padding: 24px 16px;
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 3px;
+      background: #fdf8f0;
+    }
+    .trust-stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px; font-weight: 400;
+      color: #c9a96e; letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .trust-stat-label {
+      font-size: 12px; color: #5a5248;
+      letter-spacing: 0.06em; line-height: 1.6;
+    }
+    .industry-title {
+      text-align: center;
+      font-size: 13px; letter-spacing: 0.15em;
+      color: #5a5248; margin-bottom: 24px;
+    }
+    .industry-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .industry-item {
+      text-align: center;
+      padding: 22px 8px;
+      background: #fdf8f0;
+      border: 1px solid rgba(201,169,110,0.18);
+      border-radius: 3px;
+    }
+    .industry-icon {
+      font-size: 24px; margin-bottom: 8px;
+      display: block; line-height: 1;
+    }
+    .industry-label {
+      font-size: 11px; color: #1a1710;
+      letter-spacing: 0.06em;
+    }
+    .industry-note {
+      text-align: center;
+      font-size: 12px; color: #7a7268;
+      letter-spacing: 0.04em;
+      padding: 14px 16px;
+      background: rgba(201,169,110,0.08);
+      border-radius: 3px;
+    }
+    .industry-note strong { color: #c9a96e; }
 
     /* ── Contact Box ── */
     .contact-box {
@@ -261,41 +477,29 @@
       grid-template-columns: 1fr auto;
       gap: 32px;
       align-items: center;
+      border-radius: 3px;
     }
     .contact-box-left h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 400;
+      font-size: 22px; font-weight: 400;
       letter-spacing: 0.12em;
-      color: #f5f0e8;
-      margin-bottom: 20px;
+      color: #f5f0e8; margin-bottom: 20px;
     }
     .contact-item {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 10px;
+      display: flex; align-items: baseline;
+      gap: 12px; margin-bottom: 10px;
     }
     .contact-item-label {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #c9a96e;
-      min-width: 50px;
-      flex-shrink: 0;
+      font-size: 10px; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #c9a96e;
+      min-width: 50px; flex-shrink: 0;
     }
     .contact-item-value {
-      font-size: 14px;
-      color: #f5f0e8;
+      font-size: 14px; color: #f5f0e8;
       letter-spacing: 0.05em;
     }
-    .contact-item-value a {
-      color: #c9a96e;
-      text-decoration: none;
-    }
-    .contact-item-value a:hover {
-      text-decoration: underline;
-    }
+    .contact-item-value a { color: #c9a96e; text-decoration: none; }
+    .contact-item-value a:hover { text-decoration: underline; }
     .contact-hours {
       margin-top: 16px;
       font-size: 11px;
@@ -305,9 +509,7 @@
       border-top: 1px solid rgba(201,169,110,0.2);
       padding-top: 16px;
     }
-    .contact-cta {
-      text-align: center;
-    }
+    .contact-cta { text-align: center; }
     .contact-cta a {
       display: inline-block;
       border: 1px solid #c9a96e;
@@ -318,215 +520,272 @@
       text-decoration: none;
       transition: background 0.2s, color 0.2s;
     }
-    .contact-cta a:hover {
-      background: #c9a96e;
-      color: #1a1710;
-    }
+    .contact-cta a:hover { background: #c9a96e; color: #1a1710; }
     .contact-cta-label {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      color: rgba(201,169,110,0.6);
-      margin-bottom: 10px;
-    }
-
-    /* ── Divider ── */
-    .gold-divider {
-      border: none;
-      border-top: 1px solid rgba(201,169,110,0.3);
-      margin: 0 0 80px;
+      font-size: 10px; letter-spacing: 0.2em;
+      color: rgba(201,169,110,0.6); margin-bottom: 10px;
     }
 
     /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .quick-access { grid-template-columns: repeat(2, 1fr); }
+      .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow-step:nth-child(2)::after { display: none; }
+      .industry-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 768px) {
-      .b2b-container { padding: 40px 16px; }
+      .b2b-hero { padding: 60px 16px 56px; }
+      .b2b-hero-ctas { flex-direction: column; align-items: stretch; }
+      .b2b-cta { min-width: 0; width: 100%; }
+      .b2b-container { padding: 48px 16px; }
       .b2b-form { padding: 28px 20px; }
       .form-grid-2 { grid-template-columns: 1fr; }
-      .forms-grid { grid-template-columns: 1fr; }
       .contact-box { grid-template-columns: 1fr; padding: 32px 20px; }
       .contact-cta { text-align: left; }
-      .benefits-grid { grid-template-columns: 1fr 1fr; }
+      .quick-access { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .flow-grid { grid-template-columns: 1fr; gap: 16px; }
+      .flow-step::after {
+        content: '↓';
+        right: 50%; top: auto; bottom: -22px;
+        transform: translateX(50%);
+      }
+      .trust-stats { grid-template-columns: 1fr; }
+      .industry-grid { grid-template-columns: repeat(2, 1fr); }
+      .section-title { font-size: 22px; }
+      .b2b-section { margin-bottom: 64px; }
+      .b2b-form { padding: 28px 20px; }
     }
     @media (max-width: 480px) {
-      .benefits-grid { grid-template-columns: 1fr; }
+      .b2b-submit { padding: 14px 32px; font-size: 13px; }
+      .form-header-title { font-size: 17px; }
+      .contact-box { padding: 24px 16px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Page Header -->
-  <div class="b2b-hero">
-    <span class="b2b-hero-label">B2B SERVICES</span>
-    <h1>法人・ビジネス向けサービス</h1>
-    <div class="b2b-hero-sub">Corporate &amp; Business Solutions</div>
+  <!-- Hero -->
+  <section class="b2b-hero">
+    <div class="b2b-hero-inner">
+      <span class="b2b-hero-label">法人・業者専用ポータル | HINOKA BUSINESS</span>
+      <h1>HINOKA Business Portal</h1>
+      <div class="b2b-hero-jp">法人・業者様のためのビジネスソリューション</div>
+      <p class="b2b-hero-sub">法人会員様限定の特別価格・サポート・サービスをご提供</p>
+      <div class="b2b-hero-ctas">
+        <a href="b2b-login.html" class="b2b-cta primary">法人会員ログイン →</a>
+        <a href="b2b-register.html" class="b2b-cta ghost">法人会員登録 →</a>
+      </div>
+      <div class="b2b-hero-note">ご登録は無料・年会費もかかりません</div>
+    </div>
+  </section>
+
+  <!-- Quick Access -->
+  <div class="quick-access-wrap">
+    <div class="quick-access">
+      <a href="b2b-login.html" class="quick-card">
+        <div class="quick-card-icon">&#128274;</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">法人会員ログイン</div>
+          <div class="quick-card-desc">既存会員様はこちら</div>
+        </div>
+        <span class="quick-card-arrow">→</span>
+      </a>
+      <a href="b2b-register.html" class="quick-card">
+        <div class="quick-card-icon">&#9998;</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">法人会員登録</div>
+          <div class="quick-card-desc">無料・最短2分で完了</div>
+        </div>
+        <span class="quick-card-arrow">→</span>
+      </a>
+      <a href="#quote-section" class="quick-card">
+        <div class="quick-card-icon">&#128196;</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">見積もり依頼</div>
+          <div class="quick-card-desc">ログインなしで依頼可</div>
+        </div>
+        <span class="quick-card-arrow">→</span>
+      </a>
+      <a href="mailto:info@hinokaglobal.com" class="quick-card">
+        <div class="quick-card-icon">&#9993;</div>
+        <div class="quick-card-body">
+          <div class="quick-card-title">お問い合わせ</div>
+          <div class="quick-card-desc">担当者へ直接ご連絡</div>
+        </div>
+        <span class="quick-card-arrow">→</span>
+      </a>
+    </div>
   </div>
 
   <div class="b2b-container">
 
-    <!-- Benefits -->
+    <!-- Why HINOKA Business -->
     <section class="b2b-section">
-      <h2 class="section-title">法人会員のメリット</h2>
-      <span class="section-label">Benefits</span>
+      <div class="section-header">
+        <h2 class="section-title">Why HINOKA Business</h2>
+        <span class="section-label">選ばれる4つの理由</span>
+      </div>
       <div class="benefits-grid">
         <div class="benefit-card">
-          <span class="benefit-icon">&#37504;</span>
-          <div class="benefit-title">法人専用価格</div>
-          <p class="benefit-desc">一般販売価格より有利な法人専用の特別価格をご提供いたします。</p>
+          <div class="benefit-icon">&#37504;</div>
+          <div class="benefit-title">法人特別価格</div>
+          <p class="benefit-desc">数量に応じて10〜25% OFFの段階的割引。継続的なご利用ほどお得に。</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">&#128101;</span>
+          <div class="benefit-icon">&#128101;</div>
           <div class="benefit-title">専任担当者サポート</div>
-          <p class="benefit-desc">専任の担当者が貴社のご要望に合わせて丁寧にご対応いたします。</p>
+          <p class="benefit-desc">貴社専属のアカウントマネージャーが、調達から納品までワンストップで対応。</p>
         </div>
         <div class="benefit-card">
-          <span class="benefit-icon">&#128230;</span>
-          <div class="benefit-title">まとめ買い割引</div>
-          <p class="benefit-desc">数量に応じた段階的な割引制度で、大口ご注文をお得にご利用いただけます。</p>
-        </div>
-        <div class="benefit-card">
-          <span class="benefit-icon">&#128196;</span>
+          <div class="benefit-icon">&#128196;</div>
           <div class="benefit-title">請求書払い対応</div>
-          <p class="benefit-desc">審査のうえ、月末締め翌月払いなど請求書払いに対応いたします。</p>
+          <p class="benefit-desc">月末締め翌月払いなど、企業会計に合わせた請求書払いに対応いたします。</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">&#128230;</div>
+          <div class="benefit-title">一括見積もり</div>
+          <p class="benefit-desc">複数商品・大口発注も一括でお見積り。納期・包装・配送条件もご相談可能。</p>
         </div>
       </div>
     </section>
 
-    <hr class="gold-divider">
-
-    <!-- Discount Tiers -->
+    <!-- Discount Tier Table -->
     <section class="b2b-section">
-      <h2 class="section-title">法人割引梯度</h2>
-      <span class="section-label">Volume Discount</span>
+      <div class="section-header">
+        <h2 class="section-title">Volume Discount</h2>
+        <span class="section-label">法人割引階梯 & 価格比較</span>
+      </div>
       <div class="discount-table-wrap">
         <table class="discount-table">
           <thead>
             <tr>
               <th>注文数量</th>
               <th>割引率</th>
+              <th>標準価格 vs 法人会員価格（例）</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>10点以上</td>
-              <td><span class="discount-badge">5% OFF</span></td>
+              <td><span class="discount-badge">10% OFF</span></td>
+              <td class="price-compare"><s>¥10,000</s> <strong>¥9,000</strong> / 点</td>
             </tr>
             <tr>
               <td>30点以上</td>
-              <td><span class="discount-badge">10% OFF</span></td>
+              <td><span class="discount-badge">15% OFF</span></td>
+              <td class="price-compare"><s>¥10,000</s> <strong>¥8,500</strong> / 点</td>
             </tr>
             <tr>
               <td>100点以上</td>
-              <td><span class="discount-badge">15% OFF</span></td>
+              <td><span class="discount-badge">20% OFF</span></td>
+              <td class="price-compare"><s>¥10,000</s> <strong>¥8,000</strong> / 点</td>
             </tr>
             <tr>
               <td>300点以上</td>
-              <td><span class="discount-badge consult">要相談</span></td>
+              <td><span class="discount-badge consult">25% OFF / 要相談</span></td>
+              <td class="price-compare"><s>¥10,000</s> <strong>¥7,500〜</strong> / 点</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p style="font-size:11px;color:#7a7268;margin-top:14px;letter-spacing:0.04em;line-height:1.8;">
-        ※ 割引は法人会員登録後に適用されます。同一注文内での数量合算が対象となります。<br>
-        ※ 一部対象外商品がございます。詳細はお問い合わせください。
+        ※ 価格は商品により異なる場合があります。詳しくは見積もりにてご確認ください。<br>
+        ※ 割引は法人会員登録後に適用されます。同一注文内での数量合算が対象となります。
       </p>
     </section>
 
-    <hr class="gold-divider">
-
-    <!-- Forms -->
+    <!-- Service Flow -->
     <section class="b2b-section">
-      <div class="forms-grid">
-
-        <!-- 法人会員登録フォーム -->
-        <div>
-          <h2 class="section-title">法人会員登録</h2>
-          <span class="section-label">Corporate Registration</span>
-          <form class="b2b-form" id="registration-form" onsubmit="handleRegistration(event)">
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label>会社名<span class="req">*</span></label>
-                <input type="text" name="company" placeholder="株式会社〇〇" required>
-              </div>
-              <div class="form-group">
-                <label>担当者名<span class="req">*</span></label>
-                <input type="text" name="contact_name" placeholder="山田 太郎" required>
-              </div>
-              <div class="form-group">
-                <label>メールアドレス<span class="req">*</span></label>
-                <input type="email" name="email" placeholder="example@company.co.jp" required>
-              </div>
-              <div class="form-group">
-                <label>電話番号<span class="req">*</span></label>
-                <input type="tel" name="phone" placeholder="06-0000-0000" required>
-              </div>
-              <div class="form-group full">
-                <label>事業内容<span class="req">*</span></label>
-                <input type="text" name="business" placeholder="例：小売業、飲食業、医療・介護など" required>
-              </div>
-              <div class="form-group full">
-                <label>月間購入予定数量</label>
-                <select name="monthly_qty">
-                  <option value="">選択してください</option>
-                  <option value="10-30">10〜30点</option>
-                  <option value="30-100">30〜100点</option>
-                  <option value="100-300">100〜300点</option>
-                  <option value="300+">300点以上</option>
-                </select>
-              </div>
-            </div>
-            <button type="submit" class="b2b-submit">登録を申し込む</button>
-            <p class="form-note">ご登録後、担当者より2営業日以内にご連絡いたします。</p>
-          </form>
+      <div class="section-header">
+        <h2 class="section-title">ご利用の流れ</h2>
+        <span class="section-label">Service Flow</span>
+      </div>
+      <div class="flow-grid">
+        <div class="flow-step">
+          <div class="flow-step-num">01</div>
+          <div class="flow-step-label">Step 1</div>
+          <div class="flow-step-title">法人会員登録<br>（無料）</div>
         </div>
-
-        <!-- 見積もり依頼フォーム -->
-        <div>
-          <h2 class="section-title">見積もり依頼</h2>
-          <span class="section-label">Request a Quote</span>
-          <form class="b2b-form" id="quote-form" onsubmit="handleQuote(event)">
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label>会社名<span class="req">*</span></label>
-                <input type="text" name="company" placeholder="株式会社〇〇" required>
-              </div>
-              <div class="form-group">
-                <label>担当者名<span class="req">*</span></label>
-                <input type="text" name="contact_name" placeholder="山田 太郎" required>
-              </div>
-              <div class="form-group full">
-                <label>メールアドレス<span class="req">*</span></label>
-                <input type="email" name="email" placeholder="example@company.co.jp" required>
-              </div>
-              <div class="form-group full">
-                <label>商品名 / 商品コード<span class="req">*</span></label>
-                <input type="text" name="product" placeholder="例：〇〇クリーナー / SKU-12345" required>
-              </div>
-              <div class="form-group">
-                <label>希望数量<span class="req">*</span></label>
-                <input type="number" name="qty" placeholder="例：50" min="1" required>
-              </div>
-              <div class="form-group">
-                <label>希望納期</label>
-                <input type="date" name="delivery_date">
-              </div>
-              <div class="form-group full">
-                <label>その他ご要望</label>
-                <textarea name="notes" placeholder="包装・納品先・支払い条件などご自由にお書きください。"></textarea>
-              </div>
-            </div>
-            <button type="submit" class="b2b-submit">見積もりを依頼する</button>
-            <p class="form-note">内容を確認の上、担当者より2営業日以内にお見積書をお送りいたします。</p>
-          </form>
+        <div class="flow-step">
+          <div class="flow-step-num">02</div>
+          <div class="flow-step-label">Step 2</div>
+          <div class="flow-step-title">担当者よりご連絡<br>（2営業日以内）</div>
         </div>
-
+        <div class="flow-step">
+          <div class="flow-step-num">03</div>
+          <div class="flow-step-label">Step 3</div>
+          <div class="flow-step-title">専用ログイン情報<br>のご提供</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-num">04</div>
+          <div class="flow-step-label">Step 4</div>
+          <div class="flow-step-title">法人特別価格で<br>ご注文可能</div>
+        </div>
       </div>
     </section>
 
-    <hr class="gold-divider">
+    <!-- Quote Request Form -->
+    <section class="b2b-section" id="quote-section">
+      <div class="section-header">
+        <h2 class="section-title">見積もり依頼</h2>
+        <span class="section-label">Request a Quote</span>
+      </div>
+      <div class="quote-intro">
+        <strong>ログインなしでも見積もり依頼可能</strong> — 法人会員登録前でも、お気軽にお見積りをご依頼いただけます。商品情報と数量をご入力ください。
+      </div>
+      <form class="b2b-form" id="quote-form" onsubmit="handleQuote(event)">
+        <div class="form-header">
+          <div class="form-header-title">商品情報入力</div>
+          <div class="form-header-sub">ご希望の商品情報と数量をご入力ください</div>
+          <div class="form-header-time">⏱ 所要時間：約3分</div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>会社名<span class="req">*</span></label>
+            <input type="text" name="company" placeholder="株式会社〇〇" required>
+          </div>
+          <div class="form-group">
+            <label>担当者名<span class="req">*</span></label>
+            <input type="text" name="contact_name" placeholder="山田 太郎" required>
+          </div>
+          <div class="form-group">
+            <label>メールアドレス<span class="req">*</span></label>
+            <input type="email" name="email" placeholder="example@company.co.jp" required>
+          </div>
+          <div class="form-group">
+            <label>電話番号</label>
+            <input type="tel" name="phone" placeholder="06-0000-0000">
+          </div>
+          <div class="form-group full">
+            <label>商品名 / 商品コード<span class="req">*</span></label>
+            <input type="text" name="product" placeholder="例：〇〇クリーナー / SKU-12345" required>
+          </div>
+          <div class="form-group">
+            <label>希望数量<span class="req">*</span></label>
+            <input type="number" name="qty" placeholder="例：50" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>希望納期</label>
+            <input type="date" name="delivery_date">
+          </div>
+          <div class="form-group full">
+            <label>その他ご要望</label>
+            <textarea name="notes" placeholder="包装・納品先・支払い条件などご自由にお書きください。"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="b2b-submit">見積もりを依頼する</button>
+        <p class="form-note">内容を確認の上、担当者より2営業日以内にお見積書をお送りいたします。</p>
+      </form>
+    </section>
 
     <!-- Contact Info -->
     <section class="b2b-section" style="margin-bottom:0;">
-      <h2 class="section-title">お問い合わせ</h2>
-      <span class="section-label">Contact</span>
+      <div class="section-header">
+        <h2 class="section-title">お問い合わせ</h2>
+        <span class="section-label">Contact</span>
+      </div>
       <div class="contact-box">
         <div class="contact-box-left">
           <h3>法人・業者向けお問い合わせ窓口</h3>
@@ -552,13 +811,49 @@
 
   </div>
 
+  <!-- Trust Indicators -->
+  <section class="trust-section">
+    <div class="trust-inner">
+      <div class="section-header">
+        <h2 class="section-title">選ばれている理由</h2>
+        <span class="section-label">Trusted by Businesses</span>
+      </div>
+      <div class="trust-stats">
+        <div class="trust-stat">
+          <div class="trust-stat-num">500+</div>
+          <div class="trust-stat-label">社以上の法人様にご利用いただいています</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-stat-num">2営業日</div>
+          <div class="trust-stat-label">以内に専任担当者よりご連絡</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-stat-num">25%</div>
+          <div class="trust-stat-label">最大OFFの法人特別価格</div>
+        </div>
+      </div>
+      <div class="industry-title">ご利用業種</div>
+      <div class="industry-grid">
+        <div class="industry-item"><span class="industry-icon">&#127869;</span><div class="industry-label">飲食業</div></div>
+        <div class="industry-item"><span class="industry-icon">&#128722;</span><div class="industry-label">小売業</div></div>
+        <div class="industry-item"><span class="industry-icon">&#127981;</span><div class="industry-label">製造業</div></div>
+        <div class="industry-item"><span class="industry-icon">&#128666;</span><div class="industry-label">物流</div></div>
+        <div class="industry-item"><span class="industry-icon">&#127973;</span><div class="industry-label">医療・介護</div></div>
+        <div class="industry-item"><span class="industry-icon">&#127970;</span><div class="industry-label">オフィス</div></div>
+      </div>
+      <div class="industry-note">
+        <strong>※</strong> 法人登記がない個人事業主様もご利用いただけます。
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="store-footer">
     <div class="store-footer-grid">
       <div>
         <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">洞察から、行動へ。</div>
+        <div class="footer-tagline">洞察から、行動へ</div>
       </div>
       <div class="footer-col">
         <h4>ショップ</h4>
@@ -597,16 +892,53 @@
 
   <script src="js/nav.js"></script>
   <script>
-    function handleRegistration(e) {
-      e.preventDefault();
-      alert('送信しました。担当者よりご連絡いたします。');
-      e.target.reset();
+    // ════════════════════════════════════════════
+    //  Formspree 送信設定（見積もり依頼専用）
+    // ════════════════════════════════════════════
+    const FORMSPREE_URL = 'https://formspree.io/f/mqejbkdn';
+
+    async function sendForm(form, formType) {
+      const btn = form.querySelector('button[type="submit"]');
+      const originalText = btn ? btn.textContent : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '送信中…';
+        btn.style.opacity = '0.7';
+      }
+
+      try {
+        const fd = new FormData(form);
+        fd.append('_subject', '【HINOKA】お見積もり依頼');
+        fd.append('お問い合わせ種別', '見積もり依頼');
+        fd.append('送信日時', new Date().toLocaleString('ja-JP'));
+
+        const res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          body: fd,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (res.ok) {
+          alert('✅ お見積もり依頼が送信されました。\n\n担当者より2営業日以内にお見積書をお送りいたします。\nお待たせしてしまい申し訳ございません。');
+          form.reset();
+        } else {
+          alert('❌ 送信に失敗しました。\n\nお手数ですが info@hinokaglobal.com まで直接ご連絡ください。');
+        }
+      } catch (err) {
+        alert('❌ 通信エラーが発生しました。\n\nお手数ですが info@hinokaglobal.com まで直接ご連絡ください。');
+        console.error(err);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          btn.style.opacity = '1';
+        }
+      }
     }
 
     function handleQuote(e) {
       e.preventDefault();
-      alert('送信しました。担当者よりご連絡いたします。');
-      e.target.reset();
+      sendForm(e.target, 'quote');
     }
   </script>
 </body>
