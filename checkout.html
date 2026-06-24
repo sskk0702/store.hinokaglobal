@@ -858,7 +858,7 @@
             for (var i = TIERS.length - 1; i >= 0; i--) {
               if (spent >= TIERS[i].min) { tier = TIERS[i]; break; }
             }
-            resolve({ tier: tier.name, discount: tier.discount });
+            resolve({ tier: tier.name, discount: tier.discount, userData: data, email: user.email });
           } else { resolve(null); }
         }).catch(function() { resolve(null); });
       });
@@ -1257,6 +1257,21 @@
             appliedPoints = 0;
             useBalance = false;
           }
+          // B2Bユーザー情報で自動入力
+          var ud = info.userData || {};
+          var contactParts = (ud.contactName || '').split(/\s+/);
+          if (contactParts.length >= 2) {
+            if (!document.getElementById('last-name').value) document.getElementById('last-name').value = contactParts[0];
+            if (!document.getElementById('first-name').value) document.getElementById('first-name').value = contactParts.slice(1).join(' ');
+          } else if (contactParts[0]) {
+            if (!document.getElementById('last-name').value) document.getElementById('last-name').value = contactParts[0];
+          }
+          if (!document.getElementById('email').value) document.getElementById('email').value = info.email || ud.email || '';
+          if (!document.getElementById('phone').value) document.getElementById('phone').value = ud.phone || ud.phoneNumber || '';
+          if (!document.getElementById('postal').value && ud.postal) document.getElementById('postal').value = ud.postal;
+          if (!document.getElementById('prefecture').value && ud.prefecture) document.getElementById('prefecture').value = ud.prefecture;
+          if (!document.getElementById('city').value && ud.city) document.getElementById('city').value = ud.city;
+          if (!document.getElementById('address').value && ud.address) document.getElementById('address').value = ud.address;
           renderSummary();
         }
       });
