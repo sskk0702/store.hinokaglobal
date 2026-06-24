@@ -1797,34 +1797,8 @@
     document.body.classList.add('is-logged-in');
     window.scrollTo(0, 0);
 
-    // B2B会員の場合：モードに応じて処理分岐
-    try {
-      if (typeof firebase !== 'undefined' && firebase.firestore) {
-        firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
-          var data = doc.exists ? doc.data() : {};
-          if (data.accountType === 'b2b') {
-            // B2Bモードの場合は法人ダッシュボードへ自動リダイレクト
-            if (sessionStorage.getItem('hinoka_mode') === 'b2b') {
-              window.location.href = 'b2b-dashboard.html';
-              return;
-            }
-            // 個人モードでも法人会員であることを案内
-            document.body.classList.add('is-b2b');
-            var existing = document.getElementById('b2bBanner');
-            if (!existing && shell) {
-              var banner = document.createElement('div');
-              banner.id = 'b2bBanner';
-              banner.style.cssText = 'background:linear-gradient(135deg,#1a1710,#2a241a);color:#e6d5b3;padding:14px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border:1px solid #c9a96e;';
-              banner.innerHTML = '<div><span style="font-size:10px;letter-spacing:0.15em;opacity:0.7;">B2B MEMBER</span><br><span style="font-size:13px;">法人アカウントもお持ちです。法人としてご利用の場合は法人ポータルからログインしてください。</span></div><a href="b2b-login.html" style="padding:8px 20px;background:#c9a96e;color:#1a1710;font-size:11px;letter-spacing:0.1em;text-decoration:none;white-space:nowrap;">法人ログインへ →</a>';
-              shell.insertBefore(banner, shell.firstChild);
-            }
-          } else {
-            // 個人アカウントはモードを個人に設定
-            sessionStorage.setItem('hinoka_mode', 'personal');
-          }
-        }).catch(function(){});
-      }
-    } catch(e){}
+    // 個人アカウントページに来たらモードを個人に設定
+    sessionStorage.setItem('hinoka_mode', 'personal');
 
     recordLogin();
     checkBirthdayCoupon();
