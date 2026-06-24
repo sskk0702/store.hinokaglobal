@@ -650,6 +650,9 @@
           <button class="pay-tab" data-tab="bank">
             <span class="tab-icon">🏦</span>銀行振込
           </button>
+          <button class="pay-tab" data-tab="invoice" id="invoiceTab" style="display:none;">
+            <span class="tab-icon">📄</span>請求書払い
+          </button>
         </div>
 
         <!-- ① クレジットカード / PayPal -->
@@ -721,6 +724,29 @@
   </div>
 </div>
 
+        <!-- ③ 請求書払い（B2B法人のみ表示） -->
+        <div class="pay-panel" id="panel-invoice">
+          <div class="info-box">
+            <strong>【請求書払い（月末締め翌月末払い）】</strong><br><br>
+            法人会員限定のお支払い方法です。<br><br>
+            📄 <strong>お支払いの流れ</strong><br>
+            <ul style="padding-left:16px;margin:8px 0;font-size:12px;line-height:2;">
+              <li>ご注文確定後、商品を先に発送いたします</li>
+              <li>月末締めで請求書を発行し、翌月初にメールでお送りします</li>
+              <li>お支払い期限：<strong>翌月末日</strong></li>
+            </ul>
+            💼 <strong>請求書について</strong><br>
+            <ul style="padding-left:16px;margin:8px 0;font-size:12px;line-height:2;">
+              <li>PDF形式の請求書をメールにてお送りします</li>
+              <li>宛名は登録されている会社名で発行します</li>
+              <li>郵送をご希望の場合はカスタマーサポートにご連絡ください</li>
+            </ul>
+            <div class="info-highlight">
+              📝 請求書払いは法人会員（B2B）のみご利用いただけます。<br>
+              　　ご不明な点は <a href="mailto:info@hinokaglobal.com" style="color:#8b6f47;">info@hinokaglobal.com</a> までお問い合わせください。
+            </div>
+          </div>
+        </div>
 
 <button class="pay-btn" id="payBtn" style="display:none;">注文を確定する</button>
         <div id="pay-loading">処理中... しばらくお待ちください</div>
@@ -1000,10 +1026,12 @@
     let currentMethod = 'credit';
     const METHOD_LABELS = {
       credit: '💳 PayPal / クレジットカード',
-      bank:   '🏦 銀行振込'
+      bank:   '🏦 銀行振込',
+      invoice: '📄 請求書払い（月末締め翌月末払い）'
     };
     const PAY_BTN_LABELS = {
-      bank: '🏦 注文を確定する（銀行振込）'
+      bank: '🏦 注文を確定する（銀行振込）',
+      invoice: '📄 注文を確定する（請求書払い）'
     };
 
     const payBtn = document.getElementById('payBtn');
@@ -1257,6 +1285,12 @@
             appliedPoints = 0;
             useBalance = false;
           }
+          // 請求書払いタブを表示（B2Bのみ）
+          var invoiceTab = document.getElementById('invoiceTab');
+          if (invoiceTab) {
+            invoiceTab.style.display = '';
+            document.querySelector('.pay-tabs').style.gridTemplateColumns = 'repeat(3,1fr)';
+          }
           // B2Bユーザー情報で自動入力
           var ud = info.userData || {};
           var contactParts = (ud.contactName || '').split(/\s+/);
@@ -1483,7 +1517,8 @@
     //  成功モーダル
     // ════════════════════════════════
     const SUCCESS_MESSAGES = {
-      bank: `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name}\n${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`
+      bank: `ご注文ありがとうございます。\n\n振込先情報を記載した確認メールをお送りしました。\n3営業日以内にお振込みください。\n\n【振込先】\n${CONFIG.bank.name}\n${CONFIG.bank.branch}\n普通　${CONFIG.bank.number}\n${CONFIG.bank.holder}`,
+      invoice: `ご注文ありがとうございます。\n\n請求書払いでのご注文を承りました。\n商品は先に発送いたします。\n月末締めの請求書を翌月初にメールでお送りします。`
     };
 
     document.getElementById('successBtn').addEventListener('click', () => {
@@ -1548,6 +1583,7 @@
       };
 
       try {
+        const _orderRef = 'HNK-' + Date.now().toString().slice(-8);
         if (currentMethod === 'bank') {
           const ok = await sendFormspree({
             _subject: `【HINOKA注文】${name}様 銀行振込`,
@@ -1555,17 +1591,23 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
-          const _bankRef = 'HNK-' + Date.now().toString().slice(-8);
           await window.BREVO_MAIL?.sendBankTransferEmail({
             email, customerName: name, totalAmount: `¥${total.toLocaleString()}`,
             bankName: CONFIG.bank.name, bankBranch: CONFIG.bank.branch,
             bankNumber: CONFIG.bank.number, bankHolder: CONFIG.bank.holder,
-            orderNumber: _bankRef
+            orderNumber: _orderRef
           });
+        } else if (currentMethod === 'invoice') {
+          const ok = await sendFormspree({
+            _subject: `【HINOKA注文】${name}様 請求書払い`,
+            payment_note: '請求書払い（月末締め翌月末払い）',
+            ...commonData
+          });
+          if (!ok) throw new Error('送信失敗');
         }
 
-        // 銀行振込注文を履歴に保存
-        const bankOrderRef = _bankRef;
+        // 注文を履歴に保存
+        const bankOrderRef = _orderRef;
         const bankDefaultAddress = {
           id: 'addr-' + Date.now(),
           name,
@@ -1583,7 +1625,7 @@
           appliedCoupon: appliedCoupon ? appliedCoupon.id : null,
           appliedPoints,
           paymentMethod: METHOD_LABELS[currentMethod], items: cart,
-          status: 'pay', statusText: 'お支払い待ち',
+          status: currentMethod === 'invoice' ? 'done' : 'pay', statusText: currentMethod === 'invoice' ? '請求書払い' : 'お支払い待ち',
           date: new Date().toLocaleDateString('ja-JP'),
           defaultAddress: bankDefaultAddress
         });
@@ -1634,7 +1676,7 @@
               appliedPoints,
               paymentMethod: METHOD_LABELS[currentMethod],
               items: cart.map(function(c){ return { name: c.name, qty: c.qty, price: c.price }; }),
-              status: currentMethod === 'bank' ? 'お支払い待ち' : '処理中',
+              status: currentMethod === 'bank' ? 'お支払い待ち' : currentMethod === 'invoice' ? '請求書払い' : '処理中',
               userId: (firebase.auth().currentUser || {}).uid || null
             });
           }
