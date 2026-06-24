@@ -227,8 +227,33 @@
       window.dispatchEvent(new Event('addressUpdated'));
     }
 
+    // ── 全注文をFirestore globalに保存 ──
+    try {
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        firebase.firestore().collection('orders').add({
+          orderNumber: order.id,
+          date: firebase.firestore.FieldValue.serverTimestamp(),
+          name: order.name, email: order.email, addr: order.addr,
+          subtotal: order.subtotal, shipping: order.shipping, total: order.total,
+          discount: order.discount || 0,
+          paymentMethod: order.paymentMethod,
+          items: (order.items || []).map(function(c){ return { name: c.name, qty: c.qty, price: c.price }; }),
+          status: isBankTransfer ? 'お支払い待ち' : '注文完了',
+          userId: (firebase.auth().currentUser || {}).uid || null
+        });
+      }
+    } catch(e) { console.log('Global order save skipped:', e.message); }
+
     // Show order card
     document.getElementById('orderCard').style.display = '';
+
+    // Order number
+    var refRow = document.createElement('div');
+    refRow.className = 'order-row';
+    refRow.style.fontWeight = '600';
+    refRow.style.fontSize = '14px';
+    refRow.innerHTML = '<span>注文番号</span><span>' + order.id + '</span>';
+    document.getElementById('orderItems').before(refRow);
 
     // Order items
     var itemsEl = document.getElementById('orderItems');
