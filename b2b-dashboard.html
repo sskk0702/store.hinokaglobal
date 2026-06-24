@@ -345,6 +345,41 @@
     .support-row a { color: var(--dark); text-decoration: none; }
     .support-row a:hover { color: var(--gold-dark); }
 
+    /* Password change */
+    .pw-card { background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%); border: 1px solid var(--border); padding: 22px; }
+    .pw-card h3 {
+      font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+      font-size: 13px; letter-spacing: 0.08em; color: var(--gold-dark);
+      padding-bottom: 10px; margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pw-field { margin-bottom: 12px; }
+    .pw-field label {
+      display: block; font-size: 10px; color: var(--muted);
+      letter-spacing: 0.06em; margin-bottom: 4px;
+    }
+    .pw-input-wrap { position: relative; }
+    .pw-input {
+      width: 100%; padding: 8px 36px 8px 10px; font-size: 12px;
+      font-family: inherit; border: 1px solid var(--border);
+      background: #fff; color: var(--dark); outline: none;
+    }
+    .pw-input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,169,110,0.12); }
+    .pw-eye {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 14px;
+      color: var(--muted); padding: 2px;
+    }
+    .pw-eye:hover { color: var(--gold-dark); }
+    .pw-save {
+      width: 100%; padding: 9px; background: var(--gold); border: none;
+      color: #fff; font-size: 11px; cursor: pointer;
+      font-family: inherit; letter-spacing: 0.08em; transition: opacity .2s;
+    }
+    .pw-save:hover { opacity: 0.85; }
+    .pw-save:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pw-msg { font-size: 11px; margin-top: 8px; text-align: center; }
+
     /* Mobile */
     @media (max-width: 900px) {
       .dash-grid { grid-template-columns: 1fr; }
@@ -568,6 +603,34 @@
             <strong>受付時間</strong>
             平日 9:00 〜 17:00
           </div>
+        </div>
+
+        <!-- Password Change -->
+        <div class="pw-card">
+          <h3>パスワード変更</h3>
+          <div class="pw-field">
+            <label>現在のパスワード</label>
+            <div class="pw-input-wrap">
+              <input type="password" class="pw-input" id="pwCurrent" placeholder="現在のパスワード">
+              <button type="button" class="pw-eye" data-target="pwCurrent">👁</button>
+            </div>
+          </div>
+          <div class="pw-field">
+            <label>新しいパスワード（8文字以上）</label>
+            <div class="pw-input-wrap">
+              <input type="password" class="pw-input" id="pwNew" placeholder="新しいパスワード">
+              <button type="button" class="pw-eye" data-target="pwNew">👁</button>
+            </div>
+          </div>
+          <div class="pw-field">
+            <label>新しいパスワード（確認）</label>
+            <div class="pw-input-wrap">
+              <input type="password" class="pw-input" id="pwConfirm" placeholder="再度入力">
+              <button type="button" class="pw-eye" data-target="pwConfirm">👁</button>
+            </div>
+          </div>
+          <button type="button" class="pw-save" id="pwSaveBtn">パスワードを変更する</button>
+          <div class="pw-msg" id="pwMsg"></div>
         </div>
 
       </aside>
@@ -878,6 +941,52 @@
       firebase.auth().signOut().then(function(){
         window.location.href = 'b2b-login.html';
       });
+    });
+    // ── パスワード表示切替 ──
+    document.querySelectorAll('.pw-eye').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var inp = document.getElementById(btn.dataset.target);
+        if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🔒'; }
+        else { inp.type = 'password'; btn.textContent = '👁'; }
+      });
+    });
+
+    // ── パスワード変更 ──
+    document.getElementById('pwSaveBtn').addEventListener('click', async function() {
+      var msg = document.getElementById('pwMsg');
+      var current = document.getElementById('pwCurrent').value;
+      var newPw = document.getElementById('pwNew').value;
+      var confirm = document.getElementById('pwConfirm').value;
+
+      msg.textContent = ''; msg.style.color = '';
+
+      if (!current) { msg.textContent = '現在のパスワードを入力してください'; msg.style.color = '#c0392b'; return; }
+      if (newPw.length < 8) { msg.textContent = '新しいパスワードは8文字以上で入力してください'; msg.style.color = '#c0392b'; return; }
+      if (newPw !== confirm) { msg.textContent = 'パスワードが一致しません'; msg.style.color = '#c0392b'; return; }
+
+      this.disabled = true;
+      this.textContent = '変更中...';
+
+      try {
+        var user = firebase.auth().currentUser;
+        var cred = firebase.auth.EmailAuthProvider.credential(user.email, current);
+        await user.reauthenticateWithCredential(cred);
+        await user.updatePassword(newPw);
+        msg.textContent = '✓ パスワードを変更しました';
+        msg.style.color = '#2d6b3f';
+        document.getElementById('pwCurrent').value = '';
+        document.getElementById('pwNew').value = '';
+        document.getElementById('pwConfirm').value = '';
+      } catch(e) {
+        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+          msg.textContent = '現在のパスワードが正しくありません';
+        } else {
+          msg.textContent = 'エラーが発生しました。再度お試しください';
+        }
+        msg.style.color = '#c0392b';
+      }
+      this.disabled = false;
+      this.textContent = 'パスワードを変更する';
     });
   </script>
 </body>
