@@ -1739,7 +1739,14 @@
   }
 
   function handleGoogleAuth() {
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function (result) {
+    if (sessionStorage.getItem('hinoka_mode') === 'b2b') {
+      showError('login-error', '現在、法人アカウントでログイン中です。個人アカウントにログインするには、まず法人アカウントからログアウトしてください。');
+      return;
+    }
+    var preSignOut = auth.currentUser ? auth.signOut() : Promise.resolve();
+    preSignOut.then(function() {
+      return auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    }).then(function (result) {
       if (!result.user) return;
       sessionStorage.setItem('hinoka_mode', 'personal');
       createUserDoc(result.user, { provider: 'google' });
@@ -1811,7 +1818,19 @@
   }
 
   function _showAccountUI(user) {
-    // 個人ページに来たら常にpersonalモードに設定（B2B自動ログインを防止）
+    var currentMode = sessionStorage.getItem('hinoka_mode');
+    if (currentMode === 'b2b') {
+      var load = document.getElementById('loadingSection');
+      var authSec = document.getElementById('authSection');
+      var dashSec = document.getElementById('dashboardSection');
+      if (load) load.style.display = 'none';
+      if (authSec) authSec.style.display = '';
+      if (dashSec) dashSec.style.display = 'none';
+      setTimeout(function() {
+        showError('login-error', '現在、法人アカウントでログイン中です。個人アカウントにログインするには、まず法人アカウントからログアウトしてください。');
+      }, 100);
+      return;
+    }
     sessionStorage.setItem('hinoka_mode', 'personal');
     _renderAccountUI(user);
   }
@@ -1918,23 +1937,32 @@
 
   function login() {
     hideMsg('login-error');
+    var currentMode = sessionStorage.getItem('hinoka_mode');
+    if (currentMode === 'b2b') {
+      showError('login-error', '現在、法人アカウントでログイン中です。個人アカウントにログインするには、まず法人アカウントからログアウトしてください。');
+      return;
+    }
     var email      = document.getElementById('login-email').value.trim();
     var pass       = document.getElementById('login-pass').value;
     var rememberEl = document.getElementById('rememberMeCheck');
     var remember   = rememberEl ? rememberEl.checked : true;
     if (!email || !pass) return showError('login-error', 'メールアドレスとパスワードを入力してください。');
     setLoading('loginBtn', true);
-    var persistence = remember
-      ? firebase.auth.Auth.Persistence.LOCAL
-      : firebase.auth.Auth.Persistence.SESSION;
-    auth.setPersistence(persistence)
-      .then(function () { return auth.signInWithEmailAndPassword(email, pass); })
-      .then(function () {
-        sessionStorage.setItem('hinoka_mode', 'personal');
-        var now = Date.now().toString();
-        localStorage.setItem(TS_LOGIN_KEY,  now);
-        localStorage.setItem(TS_ACTIVE_KEY, now);
-      })
+    // Sign out any stale session before fresh login
+    var preSignOut = auth.currentUser ? auth.signOut() : Promise.resolve();
+    preSignOut.then(function() {
+      var persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      return auth.setPersistence(persistence)
+        .then(function () { return auth.signInWithEmailAndPassword(email, pass); })
+        .then(function () {
+          sessionStorage.setItem('hinoka_mode', 'personal');
+          var now = Date.now().toString();
+          localStorage.setItem(TS_LOGIN_KEY,  now);
+          localStorage.setItem(TS_ACTIVE_KEY, now);
+        });
+    })
       .catch(function (err) { showError('login-error', authError(err.code)); })
       .finally(function () { setLoading('loginBtn', false); });
   }
