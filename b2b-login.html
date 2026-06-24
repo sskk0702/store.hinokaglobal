@@ -518,6 +518,7 @@
     </div>
   </footer>
 
+  <script src="js/hinoka-mode.js"></script>
   <script src="js/nav.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -612,6 +613,7 @@
                 throw { code: 'not-b2b' };
               });
             }
+            sessionStorage.setItem('hinoka_mode', 'b2b');
             window.location.href = 'b2b-dashboard.html';
           });
         })
@@ -672,6 +674,7 @@
       if (!user) return;
       db.collection('users').doc(user.uid).get().then(function(doc) {
         if (doc.exists && doc.data().accountType === 'b2b') {
+          sessionStorage.setItem('hinoka_mode', 'b2b');
           window.location.href = 'b2b-dashboard.html';
         }
       }).catch(function(){});
