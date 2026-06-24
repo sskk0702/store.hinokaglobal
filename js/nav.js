@@ -26,7 +26,7 @@
     <div class="side-menu-header">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">洞察から、行動へ。</div>
+        <div class="side-menu-tagline">洞察から、行動へ</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn" aria-label="閉じる">&times;</button>
     </div>
@@ -80,7 +80,7 @@
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">洞察から、行動へ。</div>
+        <div class="side-menu-tagline">洞察から、行動へ</div>
       </div>
       <button class="close-menu-btn" id="closeDrawerBtn" aria-label="閉じる">&times;</button>
     </div>
@@ -97,6 +97,10 @@
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         マイアカウント
       </a>
+      <a class="right-drawer-item" href="b2b-dashboard.html" id="navB2BLink" style="display:none;">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        法人ポータル
+      </a>
       <a class="right-drawer-item" href="cart.html">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         ショッピングバッグ
@@ -110,7 +114,7 @@
     <button class="search-modal-close" id="closeSearchBtn" aria-label="閉じる">&times;</button>
     <div class="search-modal-inner">
       <p class="search-modal-label">商品を検索</p>
-      <input type="text" id="searchInput" placeholder="商品名・キーワードで検索">
+      <input type="text" id="searchInput" placeholder="キーワードを入力">
     </div>
   </div>
 
@@ -208,4 +212,21 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { closeAll(); closeSearch(); }
   });
+
+  // B2B法人会員ならナビに法人ポータルリンクを表示
+  function checkB2BNav() {
+    try {
+      if (typeof firebase === 'undefined' || !firebase.auth) return;
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) return;
+        firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
+          var data = doc.exists ? doc.data() : {};
+          var link = document.getElementById('navB2BLink');
+          if (data.accountType === 'b2b' && link) link.style.display = '';
+        }).catch(function(){});
+      });
+    } catch(e) {}
+  }
+  if (document.readyState === 'complete') checkB2BNav();
+  else window.addEventListener('load', checkB2BNav);
 })();
