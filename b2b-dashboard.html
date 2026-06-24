@@ -864,6 +864,10 @@
         window.location.href = 'b2b-login.html';
         return;
       }
+      if (sessionStorage.getItem('hinoka_mode') !== 'b2b') {
+        window.location.href = 'b2b-login.html';
+        return;
+      }
       try {
         var doc = await db.collection('users').doc(user.uid).get();
         var data = doc.exists ? doc.data() : {};
