@@ -468,39 +468,47 @@
     var loginBtn = document.getElementById('loginBtn');
     var formMsg = document.getElementById('formMsg');
 
-    // Check if another mode is currently logged in
+    // Check if another mode is currently logged in (wait for auth to initialize)
+    loginBtn.disabled = true;
     (function checkActiveSession() {
-      try {
-        var currentMode = sessionStorage.getItem('hinoka_mode');
-        if (currentMode === 'personal' && auth.currentUser) {
-          loginBtn.disabled = true;
-          showMsg('現在、個人アカウントでログイン中です。法人アカウントにログインするには、まず個人アカウントからログアウトしてください。', 'error');
-          var logoutLink = document.createElement('a');
-          logoutLink.href = '#';
-          logoutLink.textContent = '個人アカウントからログアウトする →';
-          logoutLink.style.cssText = 'display:block;text-align:center;margin-top:12px;color:var(--gold-dark);font-size:12px;letter-spacing:0.08em;';
-          logoutLink.addEventListener('click', function(e) {
-            e.preventDefault();
+      auth.onAuthStateChanged(function(user) {
+        try {
+          var currentMode = sessionStorage.getItem('hinoka_mode');
+          if (currentMode === 'personal' && user) {
+            loginBtn.disabled = true;
+            showMsg('現在、個人アカウントでログイン中です。法人アカウントにログインするには、まず個人アカウントからログアウトしてください。', 'error');
+            var logoutLink = document.createElement('a');
+            logoutLink.href = '#';
+            logoutLink.textContent = '個人アカウントからログアウトする →';
+            logoutLink.style.cssText = 'display:block;text-align:center;margin-top:12px;color:var(--gold-dark);font-size:12px;letter-spacing:0.08em;';
+            logoutLink.addEventListener('click', function(e) {
+              e.preventDefault();
+              auth.signOut().then(function() {
+                sessionStorage.removeItem('hinoka_mode');
+                clearMsg();
+                loginBtn.disabled = false;
+                logoutLink.remove();
+                showMsg('ログアウトしました。法人アカウントでログインできます。', 'success');
+              });
+            });
+            formMsg.parentNode.insertBefore(logoutLink, formMsg.nextSibling);
+            return;
+          }
+          if (currentMode === 'b2b' && user) {
+            window.location.href = 'b2b-dashboard.html';
+            return;
+          }
+          if (user && !currentMode) {
             auth.signOut().then(function() {
               sessionStorage.removeItem('hinoka_mode');
-              clearMsg();
               loginBtn.disabled = false;
-              logoutLink.remove();
-              showMsg('ログアウトしました。法人アカウントでログインできます。', 'success');
             });
-          });
-          formMsg.parentNode.insertBefore(logoutLink, formMsg.nextSibling);
-          return;
-        }
-        if (currentMode === 'b2b' && auth.currentUser) {
-          window.location.href = 'b2b-dashboard.html';
-          return;
-        }
-        if (auth.currentUser) {
-          auth.signOut();
-        }
-        sessionStorage.removeItem('hinoka_mode');
-      } catch(e) { console.warn('Session check:', e); }
+            return;
+          }
+          loginBtn.disabled = false;
+          sessionStorage.removeItem('hinoka_mode');
+        } catch(e) { console.warn('Session check:', e); loginBtn.disabled = false; }
+      });
     })();
 
     function showMsg(text, type) {
