@@ -358,7 +358,8 @@
     return [];
   }
 
-  function getCartItems() { return getLS('cartItems', []); }
+  function _cartKey() { return (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems'; }
+  function getCartItems() { return getLS(_cartKey(), []); }
   function getAddresses() { return getLS('hinoka_addresses', []); }
   function getMessages()  { return getLS('hinoka_messages', []); }
 
@@ -686,13 +687,13 @@
     if (!order && action !== 'delete-order') return;
 
     if (action === 'pay-now') {
-      var cart = getLS('cartItems', []);
+      var cart = getLS(_cartKey(), []);
       (order.items || []).forEach(function (item) {
         var found = cart.find(function (c) { return c.id === item.id; });
         if (found) found.qty = Math.max(found.qty, Number(item.qty || 1));
         else cart.push({ id: item.id, name: item.name, price: item.price, img: item.img || 'assets/images/placeholder.jpg', qty: Number(item.qty || 1), color: '', size: item.spec || '' });
       });
-      setLS('cartItems', cart);
+      setLS(_cartKey(), cart);
       setLS('hinoka_repay_ref', orderId);
       window.dispatchEvent(new Event('cartUpdated'));
       location.href = 'checkout.html';
@@ -706,8 +707,8 @@
       setLS('hinoka_orders', stored);
       if (order) {
         var itemIds = (order.items || []).map(function (i) { return i.id; });
-        var newCart = getLS('cartItems', []).filter(function (c) { return itemIds.indexOf(c.id) === -1; });
-        setLS('cartItems', newCart);
+        var newCart = getLS(_cartKey(), []).filter(function (c) { return itemIds.indexOf(c.id) === -1; });
+        setLS(_cartKey(), newCart);
         window.dispatchEvent(new Event('cartUpdated'));
       }
       window.dispatchEvent(new Event('orderUpdated'));
@@ -736,13 +737,13 @@
       state.reviewFilter = 'pending'; switchView('reviews');
 
     } else if (action === 'rebuy') {
-      var cart2 = getLS('cartItems', []);
+      var cart2 = getLS(_cartKey(), []);
       (order.items || []).forEach(function (item) {
         var found = cart2.find(function (c) { return c.id === item.id; });
         if (found) found.qty += Number(item.qty || 1);
         else cart2.push({ id: item.id, name: item.name, price: item.price, img: item.img || 'assets/images/placeholder.jpg', qty: Number(item.qty || 1), color: '', size: item.spec || '' });
       });
-      setLS('cartItems', cart2);
+      setLS(_cartKey(), cart2);
       window.dispatchEvent(new Event('cartUpdated'));
       location.href = 'cart.html';
 
@@ -1160,10 +1161,10 @@
           var products = window.HINOKA_PRODUCTS || [];
           var p = products.find(function (x) { return x.id === id; });
           if (p) {
-            var items = getLS('cartItems', []);
+            var items = getLS(_cartKey(), []);
             var found = items.find(function (i) { return i.id === id; });
             if (found) found.qty++; else items.push({ id: id, name: p.name, price: p.price, img: (p.images && p.images[0]) || p.mainImg || '', qty: 1, color: '', size: '' });
-            setLS('cartItems', items);
+            setLS(_cartKey(), items);
             window.dispatchEvent(new Event('cartUpdated'));
           }
           showToast('ショッピングバッグに追加しました');
@@ -1210,10 +1211,10 @@
       document.getElementById('cartToCheckoutBtn').addEventListener('click', function () { location.href = 'checkout.html'; });
     }
     document.querySelectorAll('[data-cart-inc]').forEach(function (b) {
-      b.addEventListener('click', function () { var cart = getLS('cartItems', []); cart[+b.dataset.cartInc].qty = Number(cart[+b.dataset.cartInc].qty || 1) + 1; setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
+      b.addEventListener('click', function () { var cart = getLS(_cartKey(), []); cart[+b.dataset.cartInc].qty = Number(cart[+b.dataset.cartInc].qty || 1) + 1; setLS(_cartKey(), cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
     document.querySelectorAll('[data-cart-dec]').forEach(function (b) {
-      b.addEventListener('click', function () { var i = +b.dataset.cartDec; var cart = getLS('cartItems', []); if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1); setLS('cartItems', cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
+      b.addEventListener('click', function () { var i = +b.dataset.cartDec; var cart = getLS(_cartKey(), []); if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1); setLS(_cartKey(), cart); window.dispatchEvent(new Event('cartUpdated')); renderCart(); });
     });
   }
 
