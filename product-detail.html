@@ -1023,6 +1023,21 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
       }
 
+      function hasPurchased() {
+        try {
+          var orders = JSON.parse(localStorage.getItem('hinoka_orders') || '[]');
+          return orders.some(function(o) {
+            return (o.items || []).some(function(item) {
+              return item.id === product.id;
+            });
+          });
+        } catch(e) { return false; }
+      }
+
+      function isLoggedIn() {
+        return typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser;
+      }
+
       function renderStars(n, filled) {
         return [1,2,3,4,5].map(i => `<span style="color:${i<=n ? (filled||'#c9a96e') : '#ddd'}">★</span>`).join('');
       }
@@ -1037,23 +1052,40 @@
           document.getElementById('reviewAvgScore').textContent = '';
           document.getElementById('reviewCount').textContent = 'まだレビューはありません';
           list.innerHTML = '<p style="font-size:12px;color:#999;text-align:center;padding:20px 0;">最初のレビューを投稿してみましょう。</p>';
-          return;
-        }
-        const avg = reviews.reduce((s,r)=>s+r.rating,0)/reviews.length;
-        document.getElementById('reviewAvgStars').innerHTML = renderStars(Math.round(avg));
-        document.getElementById('reviewAvgScore').textContent = avg.toFixed(1);
-        document.getElementById('reviewCount').textContent = reviews.length + '件のレビュー';
+        } else {
+          const avg = reviews.reduce((s,r)=>s+r.rating,0)/reviews.length;
+          document.getElementById('reviewAvgStars').innerHTML = renderStars(Math.round(avg));
+          document.getElementById('reviewAvgScore').textContent = avg.toFixed(1);
+          document.getElementById('reviewCount').textContent = reviews.length + '件のレビュー';
 
-        list.innerHTML = reviews.slice().reverse().map(r => `
-          <div style="padding:16px;background:#fff;border:1px solid rgba(201,169,110,0.18);border-radius:4px;">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <span style="font-size:14px;">${renderStars(r.rating)}</span>
-              <span style="font-size:11px;font-weight:500;color:#2a1c0e;">${r.rating}.0</span>
-              <span style="margin-left:auto;font-size:10px;color:#aaa;">${r.date}</span>
-            </div>
-            ${r.name ? `<p style="font-size:11px;color:#888;margin-bottom:4px;">${r.name}</p>` : ''}
-            ${r.text ? `<p style="font-size:13px;color:#444;line-height:1.9;">${r.text}</p>` : ''}
-          </div>`).join('');
+          list.innerHTML = reviews.slice().reverse().map(r => `
+            <div style="padding:16px;background:#fff;border:1px solid rgba(201,169,110,0.18);border-radius:4px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="font-size:14px;">${renderStars(r.rating)}</span>
+                <span style="font-size:11px;font-weight:500;color:#2a1c0e;">${r.rating}.0</span>
+                <span style="margin-left:auto;font-size:10px;color:#aaa;">${r.date}</span>
+              </div>
+              ${r.name ? `<p style="font-size:11px;color:#888;margin-bottom:4px;">${r.name}</p>` : ''}
+              ${r.text ? `<p style="font-size:13px;color:#444;line-height:1.9;">${r.text}</p>` : ''}
+            </div>`).join('');
+        }
+
+        // フォームの表示制御
+        const formWrap = document.getElementById('reviewFormWrap');
+        const formInner = document.getElementById('reviewFormInner');
+        const loginNotice = document.getElementById('reviewLoginNotice');
+        if (!formWrap) return;
+
+        if (!isLoggedIn()) {
+          if (formInner) formInner.style.display = 'none';
+          if (loginNotice) { loginNotice.style.display = 'block'; loginNotice.innerHTML = '<a href="account.html" style="color:#8b6f47;text-decoration:underline;">ログイン</a> するとレビューを投稿できます。'; }
+        } else if (!hasPurchased()) {
+          if (formInner) formInner.style.display = 'none';
+          if (loginNotice) { loginNotice.style.display = 'block'; loginNotice.innerHTML = '⚠️ この商品のご購入履歴がないため、レビューを投稿できません。'; }
+        } else {
+          if (formInner) formInner.style.display = 'block';
+          if (loginNotice) loginNotice.style.display = 'none';
+        }
       }
 
       // 星選択
@@ -1077,14 +1109,17 @@
       const submitBtn = document.getElementById('reviewSubmitBtn');
       if (submitBtn) {
         submitBtn.addEventListener('click', () => {
+          if (!isLoggedIn()) { alert('レビューを投稿するにはログインが必要です。'); return; }
+          if (!hasPurchased()) { alert('この商品のご購入履歴がないため、レビューを投稿できません。'); return; }
           if (!selectedRating) { alert('星評価を選択してください'); return; }
           const text    = (document.getElementById('reviewText').value || '').trim();
           const reviews = getReviews();
+          const user = firebase.auth().currentUser;
           const now     = new Date();
           reviews.push({
             rating: selectedRating,
             text,
-            name: '',
+            name: user.displayName || '',
             date: now.toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'})
           });
           saveReviews(reviews);
@@ -1098,6 +1133,10 @@
       }
 
       renderReviews();
+      // Firebase auth状態変化時にフォームを再描画
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged(function() { renderReviews(); });
+      }
     })();
   })();
   </script>
