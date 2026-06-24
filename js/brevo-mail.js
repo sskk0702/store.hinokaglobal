@@ -277,3 +277,77 @@ export async function sendPayPayEmail({ email, customerName, totalAmount }) {
     html
   });
 }
+
+// ── 発送完了通知メール ──────────────────────────────────────
+export async function sendShippingNotificationEmail({
+  email, customerName, orderNumber, carrier, trackingNumber
+}) {
+  const CARRIER_URLS = {
+    yamato:    'https://jizen.kuronekoyamato.co.jp/jizen/servlet/crjz.b.CRJZb001?id=',
+    sagawa:    'https://k2k.sagawa-exp.co.jp/p/sagawa/web/otoiawase.jsp?SearchNo=',
+    japanpost: 'https://trackings.post.japanpost.jp/services/srv/search/direct?reqCodeNo1=',
+    seino:     'https://track.seino.co.jp/kamotsu/denpyoNumber.do?DENPYO_NO='
+  };
+  const CARRIER_NAMES = { yamato: 'ヤマト運輸', sagawa: '佐川急便', japanpost: '日本郵便', seino: '西濃運輸' };
+  const carrierName = CARRIER_NAMES[carrier] || carrier || '配送会社';
+  const trackUrl = trackingNumber ? ((CARRIER_URLS[carrier] || CARRIER_URLS.sagawa) + trackingNumber) : '';
+  const trackLine = trackingNumber
+    ? `<p>追跡番号：<strong><a href="${trackUrl}" style="color:#2b6cb0;">${trackingNumber}</a></strong></p>`
+    : '';
+  const html = `
+    ${header}
+    <p style="font-size:14px;color:#333;line-height:2;">
+      ${customerName} 様
+    </p>
+    <p style="font-size:14px;color:#333;line-height:2;">
+      ご注文の商品を発送いたしました。
+    </p>
+    <div style="background:#f8f8f6;padding:24px;margin:20px 0;
+                font-size:13px;line-height:2.4;border-left:3px solid #2b6cb0;">
+      <p>注文番号：<strong>${orderNumber || '—'}</strong></p>
+      <p>配送会社：<strong>${carrierName}</strong></p>
+      ${trackLine}
+    </div>
+    <p style="font-size:12px;color:#666;line-height:2;">
+      お届けまで通常1〜3営業日かかります。<br>
+      ご不明な点がございましたら、お気軽にお問い合わせください。
+    </p>
+    ${footer}
+  `;
+
+  return await sendBrevoMail({
+    to:      email,
+    toName:  customerName,
+    subject: '【HINOKA】商品を発送しました（注文番号：' + (orderNumber || '') + '）',
+    html
+  });
+}
+
+// ── 注文ステータス更新通知メール ──────────────────────────────
+export async function sendStatusUpdateEmail({
+  email, customerName, orderNumber, newStatus, message
+}) {
+  const html = `
+    ${header}
+    <p style="font-size:14px;color:#333;line-height:2;">
+      ${customerName} 様
+    </p>
+    <p style="font-size:14px;color:#333;line-height:2;">
+      ご注文のステータスが更新されました。
+    </p>
+    <div style="background:#f8f8f6;padding:24px;margin:20px 0;
+                font-size:13px;line-height:2.4;border-left:3px solid #000;">
+      <p>注文番号：<strong>${orderNumber || '—'}</strong></p>
+      <p>ステータス：<strong>${newStatus}</strong></p>
+      ${message ? '<p style="border-top:1px solid #ddd;padding-top:12px;margin-top:4px;">' + message + '</p>' : ''}
+    </div>
+    ${footer}
+  `;
+
+  return await sendBrevoMail({
+    to:      email,
+    toName:  customerName,
+    subject: '【HINOKA】ご注文ステータスの更新（' + (orderNumber || '') + '）',
+    html
+  });
+}
