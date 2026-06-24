@@ -23,6 +23,7 @@
   //   'merge'  — 初回ログイン時のみ両方をマージ（未使用、将来用）
   var TARGETS = [
     { key: 'cartItems',               doc: 'cart',      field: 'items', event: 'cartUpdated'     },
+    { key: 'b2bCartItems',            doc: 'b2b_cart',  field: 'items', event: 'b2bCartUpdated'  },
     { key: 'hinoka_wishlist',         doc: 'wishlist',  field: 'ids',   event: 'wishlistUpdated' },
     { key: 'hinoka_orders',           doc: 'orders',    field: 'items', event: 'orderUpdated'    },
     { key: 'hinoka_addresses',        doc: 'addresses', field: 'items', event: 'addressUpdated'  },
