@@ -45,7 +45,7 @@
       var banner = document.createElement('div');
       banner.id = 'b2bModeBanner';
       banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10001;background:linear-gradient(90deg,#111827,#1e293b,#0f2040);color:rgba(255,255,255,.8);text-align:center;font-size:10px;letter-spacing:0.12em;padding:5px 0;font-family:"Noto Sans JP",sans-serif;';
-      banner.innerHTML = '法人アカウントでご利用中　<a href="b2b-dashboard.html" style="color:#c9a96e;margin-left:12px;text-decoration:none;border-bottom:1px solid rgba(201,169,110,.4);">マイアカウント →</a>';
+      banner.innerHTML = '法人アカウントでご利用中';
       document.body.prepend(banner);
       document.body.style.paddingTop = 'calc(var(--nav-height) + 24px)';
       var nav = document.getElementById('main-nav');
