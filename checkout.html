@@ -790,7 +790,7 @@
       <div>
         <a href="store.html" class="footer-brand-logo" style="text-decoration:none;color:inherit;">HINOKA</a>
         <div class="footer-brand-sub">株式会社 · HINOKA Co., Ltd.</div>
-        <div class="footer-tagline">洞察から、行動へ。</div>
+        <div class="footer-tagline">洞察から、行動へ</div>
       </div>
       <div class="footer-col">
         <h4>ショップ</h4>
@@ -1496,6 +1496,32 @@
         window.dispatchEvent(new Event('orderUpdated'));
         window.dispatchEvent(new Event('addressUpdated'));
         if (window.hinokaSyncSave) window.hinokaSyncSave();
+
+        // ── B2B自動記録：法人会員の注文をFirestoreに自動保存 ──
+        try {
+          if (typeof firebase !== 'undefined' && firebase.auth) {
+            var b2bUser = firebase.auth().currentUser;
+            if (b2bUser) {
+              var b2bDoc = await firebase.firestore().collection('users').doc(b2bUser.uid).get();
+              var b2bData = b2bDoc.exists ? b2bDoc.data() : {};
+              if (b2bData.accountType === 'b2b') {
+                await firebase.firestore().collection('users').doc(b2bUser.uid)
+                  .collection('b2b_orders').add({
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    orderNumber: bankOrderRef,
+                    type: 'order',
+                    amount: total,
+                    status: '処理中',
+                    items: cart.map(function(c){ return { name: c.name, qty: c.qty, price: c.price }; }),
+                    paymentMethod: METHOD_LABELS[currentMethod]
+                  });
+                var prevSpent = b2bData.totalSpent || 0;
+                await firebase.firestore().collection('users').doc(b2bUser.uid)
+                  .update({ totalSpent: prevSpent + total });
+              }
+            }
+          }
+        } catch(b2bErr) { console.log('B2B order sync skipped:', b2bErr.message); }
 
         localStorage.removeItem('cartItems');
         localStorage.removeItem('hinoka_cart');
