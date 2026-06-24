@@ -250,9 +250,11 @@
 
     // Clear pending order and cart
     localStorage.removeItem('hinoka_pending_order');
-    localStorage.removeItem('cartItems');
+    var _ck = (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems';
+    localStorage.removeItem(_ck);
     localStorage.removeItem('hinoka_cart');
     window.dispatchEvent(new Event('cartUpdated'));
+    window.dispatchEvent(new Event('b2bCartUpdated'));
     window.dispatchEvent(new Event('orderUpdated'));
     if (window.hinokaSyncSave) window.hinokaSyncSave();
   })();
