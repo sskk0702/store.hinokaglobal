@@ -1376,9 +1376,9 @@
       if (!selectedRating) return showToast('評価を選択してください');
       if (!body) return showToast('レビュー内容を入力してください');
 
-      // 低評価（1-2星）の場合は確認
-      if (selectedRating <= 2) {
-        if (!confirm('★' + selectedRating + 'の評価で投稿します。\n※ 低評価のレビューにはクーポン・ポイント特典は付与されません。\nよろしいですか？')) return;
+      // 5星未満の場合は確認
+      if (selectedRating < 5) {
+        if (!confirm('★' + selectedRating + 'の評価で投稿します。\n※ ★5の評価のみクーポン・ポイント特典が付与されます。\nよろしいですか？')) return;
       }
 
       var isFirstSubmission = r.status === 'pending';
@@ -1405,8 +1405,8 @@
         }
       }
 
-      // 特典付与：初回投稿 かつ 3星以上のみ
-      if (isFirstSubmission && selectedRating >= 3) {
+      // 特典付与：初回投稿 かつ 5星のみ
+      if (isFirstSubmission && selectedRating === 5) {
         var pts = calcPoints();
         pts.total += 50; pts.available += 50;
         setLS('hinoka_points_log', pts);
@@ -1741,16 +1741,8 @@
   function handleGoogleAuth() {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(function (result) {
       if (!result.user) return;
-      return db.collection('users').doc(result.user.uid).get().then(function(doc) {
-        var data = doc.exists ? doc.data() : {};
-        if (data.accountType === 'b2b') {
-          return auth.signOut().then(function() {
-            showError('login-error', 'このメールアドレスは法人アカウントとして登録されています。個人用の別のメールアドレスをご使用ください。');
-          });
-        }
-        sessionStorage.setItem('hinoka_mode', 'personal');
-        createUserDoc(result.user, { provider: 'google' });
-      });
+      sessionStorage.setItem('hinoka_mode', 'personal');
+      createUserDoc(result.user, { provider: 'google' });
     }).catch(function (err) {
       if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
       showError('login-error', authError(err.code));
@@ -1819,19 +1811,9 @@
   }
 
   function _showAccountUI(user) {
-    // 法人アカウントが個人ページにアクセスした場合はブロック
-    db.collection('users').doc(user.uid).get().then(function(doc) {
-      var data = doc.exists ? doc.data() : {};
-      if (data.accountType === 'b2b') {
-        auth.signOut();
-        showLogin();
-        showError('login-error', 'このメールアドレスは法人アカウントとして登録されています。個人用の別のメールアドレスをご使用いただくか、法人ログインをご利用ください。');
-        return;
-      }
-      _renderAccountUI(user);
-    }).catch(function() {
-      _renderAccountUI(user);
-    });
+    // 個人ページに来たら常にpersonalモードに設定（B2B自動ログインを防止）
+    sessionStorage.setItem('hinoka_mode', 'personal');
+    _renderAccountUI(user);
   }
 
   function _renderAccountUI(user) {
@@ -1947,27 +1929,13 @@
       : firebase.auth.Auth.Persistence.SESSION;
     auth.setPersistence(persistence)
       .then(function () { return auth.signInWithEmailAndPassword(email, pass); })
-      .then(function (cred) {
-        return db.collection('users').doc(cred.user.uid).get().then(function(doc) {
-          var data = doc.exists ? doc.data() : {};
-          if (data.accountType === 'b2b') {
-            return auth.signOut().then(function() {
-              throw { code: 'is-b2b-account' };
-            });
-          }
-          sessionStorage.setItem('hinoka_mode', 'personal');
-          var now = Date.now().toString();
-          localStorage.setItem(TS_LOGIN_KEY,  now);
-          localStorage.setItem(TS_ACTIVE_KEY, now);
-        });
+      .then(function () {
+        sessionStorage.setItem('hinoka_mode', 'personal');
+        var now = Date.now().toString();
+        localStorage.setItem(TS_LOGIN_KEY,  now);
+        localStorage.setItem(TS_ACTIVE_KEY, now);
       })
-      .catch(function (err) {
-        if (err && err.code === 'is-b2b-account') {
-          showError('login-error', 'このメールアドレスは法人アカウントとして登録されています。個人用の別のメールアドレスをご使用いただくか、法人ログインをご利用ください。');
-        } else {
-          showError('login-error', authError(err.code));
-        }
-      })
+      .catch(function (err) { showError('login-error', authError(err.code)); })
       .finally(function () { setLoading('loginBtn', false); });
   }
 
