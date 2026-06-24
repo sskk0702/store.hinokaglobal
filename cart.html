@@ -22,7 +22,7 @@
       --ca-text-sub:  rgba(58,40,20,0.55);
       --ca-shadow:    0 4px 24px rgba(139,111,71,0.10), 0 1px 4px rgba(0,0,0,0.04);
     }
-    
+
     /* ═══════════ ページヘッダー ═══════════ */
     .cart-header {
       border-bottom: 1px solid var(--ca-border2);
@@ -529,7 +529,45 @@
       // 商品価格はすでに税込のため、税額は内税として表示
       const tax      = Math.round(subtotal / 11);         // 税込価格から内税を算出
       const shipping = subtotal === 0 ? 0 : SHIPPING_FEE; // 商品なしは送料なし
-      const total    = subtotal + shipping;               // 合計 = 商品小計 + 送料
+
+      // B2B discount
+      var b2bDiscount = 0;
+      var b2bDiscountRate = 0;
+      var isB2B = typeof HinokaMode !== 'undefined' && HinokaMode.isB2B();
+      if (isB2B && typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+        var discEl = document.getElementById('b2bDiscountRow');
+        if (!discEl) {
+          var shipRow = document.getElementById('shipping').closest('.summary-row') || document.getElementById('shipping').parentElement;
+          if (shipRow) {
+            discEl = document.createElement('div');
+            discEl.className = shipRow.className;
+            discEl.id = 'b2bDiscountRow';
+            discEl.innerHTML = '<span>法人割引 <span id="b2bDiscountLabel"></span></span><span id="b2bDiscountVal"></span>';
+            shipRow.parentNode.insertBefore(discEl, shipRow.nextSibling);
+          }
+        }
+        try {
+          var uid = firebase.auth().currentUser.uid;
+          firebase.firestore().collection('users').doc(uid).get().then(function(doc) {
+            if (!doc.exists) return;
+            var d = doc.data();
+            var spent = d.totalSpent || 0;
+            if (spent >= 500000) b2bDiscountRate = 15;
+            else if (spent >= 200000) b2bDiscountRate = 10;
+            else b2bDiscountRate = 5;
+            b2bDiscount = Math.round(subtotal * b2bDiscountRate / 100);
+            var total = subtotal - b2bDiscount + shipping;
+            if (document.getElementById('b2bDiscountLabel')) {
+              document.getElementById('b2bDiscountLabel').textContent = '(' + b2bDiscountRate + '% OFF)';
+              document.getElementById('b2bDiscountVal').textContent = '-¥' + b2bDiscount.toLocaleString();
+              document.getElementById('b2bDiscountRow').style.display = '';
+            }
+            document.getElementById('total').textContent = '¥' + total.toLocaleString();
+          });
+        } catch(e) {}
+      }
+
+      const total    = subtotal + shipping;
 
       document.getElementById('subtotal').textContent =
         `¥${subtotal.toLocaleString()}`;
