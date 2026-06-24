@@ -782,6 +782,7 @@
       <div class="success-icon">✅</div>
       <div class="success-title">ご注文ありがとうございます</div>
       <p class="success-msg" id="successMsg"></p>
+      <p id="successOrderRef" style="font-size:15px;font-weight:600;letter-spacing:0.08em;margin:12px 0 0;color:#333;"></p>
       <button class="success-btn" id="successBtn">ショッピングを続ける</button>
     </div>
   </div>
@@ -1539,15 +1540,17 @@
             ...commonData
           });
           if (!ok) throw new Error('送信失敗');
+          const _bankRef = 'HNK-' + Date.now().toString().slice(-8);
           await window.BREVO_MAIL?.sendBankTransferEmail({
             email, customerName: name, totalAmount: `¥${total.toLocaleString()}`,
             bankName: CONFIG.bank.name, bankBranch: CONFIG.bank.branch,
-            bankNumber: CONFIG.bank.number, bankHolder: CONFIG.bank.holder
+            bankNumber: CONFIG.bank.number, bankHolder: CONFIG.bank.holder,
+            orderNumber: _bankRef
           });
         }
 
         // 銀行振込注文を履歴に保存
-        const bankOrderRef = 'HNK-' + Date.now().toString().slice(-8);
+        const bankOrderRef = _bankRef;
         const bankDefaultAddress = {
           id: 'addr-' + Date.now(),
           name,
@@ -1604,11 +1607,30 @@
           }
         } catch(b2bErr) { console.log('B2B order sync skipped:', b2bErr.message); }
 
+        // ── 全注文をFirestore globalに保存（管理者が確認可能） ──
+        try {
+          if (typeof firebase !== 'undefined' && firebase.firestore) {
+            await firebase.firestore().collection('orders').add({
+              orderNumber: bankOrderRef,
+              date: firebase.firestore.FieldValue.serverTimestamp(),
+              name, email, addr,
+              subtotal, shipping, total, discount,
+              appliedCoupon: appliedCoupon ? appliedCoupon.id : null,
+              appliedPoints,
+              paymentMethod: METHOD_LABELS[currentMethod],
+              items: cart.map(function(c){ return { name: c.name, qty: c.qty, price: c.price }; }),
+              status: currentMethod === 'bank' ? 'お支払い待ち' : '処理中',
+              userId: (firebase.auth().currentUser || {}).uid || null
+            });
+          }
+        } catch(globalErr) { console.log('Global order save skipped:', globalErr.message); }
+
         localStorage.removeItem(_ck());
         localStorage.removeItem('hinoka_cart');
         window.dispatchEvent(new Event('cartUpdated'));
         document.getElementById('pay-loading').style.display = 'none';
         document.getElementById('successMsg').textContent = SUCCESS_MESSAGES[currentMethod] || '';
+        document.getElementById('successOrderRef').textContent = '注文番号：' + bankOrderRef;
         document.getElementById('successModal').classList.add('open');
 
       } catch(err) {
