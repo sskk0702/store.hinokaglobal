@@ -471,7 +471,8 @@
     // Check if another mode is currently logged in (wait for auth to initialize)
     loginBtn.disabled = true;
     (function checkActiveSession() {
-      auth.onAuthStateChanged(function(user) {
+      var unsubCheck = auth.onAuthStateChanged(function(user) {
+        unsubCheck();
         try {
           var currentMode = sessionStorage.getItem('hinoka_mode');
           if (currentMode === 'personal' && user) {
@@ -498,15 +499,7 @@
             window.location.href = 'b2b-dashboard.html';
             return;
           }
-          if (user && !currentMode) {
-            auth.signOut().then(function() {
-              sessionStorage.removeItem('hinoka_mode');
-              loginBtn.disabled = false;
-            });
-            return;
-          }
           loginBtn.disabled = false;
-          sessionStorage.removeItem('hinoka_mode');
         } catch(e) { console.warn('Session check:', e); loginBtn.disabled = false; }
       });
     })();
@@ -514,6 +507,7 @@
     function showMsg(text, type) {
       formMsg.textContent = text;
       formMsg.className = 'form-msg ' + (type || 'error');
+      formMsg.style.display = 'block';
     }
     function clearMsg() {
       formMsg.textContent = '';
