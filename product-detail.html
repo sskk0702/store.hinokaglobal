@@ -512,6 +512,7 @@
     </div>
   </footer>
 
+  <script src="js/hinoka-mode.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -520,6 +521,7 @@
   <script src="js/firebase-sync.js"></script>
   <script>
   (function () {
+    function _ck() { return (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems'; }
     // Legacy fallback products (used if products.js fails to load)
     const PRODUCTS_LEGACY = {
       '001':{ name:'プレミアム ドッグフード',   price:3850,  category:'dog-food',    parentCat:'pet',
@@ -870,7 +872,7 @@
 
     // ── カートサイドバー ──
     function renderSidebar() {
-      const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const items = JSON.parse(localStorage.getItem(_ck()) || '[]');
       const container = document.getElementById('cartSidebarItems');
       container.innerHTML = '';
       let subtotal = 0;
@@ -914,22 +916,22 @@
 
         container.querySelectorAll('.sidebar-qty-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            const cart = JSON.parse(localStorage.getItem(_ck()) || '[]');
             const i = parseInt(btn.dataset.idx);
             const minQty = cart[i].moq || 1;
             if (btn.dataset.action === 'inc') cart[i].qty++;
             else if (cart[i].qty > minQty) cart[i].qty--;
             else { alert(`この商品の最低注文数量は${minQty}点です`); return; }
-            localStorage.setItem('cartItems', JSON.stringify(cart));
+            localStorage.setItem(_ck(), JSON.stringify(cart));
             window.dispatchEvent(new Event('cartUpdated'));
             renderSidebar();
           });
         });
         container.querySelectorAll('.sidebar-delete-btn').forEach(btn => {
           btn.addEventListener('click', () => {
-            const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
+            const cart = JSON.parse(localStorage.getItem(_ck()) || '[]');
             cart.splice(parseInt(btn.dataset.idx), 1);
-            localStorage.setItem('cartItems', JSON.stringify(cart));
+            localStorage.setItem(_ck(), JSON.stringify(cart));
             window.dispatchEvent(new Event('cartUpdated'));
             renderSidebar();
           });
@@ -979,7 +981,7 @@
       document.getElementById('addToCartBtn').addEventListener('click', function cartAdd() {
         const moq   = product.moq || 1;
         const qty   = qtyInput ? Math.max(parseInt(qtyInput.value)||1, moq) : moq;
-        const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+        const items = JSON.parse(localStorage.getItem(_ck()) || '[]');
         const exist = items.find(i => i.id === id && i.color === selectedColor && i.size === selectedSize);
         if (exist) { exist.qty += qty; }
         else {
@@ -987,7 +989,7 @@
                        color: selectedColor, colorName: selectedColorName || selectedColor,
                        size: selectedSize, img: product.images[0], qty, moq });
         }
-        localStorage.setItem('cartItems', JSON.stringify(items));
+        localStorage.setItem(_ck(), JSON.stringify(items));
         window.dispatchEvent(new Event('cartUpdated'));
         openCartSidebar();
       });
