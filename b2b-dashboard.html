@@ -19,6 +19,10 @@
     body {
       padding-top: var(--nav-height);
       background: var(--ivory);
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(201,169,110,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(201,169,110,0.04) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M30 0v60M0 30h60' stroke='%23c9a96e' stroke-opacity='0.04' stroke-width='0.5'/%3E%3C/g%3E%3C/svg%3E");
       font-family: 'Noto Sans JP', sans-serif;
       color: var(--dark);
     }
@@ -45,20 +49,33 @@
     /* Welcome header */
     .welcome-bar {
       display: flex; justify-content: space-between; align-items: flex-end;
-      padding: 24px 28px; background: #fff; border: 1px solid var(--border);
+      padding: 28px 32px;
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border);
       border-left: 4px solid var(--gold);
-      box-shadow: 0 2px 12px rgba(26,23,16,0.04);
+      box-shadow: 0 2px 16px rgba(26,23,16,0.05), inset 0 0 0 1px rgba(201,169,110,0.06);
       margin-bottom: 28px; gap: 24px; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .welcome-bar::after {
+      content: '';
+      position: absolute; right: -40px; top: -40px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%);
+      pointer-events: none;
     }
     .welcome-bar .vip-badge {
-      display: inline-block; font-size: 10px; letter-spacing: 0.2em;
-      color: var(--gold-dark); padding: 4px 10px;
-      border: 1px solid var(--gold); background: var(--ivory);
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; letter-spacing: 0.18em;
+      color: var(--gold-dark); padding: 5px 12px;
+      border: 1px solid var(--gold);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
       margin-bottom: 10px; text-transform: uppercase;
     }
+    .vip-badge .tier-icon { font-size: 13px; }
     .welcome-bar h1 { font-size: 24px; margin: 0 0 4px; }
     .welcome-bar .welcome-name { font-size: 14px; color: var(--muted); }
-    .welcome-meta { text-align: right; font-size: 12px; color: var(--muted); }
+    .welcome-meta { text-align: right; font-size: 12px; color: var(--muted); position: relative; z-index: 1; }
     .welcome-meta .last-login { margin-bottom: 8px; }
     .logout-btn {
       background: none; border: 1px solid var(--dark); color: var(--dark);
@@ -68,9 +85,62 @@
     }
     .logout-btn:hover { background: var(--dark); color: #fff; }
 
+    /* Tier Info Banner */
+    .tier-info {
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border);
+      padding: 20px 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 10px rgba(26,23,16,0.04);
+      position: relative;
+    }
+    .tier-info::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-dark), var(--gold));
+    }
+    .tier-title {
+      font-size: 13px; font-weight: 500; color: var(--gold-dark);
+      letter-spacing: 0.08em; margin-bottom: 14px;
+    }
+    .tier-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .tier-col {
+      background: #fff; padding: 16px 18px;
+      text-align: center; transition: background .2s;
+    }
+    .tier-col.current {
+      background: linear-gradient(135deg, #fdf8f0, #f7eed8);
+      box-shadow: inset 0 0 0 2px var(--gold);
+    }
+    .tier-col .tier-name {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .tier-col .tier-discount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; color: var(--gold-dark); font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .tier-col .tier-cond {
+      font-size: 10px; color: var(--muted); line-height: 1.6;
+    }
+    .tier-col .tier-badge {
+      display: inline-block; margin-top: 6px;
+      font-size: 9px; padding: 2px 8px;
+      background: var(--gold); color: #fff;
+      letter-spacing: 0.1em;
+    }
+    .tier-note {
+      font-size: 11px; color: var(--muted); margin-top: 12px; line-height: 1.7;
+    }
+
     /* Layout */
     .dash-grid {
-      display: grid; grid-template-columns: 1fr 280px; gap: 28px;
+      display: grid; grid-template-columns: 1fr 300px; gap: 28px;
     }
 
     /* Stats */
@@ -79,9 +149,11 @@
       gap: 16px; margin-bottom: 28px;
     }
     .stat-card {
-      background: #fff; border: 1px solid var(--border);
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border);
       padding: 20px 18px; position: relative;
       transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 1px 6px rgba(26,23,16,0.03);
     }
     .stat-card:hover {
       transform: translateY(-2px);
@@ -89,7 +161,7 @@
     }
     .stat-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0;
-      height: 2px; background: var(--gold);
+      height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-dark));
     }
     .stat-label {
       font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
@@ -107,9 +179,7 @@
       margin-bottom: 16px; padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
     }
-    .section-head h2 {
-      font-size: 18px; margin: 0;
-    }
+    .section-head h2 { font-size: 18px; margin: 0; }
     .section-head .head-sub {
       font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
     }
@@ -120,18 +190,22 @@
       gap: 14px; margin-bottom: 32px;
     }
     .action-card {
-      background: #fff; border: 1px solid var(--border);
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border);
       padding: 22px 24px; text-decoration: none; color: var(--dark);
       display: flex; align-items: center; gap: 18px;
       transition: all .2s;
+      box-shadow: 0 1px 6px rgba(26,23,16,0.03);
     }
     .action-card:hover {
       border-color: var(--gold);
       box-shadow: 0 4px 14px rgba(201,169,110,0.12);
+      transform: translateY(-1px);
     }
     .action-icon {
       width: 44px; height: 44px; flex-shrink: 0;
-      background: var(--ivory); border: 1px solid var(--gold);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
+      border: 1px solid var(--gold);
       display: flex; align-items: center; justify-content: center;
       color: var(--gold-dark); font-size: 18px;
     }
@@ -145,10 +219,14 @@
 
     /* Special pricing banner */
     .pricing-banner {
-      background: linear-gradient(135deg, #1a1710 0%, #2a241a 100%);
+      background: linear-gradient(135deg, #1a1710 0%, #2a241a 60%, #1a1710 100%);
+      background-image:
+        linear-gradient(135deg, #1a1710 0%, #2a241a 60%, #1a1710 100%),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0L40 20L20 40L0 20z' fill='none' stroke='%23c9a96e' stroke-opacity='0.06' stroke-width='0.5'/%3E%3C/svg%3E");
       color: var(--ivory); padding: 24px 28px;
       margin-bottom: 28px; position: relative; overflow: hidden;
       border: 1px solid var(--gold);
+      box-shadow: 0 4px 20px rgba(26,23,16,0.15);
     }
     .pricing-banner::before {
       content: ''; position: absolute; top: 0; right: 0; bottom: 0;
@@ -159,7 +237,7 @@
       font-size: 16px; color: var(--gold-light); margin-bottom: 8px;
       letter-spacing: 0.05em;
     }
-    .pricing-banner p { font-size: 13px; margin-bottom: 16px; opacity: 0.9; }
+    .pricing-banner p { font-size: 13px; margin-bottom: 16px; opacity: 0.9; line-height: 1.8; }
     .pricing-cta {
       display: inline-block; padding: 10px 24px;
       background: var(--gold); color: var(--dark);
@@ -171,8 +249,10 @@
 
     /* Activity table */
     .activity-card {
-      background: #fff; border: 1px solid var(--border);
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border);
       padding: 24px; margin-bottom: 28px;
+      box-shadow: 0 1px 6px rgba(26,23,16,0.03);
     }
     .activity-table {
       width: 100%; border-collapse: collapse; font-size: 13px;
@@ -193,18 +273,17 @@
     .status-pill.completed { background: #e8f3ec; color: #2d6b3f; }
     .status-pill.processing { background: #fff4e0; color: #7a5510; }
     .status-pill.quote { background: var(--ivory); color: var(--gold-dark); border: 1px solid var(--gold-light); }
-    .sample-tag {
-      font-size: 10px; color: #999; margin-left: 6px;
-    }
     .empty-state {
       text-align: center; padding: 36px 12px; color: var(--muted);
-      font-size: 13px;
+      font-size: 13px; line-height: 2;
     }
 
     /* Sidebar */
     .sidebar-col { display: flex; flex-direction: column; gap: 20px; }
     .side-card {
-      background: #fff; border: 1px solid var(--border); padding: 22px;
+      background: linear-gradient(135deg, #fff 0%, #fdfaf3 100%);
+      border: 1px solid var(--border); padding: 22px;
+      box-shadow: 0 1px 6px rgba(26,23,16,0.03);
     }
     .side-card h3 {
       font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
@@ -226,17 +305,34 @@
     .gold-status::before {
       content: '●'; color: var(--gold); margin-right: 6px;
     }
-    .edit-info-btn {
-      width: 100%; margin-top: 12px;
-      padding: 9px; background: none; border: 1px solid var(--gold);
-      color: var(--gold-dark); font-size: 12px; cursor: pointer;
-      font-family: inherit; letter-spacing: 0.06em;
-      transition: all .2s;
+
+    /* Payment method editable */
+    .payment-select {
+      width: 100%; padding: 8px 10px; font-size: 12px;
+      font-family: inherit; border: 1px solid var(--border);
+      background: #fff; color: var(--dark);
+      cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a96e'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
     }
-    .edit-info-btn:hover { background: var(--gold); color: #fff; }
+    .payment-select:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(201,169,110,0.12);
+    }
+    .payment-save-btn {
+      width: 100%; margin-top: 8px;
+      padding: 8px; background: var(--gold); border: none;
+      color: #fff; font-size: 11px; cursor: pointer;
+      font-family: inherit; letter-spacing: 0.08em;
+      display: none; transition: opacity .2s;
+    }
+    .payment-save-btn:hover { opacity: 0.85; }
 
     .support-card {
-      background: var(--ivory); border: 1px solid var(--gold-light);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
+      border: 1px solid var(--gold-light);
     }
     .support-card h3 { color: var(--gold-dark); }
     .support-row {
@@ -254,6 +350,7 @@
       .dash-grid { grid-template-columns: 1fr; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .actions-grid { grid-template-columns: 1fr; }
+      .tier-grid { grid-template-columns: 1fr; }
       .welcome-bar { flex-direction: column; align-items: flex-start; }
       .welcome-meta { text-align: left; }
     }
@@ -276,7 +373,7 @@
     <!-- Welcome Header -->
     <section class="welcome-bar">
       <div>
-        <span class="vip-badge">★ B2B GOLD MEMBER</span>
+        <span class="vip-badge" id="tierBadge"><span class="tier-icon">★</span> B2B <span id="tierBadgeLabel">STANDARD</span> MEMBER</span>
         <h1 id="welcomeCompany">— 様</h1>
         <div class="welcome-name" id="welcomeContact">担当者名 様、ようこそ</div>
       </div>
@@ -286,23 +383,48 @@
       </div>
     </section>
 
+    <!-- Tier System Info -->
+    <section class="tier-info" id="tierInfo">
+      <div class="tier-title">📊 会員ランク制度 — ご利用金額に応じて割引率が自動アップグレードされます</div>
+      <div class="tier-grid">
+        <div class="tier-col" id="tierStandard">
+          <div class="tier-name">STANDARD</div>
+          <div class="tier-discount">5% OFF</div>
+          <div class="tier-cond">新規ご登録〜<br>累計50万円未満</div>
+        </div>
+        <div class="tier-col" id="tierGold">
+          <div class="tier-name">GOLD</div>
+          <div class="tier-discount">10% OFF</div>
+          <div class="tier-cond">累計ご注文金額<br>50万円以上</div>
+        </div>
+        <div class="tier-col" id="tierPlatinum">
+          <div class="tier-name">PLATINUM</div>
+          <div class="tier-discount">15% OFF</div>
+          <div class="tier-cond">累計ご注文金額<br>200万円以上</div>
+        </div>
+      </div>
+      <div class="tier-note" id="tierNote">
+        ※ ランクは累計ご注文金額に基づき自動判定されます。大量注文はお見積もりにて個別対応いたします。
+      </div>
+    </section>
+
     <!-- Quick Stats -->
     <section class="stats-row">
       <div class="stat-card">
         <div class="stat-label">今月の注文数</div>
-        <div class="stat-value" id="statOrders">—<span class="stat-unit">件</span></div>
+        <div class="stat-value" id="statOrders">0<span class="stat-unit">件</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">進行中の見積り</div>
-        <div class="stat-value" id="statQuotes">—<span class="stat-unit">件</span></div>
+        <div class="stat-value" id="statQuotes">0<span class="stat-unit">件</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">今月のご利用金額</div>
-        <div class="stat-value" id="statMonth">¥—</div>
+        <div class="stat-value" id="statMonth">¥0</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">累計ご注文金額</div>
-        <div class="stat-value" id="statTotal">¥—</div>
+        <div class="stat-value" id="statTotal">¥0</div>
       </div>
     </section>
 
@@ -311,9 +433,9 @@
       <div>
 
         <!-- Special Pricing Notice -->
-        <section class="pricing-banner">
-          <h3>★ 法人会員様限定 — 全商品 10% OFF 適用中</h3>
-          <p>100点以上のご注文で更に 5% OFF が自動適用されます。</p>
+        <section class="pricing-banner" id="pricingBanner">
+          <h3 id="pricingTitle">★ 法人会員様限定 — 全商品 <span id="pricingRate">5</span>% OFF 適用中</h3>
+          <p>ランクアップで最大15%OFFまで割引率が自動アップグレード。<br>大量注文の場合はお見積もりにて特別価格をご案内いたします。</p>
           <a href="product-list.html" class="pricing-cta">商品を見る →</a>
         </section>
 
@@ -339,19 +461,19 @@
             </div>
             <div class="action-arrow">→</div>
           </a>
-          <a href="account.html#orders" class="action-card">
+          <a href="#recentOrders" class="action-card" onclick="document.getElementById('activityArea').scrollIntoView({behavior:'smooth'});return false;">
             <div class="action-icon">▦</div>
             <div class="action-text">
               <div class="action-title">注文履歴を確認する</div>
-              <div class="action-desc">過去のご注文の詳細・追跡</div>
+              <div class="action-desc">法人注文の詳細・追跡</div>
             </div>
             <div class="action-arrow">→</div>
           </a>
           <a href="mailto:info@hinokaglobal.com" class="action-card">
             <div class="action-icon">✉</div>
             <div class="action-text">
-              <div class="action-title">担当者に連絡する</div>
-              <div class="action-desc">専任担当者がご対応します</div>
+              <div class="action-title">お問い合わせ</div>
+              <div class="action-desc">ご質問・ご相談はお気軽にどうぞ</div>
             </div>
             <div class="action-arrow">→</div>
           </a>
@@ -362,9 +484,13 @@
           <h2>RECENT ACTIVITY</h2>
           <span class="head-sub">最近のご注文・見積り</span>
         </div>
-        <section class="activity-card">
-          <div id="activityArea">
-            <table class="activity-table">
+        <section class="activity-card" id="activityArea">
+          <div id="activityContent">
+            <div class="empty-state" id="emptyState">
+              まだご注文・見積り履歴がありません。<br>
+              <a href="b2b.html#quote-section" style="color:var(--gold-dark);">新規見積もり</a>からお気軽にご相談ください。
+            </div>
+            <table class="activity-table" id="activityTable" style="display:none;">
               <thead>
                 <tr>
                   <th>日付</th>
@@ -374,34 +500,8 @@
                   <th>ステータス</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>2026/06/18</td>
-                  <td>Q-2026-0418<span class="sample-tag">(サンプル表示)</span></td>
-                  <td>見積り</td>
-                  <td>¥348,000</td>
-                  <td><span class="status-pill quote">確認中</span></td>
-                </tr>
-                <tr>
-                  <td>2026/06/10</td>
-                  <td>ORD-2026-1287<span class="sample-tag">(サンプル表示)</span></td>
-                  <td>注文</td>
-                  <td>¥126,500</td>
-                  <td><span class="status-pill processing">出荷準備中</span></td>
-                </tr>
-                <tr>
-                  <td>2026/05/28</td>
-                  <td>ORD-2026-1142<span class="sample-tag">(サンプル表示)</span></td>
-                  <td>注文</td>
-                  <td>¥84,200</td>
-                  <td><span class="status-pill completed">完了</span></td>
-                </tr>
-              </tbody>
+              <tbody id="activityBody"></tbody>
             </table>
-            <div class="empty-state" id="emptyState" style="display:none;">
-              まだご注文・見積り履歴がありません。<br>
-              新規見積もりからお気軽にご相談ください。
-            </div>
           </div>
         </section>
 
@@ -418,39 +518,44 @@
             <span class="info-val" id="infoCompany">—</span>
           </div>
           <div class="info-row">
-            <span class="info-label">担当者名</span>
-            <span class="info-val" id="infoContact">—</span>
+            <span class="info-label">所在地</span>
+            <span class="info-val" id="infoAddress">—</span>
           </div>
           <div class="info-row">
-            <span class="info-label">メールアドレス</span>
-            <span class="info-val" id="infoEmail">—</span>
+            <span class="info-label">担当者名</span>
+            <span class="info-val" id="infoContact">—</span>
           </div>
           <div class="info-row">
             <span class="info-label">電話番号</span>
             <span class="info-val" id="infoPhone">—</span>
           </div>
           <div class="info-row">
+            <span class="info-label">メールアドレス</span>
+            <span class="info-val" id="infoEmail">—</span>
+          </div>
+          <div class="info-row">
             <span class="info-label">法人会員ステータス</span>
-            <span class="info-val gold-status">認証済み（GOLD）</span>
+            <span class="info-val gold-status" id="infoTier">認証済み</span>
           </div>
           <div class="info-row">
             <span class="info-label">適用割引率</span>
-            <span class="info-val">10% OFF（標準）</span>
+            <span class="info-val" id="infoDiscount">5% OFF</span>
           </div>
           <div class="info-row">
             <span class="info-label">支払方法</span>
-            <span class="info-val">銀行振込（現在）</span>
+            <select class="payment-select" id="paymentMethod">
+              <option value="bank">銀行振込</option>
+              <option value="invoice">請求書払い（月末締め翌月末払い）</option>
+              <option value="card">クレジットカード</option>
+              <option value="cod">代金引換</option>
+            </select>
+            <button class="payment-save-btn" id="paymentSaveBtn" type="button">保存する</button>
           </div>
-          <button class="edit-info-btn" id="editInfoBtn" type="button">情報を編集</button>
         </div>
 
         <!-- Support -->
         <div class="side-card support-card">
           <h3>サポート窓口</h3>
-          <div class="support-row">
-            <strong>担当者</strong>
-            田中 太郎
-          </div>
           <div class="support-row">
             <strong>メール</strong>
             <a href="mailto:info@hinokaglobal.com">info@hinokaglobal.com</a>
@@ -526,10 +631,36 @@
       appId: '1:275098198657:web:d9b11ff1086c972ac6e380'
     };
     if (!firebase.apps.length) firebase.initializeApp(_firebaseConfig);
+    var db = firebase.firestore();
 
     var _loadFallback = setTimeout(function(){
       window.location.href = 'b2b-login.html';
-    }, 6000);
+    }, 8000);
+
+    // ── Tier system ──
+    var TIERS = [
+      { name: 'STANDARD', discount: 5,  min: 0,       max: 500000 },
+      { name: 'GOLD',     discount: 10, min: 500000,  max: 2000000 },
+      { name: 'PLATINUM', discount: 15, min: 2000000, max: Infinity }
+    ];
+
+    function getTier(totalSpent) {
+      for (var i = TIERS.length - 1; i >= 0; i--) {
+        if (totalSpent >= TIERS[i].min) return TIERS[i];
+      }
+      return TIERS[0];
+    }
+
+    function highlightTier(tierName) {
+      var map = { STANDARD: 'tierStandard', GOLD: 'tierGold', PLATINUM: 'tierPlatinum' };
+      Object.keys(map).forEach(function(k) {
+        var el = document.getElementById(map[k]);
+        el.classList.toggle('current', k === tierName);
+        if (k === tierName) {
+          el.innerHTML += '<span class="tier-badge">現在のランク</span>';
+        }
+      });
+    }
 
     function fmtDateTime(d) {
       if (!d) return '—';
@@ -540,11 +671,120 @@
       } catch (e) { return '—'; }
     }
 
+    function fmtCurrency(n) {
+      return '¥' + (n || 0).toLocaleString('ja-JP');
+    }
+
     function setText(id, val) {
       var el = document.getElementById(id);
       if (el) el.textContent = val || '—';
     }
 
+    // ── Payment method ──
+    var paymentSelect = document.getElementById('paymentMethod');
+    var paymentSaveBtn = document.getElementById('paymentSaveBtn');
+    var _savedPayment = 'bank';
+
+    paymentSelect.addEventListener('change', function() {
+      paymentSaveBtn.style.display = this.value !== _savedPayment ? 'block' : 'none';
+    });
+
+    paymentSaveBtn.addEventListener('click', function() {
+      var user = firebase.auth().currentUser;
+      if (!user) return;
+      var val = paymentSelect.value;
+      db.collection('users').doc(user.uid).update({ paymentMethod: val }).then(function() {
+        _savedPayment = val;
+        paymentSaveBtn.style.display = 'none';
+        paymentSaveBtn.textContent = '✓ 保存しました';
+        paymentSaveBtn.style.display = 'block';
+        setTimeout(function() {
+          paymentSaveBtn.textContent = '保存する';
+          paymentSaveBtn.style.display = 'none';
+        }, 1500);
+      }).catch(function() {
+        alert('保存に失敗しました。再度お試しください。');
+      });
+    });
+
+    // ── Load orders from Firestore ──
+    async function loadOrders(uid) {
+      var orders = [];
+      var monthTotal = 0;
+      var monthCount = 0;
+      var grandTotal = 0;
+      var quoteCount = 0;
+      var now = new Date();
+      var thisMonth = now.getFullYear() * 100 + (now.getMonth() + 1);
+
+      try {
+        var snap = await db.collection('users').doc(uid).collection('b2b_orders')
+          .orderBy('date', 'desc').limit(20).get();
+
+        snap.forEach(function(doc) {
+          var d = doc.data();
+          orders.push(d);
+          var amount = d.amount || 0;
+          grandTotal += amount;
+
+          if (d.type === 'quote') quoteCount++;
+
+          if (d.date) {
+            var orderDate = d.date.toDate ? d.date.toDate() : new Date(d.date);
+            var orderMonth = orderDate.getFullYear() * 100 + (orderDate.getMonth() + 1);
+            if (orderMonth === thisMonth && d.type !== 'quote') {
+              monthTotal += amount;
+              monthCount++;
+            }
+          }
+        });
+      } catch (e) {
+        console.log('No orders collection yet:', e.message);
+      }
+
+      // Update stats
+      setText('statOrders', monthCount + '');
+      document.getElementById('statOrders').innerHTML = monthCount + '<span class="stat-unit">件</span>';
+      document.getElementById('statQuotes').innerHTML = quoteCount + '<span class="stat-unit">件</span>';
+      setText('statMonth', fmtCurrency(monthTotal));
+      setText('statTotal', fmtCurrency(grandTotal));
+
+      // Render orders or empty state
+      if (orders.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('activityTable').style.display = 'none';
+      } else {
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('activityTable').style.display = 'table';
+        var tbody = document.getElementById('activityBody');
+        tbody.innerHTML = '';
+        orders.forEach(function(o) {
+          var date = '—';
+          if (o.date) {
+            var d = o.date.toDate ? o.date.toDate() : new Date(o.date);
+            var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+            date = d.getFullYear() + '/' + pad(d.getMonth()+1) + '/' + pad(d.getDate());
+          }
+          var statusClass = 'processing';
+          if (o.status === 'completed' || o.status === '完了') statusClass = 'completed';
+          else if (o.status === 'quote' || o.status === '確認中') statusClass = 'quote';
+          var statusText = o.status || '処理中';
+
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + date + '</td>' +
+            '<td>' + (o.orderNumber || '—') + '</td>' +
+            '<td>' + (o.type === 'quote' ? '見積り' : '注文') + '</td>' +
+            '<td>' + fmtCurrency(o.amount) + '</td>' +
+            '<td><span class="status-pill ' + statusClass + '">' + statusText + '</span></td>';
+          tbody.appendChild(tr);
+        });
+      }
+
+      return { grandTotal: grandTotal, monthTotal: monthTotal, monthCount: monthCount, quoteCount: quoteCount };
+    }
+
+    // ── Main auth handler ──
     firebase.auth().onAuthStateChanged(async function(user) {
       clearTimeout(_loadFallback);
       if (!user) {
@@ -552,26 +792,42 @@
         return;
       }
       try {
-        var doc = await firebase.firestore().collection('users').doc(user.uid).get();
+        var doc = await db.collection('users').doc(user.uid).get();
         var data = doc.exists ? doc.data() : {};
         if (!data || data.accountType !== 'b2b') {
           window.location.href = 'account.html';
           return;
         }
 
-        var companyName = data.companyName || '法人会員';
+        // Company info from registration data
+        var companyName = data.companyName || data.company || '法人会員';
         var contactName = data.contactName || (data.lastName || '') + ' ' + (data.firstName || '');
         contactName = contactName.trim() || 'ご担当者';
         var email = data.email || user.email || '—';
         var phone = data.phone || data.phoneNumber || '—';
+        var address = '';
+        if (data.postal) address += '〒' + data.postal + ' ';
+        if (data.prefecture) address += data.prefecture;
+        if (data.city) address += data.city;
+        if (data.address) address += data.address;
+        if (!address) address = '—';
 
+        // Welcome
         document.getElementById('welcomeCompany').textContent = companyName + ' 様';
         document.getElementById('welcomeContact').textContent = contactName + ' 様、ようこそ';
 
+        // Sidebar info
         setText('infoCompany', companyName);
+        setText('infoAddress', address);
         setText('infoContact', contactName);
         setText('infoEmail', email);
         setText('infoPhone', phone);
+
+        // Payment method
+        if (data.paymentMethod) {
+          paymentSelect.value = data.paymentMethod;
+          _savedPayment = data.paymentMethod;
+        }
 
         // Last login
         var last = null;
@@ -579,6 +835,35 @@
           last = new Date(user.metadata.lastSignInTime);
         }
         setText('lastLogin', fmtDateTime(last));
+
+        // Load real orders
+        var orderStats = await loadOrders(user.uid);
+
+        // Determine tier based on total spending
+        var totalSpent = data.totalSpent || orderStats.grandTotal || 0;
+        var tier = getTier(totalSpent);
+
+        // Update tier badge
+        document.getElementById('tierBadgeLabel').textContent = tier.name;
+        highlightTier(tier.name);
+
+        // Update sidebar tier & discount
+        setText('infoTier', '認証済み（' + tier.name + '）');
+        setText('infoDiscount', tier.discount + '% OFF');
+
+        // Update pricing banner
+        document.getElementById('pricingRate').textContent = tier.discount;
+
+        // Tier note with progress
+        if (tier.max !== Infinity) {
+          var remaining = tier.max - totalSpent;
+          document.getElementById('tierNote').innerHTML =
+            '※ 現在の累計ご注文金額: ' + fmtCurrency(totalSpent) +
+            ' — 次のランクまであと <strong style="color:var(--gold-dark)">' + fmtCurrency(remaining) + '</strong>';
+        } else {
+          document.getElementById('tierNote').textContent =
+            '※ 最上位ランク「PLATINUM」が適用中です。累計ご注文金額: ' + fmtCurrency(totalSpent);
+        }
 
         document.getElementById('loadingSection').style.display = 'none';
         document.getElementById('dashSection').style.display = 'block';
@@ -593,10 +878,6 @@
       firebase.auth().signOut().then(function(){
         window.location.href = 'b2b-login.html';
       });
-    });
-
-    document.getElementById('editInfoBtn').addEventListener('click', function() {
-      alert('近日対応予定です。\n会社情報の編集は、担当者までご連絡ください（info@hinokaglobal.com）。');
     });
   </script>
 </body>
