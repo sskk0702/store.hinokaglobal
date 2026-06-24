@@ -32,6 +32,12 @@
     cartCount: function () {
       return this.loadCart().reduce(function (s, i) { return s + (i.qty || 1); }, 0);
     },
+    rewriteAccountLinks: function () {
+      if (!this.isB2B()) return;
+      document.querySelectorAll('a[href^="account.html"]').forEach(function (a) {
+        a.href = 'b2b-dashboard.html';
+      });
+    },
     injectModeBanner: function () {
       if (!this.isB2B()) return;
       var existing = document.getElementById('b2bModeBanner');
@@ -47,8 +53,9 @@
     }
   };
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { HinokaMode.injectModeBanner(); });
+    document.addEventListener('DOMContentLoaded', function () { HinokaMode.injectModeBanner(); HinokaMode.rewriteAccountLinks(); });
   } else {
     HinokaMode.injectModeBanner();
+    HinokaMode.rewriteAccountLinks();
   }
 })();
