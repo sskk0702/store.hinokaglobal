@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HINOKA | 管理ダッシュボード</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans JP',sans-serif; background:#f5f5f5; color:#333; }
+    .admin-header { background:#1a1a1a; color:#fff; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; }
+    .admin-header h1 { font-size:18px; font-weight:400; letter-spacing:0.1em; }
+    .admin-header h1 span { color:#c9a96e; }
+    .admin-header button { background:none; border:1px solid #555; color:#ccc; padding:6px 16px; font-size:11px; cursor:pointer; font-family:inherit; }
+    .admin-header button:hover { border-color:#c9a96e; color:#c9a96e; }
+    .admin-login { max-width:400px; margin:120px auto; background:#fff; padding:40px; box-shadow:0 2px 16px rgba(0,0,0,.08); }
+    .admin-login h2 { font-size:16px; font-weight:400; margin-bottom:24px; letter-spacing:0.08em; text-align:center; }
+    .admin-login input { width:100%; padding:10px 12px; border:1px solid #ddd; font-size:13px; font-family:inherit; margin-bottom:12px; }
+    .admin-login input:focus { outline:none; border-color:#c9a96e; }
+    .admin-login button { width:100%; padding:12px; background:#1a1a1a; color:#fff; border:none; font-size:12px; cursor:pointer; font-family:inherit; letter-spacing:0.08em; }
+    .admin-login .error { color:#c00; font-size:11px; margin-top:8px; text-align:center; }
+    .admin-body { max-width:1200px; margin:0 auto; padding:24px; display:none; }
+    .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    .stat-card { background:#fff; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .stat-card .stat-label { font-size:10px; color:#999; letter-spacing:0.08em; margin-bottom:4px; }
+    .stat-card .stat-val { font-size:24px; font-weight:700; }
+    .filter-bar { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .filter-bar select, .filter-bar input { padding:8px 12px; border:1px solid #ddd; font-size:12px; font-family:inherit; }
+    .filter-bar select:focus, .filter-bar input:focus { outline:none; border-color:#c9a96e; }
+    .orders-table { width:100%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.06); border-collapse:collapse; }
+    .orders-table th { background:#fafafa; padding:12px 16px; text-align:left; font-size:10px; font-weight:500; color:#999; letter-spacing:0.08em; border-bottom:1px solid #eee; }
+    .orders-table td { padding:12px 16px; font-size:12px; border-bottom:1px solid #f0f0f0; }
+    .orders-table tr:hover { background:#fafaf5; }
+    .orders-table tr.detail-row { background:#f9f6f0; }
+    .orders-table tr.detail-row td { padding:16px 24px; }
+    .status-badge { display:inline-block; padding:3px 10px; font-size:10px; letter-spacing:0.04em; }
+    .status-badge.pay { background:#fff3cd; color:#856404; }
+    .status-badge.processing { background:#cce5ff; color:#004085; }
+    .status-badge.shipped { background:#d4edda; color:#155724; }
+    .status-badge.done { background:#d1ecf1; color:#0c5460; }
+    .status-badge.invoice { background:#e2d5f1; color:#5a3d8a; }
+    .status-badge.cancel { background:#f8d7da; color:#721c24; }
+    .detail-section { margin-top:12px; }
+    .detail-section h4 { font-size:11px; color:#999; letter-spacing:0.06em; margin-bottom:8px; }
+    .detail-items { font-size:12px; line-height:2; }
+    .action-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .action-btns button { padding:6px 14px; font-size:10px; cursor:pointer; font-family:inherit; letter-spacing:0.06em; border:1px solid #ddd; background:#fff; }
+    .action-btns button:hover { border-color:#c9a96e; background:#faf5eb; }
+    .action-btns button.primary { background:#1a1a1a; color:#fff; border-color:#1a1a1a; }
+    .action-btns button.primary:hover { background:#333; }
+    .action-btns button.danger { color:#c00; border-color:#c00; }
+    .action-btns button.danger:hover { background:#fff5f5; }
+    .ship-form { display:flex; gap:8px; align-items:center; margin-top:8px; }
+    .ship-form select, .ship-form input { padding:6px 10px; font-size:11px; border:1px solid #ddd; font-family:inherit; }
+    .ship-form button { padding:6px 14px; font-size:10px; background:#2b6cb0; color:#fff; border:none; cursor:pointer; font-family:inherit; }
+    .empty { text-align:center; padding:60px; color:#999; font-size:13px; }
+    .loading { text-align:center; padding:60px; color:#999; }
+    @media(max-width:768px) {
+      .stats-row { grid-template-columns:repeat(2,1fr); }
+      .orders-table { font-size:11px; }
+      .orders-table th, .orders-table td { padding:8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-header" id="adminHeader" style="display:none;">
+    <h1><span>HINOKA</span> 管理ダッシュボード</h1>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span id="adminEmail" style="font-size:11px;color:#999;"></span>
+      <button id="adminLogout">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="admin-login" id="loginSection">
+    <h2>管理者ログイン</h2>
+    <input type="email" id="adminEmailInput" placeholder="管理者メールアドレス">
+    <input type="password" id="adminPassInput" placeholder="パスワード">
+    <button id="adminLoginBtn">ログイン</button>
+    <div class="error" id="loginError"></div>
+  </div>
+
+  <div class="admin-body" id="adminBody">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">今月の注文数</div><div class="stat-val" id="statMonthOrders">0</div></div>
+      <div class="stat-card"><div class="stat-label">今月の売上</div><div class="stat-val" id="statMonthSales">¥0</div></div>
+      <div class="stat-card"><div class="stat-label">入金待ち</div><div class="stat-val" id="statPending">0</div></div>
+      <div class="stat-card"><div class="stat-label">全注文数</div><div class="stat-val" id="statTotal">0</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <select id="filterStatus">
+        <option value="">全ステータス</option>
+        <option value="お支払い待ち">お支払い待ち</option>
+        <option value="処理中">処理中</option>
+        <option value="発送済み">発送済み</option>
+        <option value="請求書払い">請求書払い</option>
+        <option value="注文完了">注文完了</option>
+        <option value="キャンセル">キャンセル</option>
+      </select>
+      <input type="text" id="filterSearch" placeholder="注文番号・名前で検索...">
+      <button id="refreshBtn" style="padding:8px 16px;font-size:11px;cursor:pointer;font-family:inherit;background:#1a1a1a;color:#fff;border:none;">更新</button>
+    </div>
+
+    <div id="ordersArea">
+      <div class="loading">読み込み中...</div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script type="module">
+  import { sendShippingNotificationEmail, sendStatusUpdateEmail } from './js/brevo-mail.js';
+  window._brevoShip = sendShippingNotificationEmail;
+  window._brevoStatus = sendStatusUpdateEmail;
+  </script>
+  <script>
+  (function() {
+    var _fc = {
+      apiKey: 'AIzaSyCCbyBIRyglhmvyfbppp8jxO8Pzytr49TA',
+      authDomain: 'hinoka-0304.firebaseapp.com',
+      projectId: 'hinoka-0304',
+      storageBucket: 'hinoka-0304.firebasestorage.app',
+      messagingSenderId: '275098198657',
+      appId: '1:275098198657:web:d9b11ff1086c972ac6e380'
+    };
+    if (!firebase.apps.length) firebase.initializeApp(_fc);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+
+    var ADMIN_EMAILS = ['sun_hua@hinokaglobal.com', 'sh532650154@gmail.com'];
+    var allOrders = [];
+
+    document.getElementById('adminLoginBtn').addEventListener('click', function() {
+      var email = document.getElementById('adminEmailInput').value.trim();
+      var pass = document.getElementById('adminPassInput').value;
+      document.getElementById('loginError').textContent = '';
+      if (!email || !pass) { document.getElementById('loginError').textContent = 'メールアドレスとパスワードを入力してください'; return; }
+      auth.signInWithEmailAndPassword(email, pass).then(function(cred) {
+        if (ADMIN_EMAILS.indexOf(cred.user.email) === -1) {
+          auth.signOut();
+          document.getElementById('loginError').textContent = '管理者権限がありません';
+          return;
+        }
+        showAdmin(cred.user);
+      }).catch(function(err) {
+        document.getElementById('loginError').textContent = 'ログインに失敗しました';
+      });
+    });
+
+    document.getElementById('adminLogout').addEventListener('click', function() {
+      auth.signOut().then(function() { location.reload(); });
+    });
+
+    auth.onAuthStateChanged(function(user) {
+      if (user && ADMIN_EMAILS.indexOf(user.email) !== -1) {
+        showAdmin(user);
+      }
+    });
+
+    function showAdmin(user) {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('adminHeader').style.display = '';
+      document.getElementById('adminBody').style.display = '';
+      document.getElementById('adminEmail').textContent = user.email;
+      loadOrders();
+    }
+
+    async function loadOrders() {
+      document.getElementById('ordersArea').innerHTML = '<div class="loading">読み込み中...</div>';
+      try {
+        var snap = await db.collection('orders').orderBy('date', 'desc').limit(200).get();
+        allOrders = [];
+        snap.forEach(function(doc) {
+          var d = doc.data();
+          d._id = doc.id;
+          if (d.date && d.date.toDate) d._dateObj = d.date.toDate();
+          allOrders.push(d);
+        });
+        updateStats();
+        renderOrders();
+      } catch(e) {
+        document.getElementById('ordersArea').innerHTML = '<div class="empty">注文データの読み込みに失敗しました: ' + e.message + '</div>';
+      }
+    }
+
+    function updateStats() {
+      var now = new Date();
+      var thisMonth = now.getFullYear() * 100 + (now.getMonth() + 1);
+      var monthOrders = 0, monthSales = 0, pending = 0;
+      allOrders.forEach(function(o) {
+        if (o._dateObj) {
+          var m = o._dateObj.getFullYear() * 100 + (o._dateObj.getMonth() + 1);
+          if (m === thisMonth) { monthOrders++; monthSales += (o.total || 0); }
+        }
+        if (o.status === 'お支払い待ち') pending++;
+      });
+      document.getElementById('statMonthOrders').textContent = monthOrders;
+      document.getElementById('statMonthSales').textContent = '¥' + monthSales.toLocaleString();
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statTotal').textContent = allOrders.length;
+    }
+
+    function renderOrders() {
+      var filterStatus = document.getElementById('filterStatus').value;
+      var filterSearch = document.getElementById('filterSearch').value.toLowerCase().trim();
+      var filtered = allOrders.filter(function(o) {
+        if (filterStatus && o.status !== filterStatus) return false;
+        if (filterSearch) {
+          var haystack = ((o.orderNumber || '') + ' ' + (o.name || '') + ' ' + (o.email || '')).toLowerCase();
+          if (haystack.indexOf(filterSearch) === -1) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        document.getElementById('ordersArea').innerHTML = '<div class="empty">該当する注文がありません</div>';
+        return;
+      }
+
+      var html = '<table class="orders-table"><thead><tr><th>日付</th><th>注文番号</th><th>顧客名</th><th>金額</th><th>支払方法</th><th>ステータス</th></tr></thead><tbody id="ordersTbody"></tbody></table>';
+      document.getElementById('ordersArea').innerHTML = html;
+      var tbody = document.getElementById('ordersTbody');
+
+      filtered.forEach(function(o) {
+        var dateStr = '—';
+        if (o._dateObj) {
+          var p = function(n){ return n < 10 ? '0'+n : ''+n; };
+          dateStr = o._dateObj.getFullYear() + '/' + p(o._dateObj.getMonth()+1) + '/' + p(o._dateObj.getDate());
+        }
+        var statusClass = 'processing';
+        if (o.status === 'お支払い待ち') statusClass = 'pay';
+        else if (o.status === '発送済み') statusClass = 'shipped';
+        else if (o.status === '注文完了' || o.status === '完了') statusClass = 'done';
+        else if (o.status === '請求書払い') statusClass = 'invoice';
+        else if (o.status === 'キャンセル') statusClass = 'cancel';
+
+        var tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td>' + dateStr + '</td>' +
+          '<td style="font-weight:500;">' + (o.orderNumber || '—') + '</td>' +
+          '<td>' + (o.name || '—') + '<br><span style="font-size:10px;color:#999;">' + (o.email || '') + '</span></td>' +
+          '<td>¥' + (o.total || 0).toLocaleString() + '</td>' +
+          '<td style="font-size:11px;">' + (o.paymentMethod || '—') + '</td>' +
+          '<td><span class="status-badge ' + statusClass + '">' + (o.status || '処理中') + '</span></td>';
+        tbody.appendChild(tr);
+
+        var detailTr = document.createElement('tr');
+        detailTr.className = 'detail-row';
+        detailTr.style.display = 'none';
+        var items = (o.items || []).map(function(it) {
+          return (it.name || '—') + ' × ' + (it.qty || 1) + '  ¥' + ((it.price || 0) * (it.qty || 1)).toLocaleString();
+        }).join('<br>');
+        detailTr.innerHTML = '<td colspan="6">' +
+          '<div class="detail-section"><h4>配送先</h4><div style="font-size:12px;">' + (o.addr || '—') + '</div></div>' +
+          '<div class="detail-section"><h4>商品明細</h4><div class="detail-items">' + (items || '明細なし') + '</div></div>' +
+          '<div class="detail-section"><h4>ステータス更新</h4>' +
+          '<div class="action-btns">' +
+          '<button class="primary" data-action="confirm" data-id="' + o._id + '">入金確認</button>' +
+          '<button class="primary" data-action="ship" data-id="' + o._id + '">発送済み</button>' +
+          '<button data-action="complete" data-id="' + o._id + '">完了</button>' +
+          '<button class="danger" data-action="cancel" data-id="' + o._id + '">キャンセル</button>' +
+          '</div>' +
+          '<div class="ship-form" data-id="' + o._id + '" style="display:none;">' +
+          '<select class="carrier-select"><option value="sagawa">佐川急便</option><option value="yamato">ヤマト運輸</option><option value="japanpost">日本郵便</option><option value="seino">西濃運輸</option></select>' +
+          '<input type="text" class="tracking-input" placeholder="追跡番号">' +
+          '<button class="ship-send">送信 & 通知メール</button>' +
+          '</div>' +
+          '</div>' +
+          '</td>';
+        tbody.appendChild(detailTr);
+
+        tr.addEventListener('click', function() {
+          detailTr.style.display = detailTr.style.display === 'none' ? '' : 'none';
+        });
+      });
+
+      tbody.addEventListener('click', function(e) {
+        var btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        e.stopPropagation();
+        var id = btn.dataset.id;
+        var action = btn.dataset.action;
+        if (action === 'ship') {
+          var sf = tbody.querySelector('.ship-form[data-id="' + id + '"]');
+          if (sf) sf.style.display = sf.style.display === 'none' ? '' : 'none';
+          return;
+        }
+        var statusMap = { confirm: '処理中', complete: '注文完了', cancel: 'キャンセル' };
+        if (statusMap[action]) { updateOrderStatus(id, statusMap[action]); }
+      });
+
+      tbody.addEventListener('click', function(e) {
+        var btn = e.target.closest('.ship-send');
+        if (!btn) return;
+        e.stopPropagation();
+        var form = btn.closest('.ship-form');
+        var id = form.dataset.id;
+        var carrier = form.querySelector('.carrier-select').value;
+        var tracking = form.querySelector('.tracking-input').value.trim();
+        if (!tracking) { alert('追跡番号を入力してください'); return; }
+        shipOrder(id, carrier, tracking);
+      });
+    }
+
+    async function updateOrderStatus(docId, newStatus) {
+      try {
+        await db.collection('orders').doc(docId).update({ status: newStatus });
+        var order = allOrders.find(function(o) { return o._id === docId; });
+        if (order) {
+          order.status = newStatus;
+          if (order.email && window._brevoStatus) {
+            window._brevoStatus({
+              email: order.email, customerName: order.name || '',
+              orderNumber: order.orderNumber || '', newStatus: newStatus
+            });
+          }
+        }
+        renderOrders();
+      } catch(e) { alert('更新に失敗しました: ' + e.message); }
+    }
+
+    async function shipOrder(docId, carrier, trackingNumber) {
+      try {
+        await db.collection('orders').doc(docId).update({
+          status: '発送済み', carrier: carrier, trackingNumber: trackingNumber
+        });
+        var order = allOrders.find(function(o) { return o._id === docId; });
+        if (order) {
+          order.status = '発送済み';
+          order.carrier = carrier;
+          order.trackingNumber = trackingNumber;
+          if (order.email && window._brevoShip) {
+            window._brevoShip({
+              email: order.email, customerName: order.name || '',
+              orderNumber: order.orderNumber || '', carrier: carrier, trackingNumber: trackingNumber
+            });
+          }
+        }
+        renderOrders();
+        alert('発送済みに更新し、通知メールを送信しました。');
+      } catch(e) { alert('更新に失敗しました: ' + e.message); }
+    }
+
+    document.getElementById('filterStatus').addEventListener('change', renderOrders);
+    document.getElementById('filterSearch').addEventListener('input', renderOrders);
+    document.getElementById('refreshBtn').addEventListener('click', loadOrders);
+  })();
+  </script>
+</body>
+</html>
