@@ -750,7 +750,8 @@
           <div class="summary-row"><span>商品小計</span><span id="sumSubtotal">¥0</span></div>
           <div class="summary-row"><span>送料</span><span id="sumShipping">¥550</span></div>
           <div class="summary-row"><span>消費税（10% 内税）</span><span id="sumTax">¥0</span></div>
-          <div class="summary-row" id="sumDiscountRow" style="display:none;color:#2e7d32;"><span>割引合計</span><span id="sumDiscount">-¥0</span></div>
+          <div class="summary-row" id="sumB2BRow" style="display:none;color:#a8884f;"><span id="sumB2BLabel">法人会員割引</span><span id="sumB2BDiscount">-¥0</span></div>
+          <div class="summary-row" id="sumDiscountRow" style="display:none;color:#2e7d32;"><span>クーポン・ポイント割引</span><span id="sumDiscount">-¥0</span></div>
         </div>
 
         <!-- 合計 -->
@@ -834,6 +835,35 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="js/firebase-sync.js"></script>
+  <!-- B2B法人会員検出 -->
+  <script>
+  (function() {
+    window._b2bReady = new Promise(function(resolve) {
+      if (typeof firebase === 'undefined' || !firebase.auth) { resolve(null); return; }
+      var unsub = firebase.auth().onAuthStateChanged(function(user) {
+        unsub();
+        if (!user) { resolve(null); return; }
+        firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
+          var data = doc.exists ? doc.data() : {};
+          if (data.accountType === 'b2b') {
+            var TIERS = [
+              { name: 'STANDARD', discount: 5,  min: 0 },
+              { name: 'GOLD',     discount: 10, min: 500000 },
+              { name: 'PLATINUM', discount: 15, min: 2000000 }
+            ];
+            var spent = data.totalSpent || 0;
+            var tier = TIERS[0];
+            for (var i = TIERS.length - 1; i >= 0; i--) {
+              if (spent >= TIERS[i].min) { tier = TIERS[i]; break; }
+            }
+            resolve({ tier: tier.name, discount: tier.discount });
+          } else { resolve(null); }
+        }).catch(function() { resolve(null); });
+      });
+      setTimeout(function() { resolve(null); }, 3000);
+    });
+  })();
+  </script>
   <script src="https://www.paypal.com/sdk/js?client-id=AdVxpBQ5AzoeJbEalf8DkZwaJdYJiBiY3FUcLZsAF6FuvXH5P_sYm32o2lmDzNhr8JmG7GJ3NKABlEPi&currency=JPY&locale=ja_JP&intent=capture"></script>
 
   <!-- Brevoメール送信（ES Module） -->
@@ -1031,6 +1061,9 @@
     var appliedCoupon = null;
     var appliedPoints = 0;
     var useBalance = false;
+    var b2bDiscount = 0;
+    var b2bTierName = '';
+    var isB2BUser = false;
 
     function getLS_co(key, fb) { try { var r = localStorage.getItem(key); return r ? JSON.parse(r) : fb; } catch(e) { return fb; } }
 
@@ -1075,25 +1108,44 @@
         shippingNote.style.color = '';
       }
 
-      // 割引計算
+      // B2B法人会員割引
+      var b2bAmount = 0;
+      if (isB2BUser && b2bDiscount > 0) {
+        b2bAmount = Math.round(subtotal * b2bDiscount / 100);
+      }
+      var b2bRow = document.getElementById('sumB2BRow');
+      var b2bEl = document.getElementById('sumB2BDiscount');
+      var b2bLabel = document.getElementById('sumB2BLabel');
+      if (b2bRow) {
+        if (b2bAmount > 0) {
+          b2bRow.style.display = '';
+          b2bEl.textContent = '-¥' + b2bAmount.toLocaleString();
+          b2bLabel.textContent = '法人会員割引（' + b2bTierName + ' ' + b2bDiscount + '%OFF）';
+        } else { b2bRow.style.display = 'none'; }
+      }
+
+      var afterB2B = subtotal - b2bAmount;
+
+      // クーポン・ポイント割引（B2B割引後の金額に対して計算）
       var couponDiscount = 0;
       if (appliedCoupon) {
         var amt = appliedCoupon.amount;
         if (amt.includes('%')) {
-          couponDiscount = Math.round(subtotal * parseInt(amt) / 100);
+          couponDiscount = Math.round(afterB2B * parseInt(amt) / 100);
         } else {
           couponDiscount = parseInt(amt.replace(/[¥,]/g, '')) || 0;
         }
       }
-      var balDiscount = useBalance ? Math.min((getLS_co('hinoka_balance', {available:0}).available), subtotal + shipping - couponDiscount - appliedPoints) : 0;
+      var balDiscount = useBalance ? Math.min((getLS_co('hinoka_balance', {available:0}).available), afterB2B + shipping - couponDiscount - appliedPoints) : 0;
       if (balDiscount < 0) balDiscount = 0;
-      var totalDiscount = Math.min(couponDiscount + appliedPoints + balDiscount, subtotal + shipping);
+      var otherDiscount = Math.min(couponDiscount + appliedPoints + balDiscount, afterB2B + shipping);
+      var totalDiscount = b2bAmount + otherDiscount;
       var finalTotal = Math.max(0, subtotal + shipping - totalDiscount);
 
       var discRow = document.getElementById('sumDiscountRow');
       var discEl = document.getElementById('sumDiscount');
       if (discRow && discEl) {
-        if (totalDiscount > 0) { discRow.style.display = ''; discEl.textContent = '-¥' + totalDiscount.toLocaleString(); }
+        if (otherDiscount > 0) { discRow.style.display = ''; discEl.textContent = '-¥' + otherDiscount.toLocaleString(); }
         else { discRow.style.display = 'none'; }
       }
       document.getElementById('sumTotal').textContent = '¥' + finalTotal.toLocaleString();
@@ -1179,6 +1231,24 @@
       }
     }
     initDiscounts();
+
+    // B2B法人会員割引の自動適用
+    if (window._b2bReady) {
+      window._b2bReady.then(function(info) {
+        if (info) {
+          isB2BUser = true;
+          b2bDiscount = info.discount;
+          b2bTierName = info.tier;
+          // B2Bバナー表示
+          var banner = document.createElement('div');
+          banner.style.cssText = 'background:linear-gradient(135deg,#1a1710,#2a241a);color:#e6d5b3;padding:12px 20px;margin-bottom:16px;border:1px solid #c9a96e;font-size:12px;display:flex;align-items:center;gap:10px;';
+          banner.innerHTML = '<span style="font-size:10px;letter-spacing:0.12em;background:#c9a96e;color:#1a1710;padding:2px 8px;">B2B ' + info.tier + '</span> 法人会員割引 <strong>' + info.discount + '%OFF</strong> が自動適用されています';
+          var form = document.querySelector('.co-form');
+          if (form) form.insertBefore(banner, form.firstChild);
+          renderSummary();
+        }
+      });
+    }
 
     // ════════════════════════════════
     //  ログインしていない場合は割引（クーポン・ポイント・残高）を完全に無効化
