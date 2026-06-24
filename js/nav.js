@@ -11,7 +11,7 @@
         <span class="nav-menu-label">Menu</span>
       </div>
     </div>
-    <div class="nav-center"><a href="store.html" class="nav-logo">HINOKA</a></div>
+    <div class="nav-center"><a href="store.html" class="nav-logo">HINOKA</a><span class="nav-b2b-badge" id="navB2BBadge" style="display:none;">法人</span></div>
     <div class="nav-right">
       <div class="nav-right-wrap">
         <span class="nav-menu-label">Menu</span>
@@ -93,13 +93,13 @@
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         新着商品
       </a>
-      <a class="right-drawer-item" href="account.html">
+      <a class="right-drawer-item" href="account.html" id="navPersonalLink">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         マイアカウント（個人）
       </a>
-      <a class="right-drawer-item" href="b2b-login.html" id="navB2BLink" style="display:none;">
+      <a class="right-drawer-item" href="b2b-dashboard.html" id="navB2BLink" style="display:none;">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        法人ポータル（B2B）
+        法人ダッシュボード
       </a>
       <a class="right-drawer-item" href="cart.html">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -217,24 +217,28 @@
     if (e.key === 'Escape') { closeAll(); closeSearch(); }
   });
 
-  // B2B法人会員なら法人ポータルリンクを表示
-  function checkB2BNav() {
-    try {
-      if (typeof firebase === 'undefined' || !firebase.auth) return;
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (!user) return;
-        if (sessionStorage.getItem('hinoka_mode') === 'personal') return;
-        firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
-          var data = doc.exists ? doc.data() : {};
-          var link = document.getElementById('navB2BLink');
-          if (data.accountType === 'b2b' && link) {
-            link.style.display = '';
-            link.href = 'b2b-dashboard.html';
-          }
-        }).catch(function(){});
-      });
-    } catch(e) {}
+  // モードに応じてナビゲーションを切り替え
+  function applyModeNav() {
+    var mode = (typeof HinokaMode !== 'undefined') ? HinokaMode.get() : (sessionStorage.getItem('hinoka_mode') || '');
+    var b2bLink = document.getElementById('navB2BLink');
+    var personalLink = document.getElementById('navPersonalLink');
+    var b2bBadge = document.getElementById('navB2BBadge');
+
+    if (mode === 'b2b') {
+      if (b2bLink) { b2bLink.style.display = ''; }
+      if (personalLink) { personalLink.style.display = 'none'; }
+      if (b2bBadge) { b2bBadge.style.display = ''; }
+    } else {
+      if (b2bLink) { b2bLink.style.display = 'none'; }
+      if (personalLink) { personalLink.style.display = ''; }
+      if (b2bBadge) { b2bBadge.style.display = 'none'; }
+    }
+    updateBadges();
   }
-  if (document.readyState === 'complete') checkB2BNav();
-  else window.addEventListener('load', checkB2BNav);
+  function initModeNav() {
+    try { applyModeNav(); } catch(e) {}
+  }
+  if (document.readyState === 'complete') initModeNav();
+  else window.addEventListener('load', initModeNav);
+  window.addEventListener('hinokaModeChanged', applyModeNav);
 })();
