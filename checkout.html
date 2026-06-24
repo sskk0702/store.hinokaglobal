@@ -829,6 +829,7 @@
     </div>
   </footer>
 
+  <script src="js/hinoka-mode.js"></script>
   <script src="js/nav.js"></script>
   <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1038,8 +1039,9 @@
     // ════════════════════════════════
     //  カートデータ
     // ════════════════════════════════
+    function _ck() { return (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems'; }
     function getCart() {
-      const a = JSON.parse(localStorage.getItem('cartItems')   || '[]');
+      const a = JSON.parse(localStorage.getItem(_ck()) || '[]');
       const b = JSON.parse(localStorage.getItem('hinoka_cart') || '[]');
       return a.length > 0 ? a : b;
     }
@@ -1232,8 +1234,9 @@
     }
     initDiscounts();
 
-    // B2B法人会員割引の自動適用
-    if (window._b2bReady) {
+    // B2B法人会員割引の自動適用（B2Bモード時のみ）
+    var _isB2BMode = typeof HinokaMode !== 'undefined' && HinokaMode.isB2B();
+    if (_isB2BMode && window._b2bReady) {
       window._b2bReady.then(function(info) {
         if (info) {
           isB2BUser = true;
@@ -1245,6 +1248,14 @@
           banner.innerHTML = '<span style="font-size:10px;letter-spacing:0.12em;background:#c9a96e;color:#1a1710;padding:2px 8px;">B2B ' + info.tier + '</span> 法人会員割引 <strong>' + info.discount + '%OFF</strong> が自動適用されています';
           var form = document.querySelector('.co-form');
           if (form) form.insertBefore(banner, form.firstChild);
+          // B2Bモード：個人クーポン・ポイント・残高セクションを非表示
+          var discSec = document.getElementById('discountSection');
+          if (discSec) {
+            discSec.style.display = 'none';
+            appliedCoupon = null;
+            appliedPoints = 0;
+            useBalance = false;
+          }
           renderSummary();
         }
       });
@@ -1387,7 +1398,7 @@
             paymentMethod: METHOD_LABELS.credit, items: cart,
             defaultAddress
           }));
-          localStorage.removeItem('cartItems');
+          localStorage.removeItem(_ck());
           localStorage.removeItem('hinoka_cart');
           location.href = 'checkout-success.html';
         });
@@ -1460,7 +1471,7 @@
     };
 
     document.getElementById('successBtn').addEventListener('click', () => {
-      localStorage.removeItem('cartItems');
+      localStorage.removeItem(_ck());
       localStorage.removeItem('hinoka_cart');
       location.href = 'store.html';
     });
@@ -1593,7 +1604,7 @@
           }
         } catch(b2bErr) { console.log('B2B order sync skipped:', b2bErr.message); }
 
-        localStorage.removeItem('cartItems');
+        localStorage.removeItem(_ck());
         localStorage.removeItem('hinoka_cart');
         window.dispatchEvent(new Event('cartUpdated'));
         document.getElementById('pay-loading').style.display = 'none';
