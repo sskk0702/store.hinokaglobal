@@ -1727,6 +1727,7 @@
   }
 
   function showLogin() {
+    sessionStorage.removeItem('hinoka_mode');
     var load = document.getElementById('loadingSection');
     var auth_ = document.getElementById('authSection');
     var shell = document.getElementById('accountShell');
