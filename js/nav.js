@@ -26,7 +26,7 @@
     <div class="side-menu-header">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">洞察から、行動へ</div>
+        <div class="side-menu-tagline">洞察から、行動へ。</div>
       </div>
       <button class="close-menu-btn" id="closeMenuBtn" aria-label="閉じる">&times;</button>
     </div>
@@ -80,7 +80,7 @@
     <div class="side-menu-header" style="position:relative;">
       <div>
         <a href="store.html" class="side-menu-brand">HINOKA</a>
-        <div class="side-menu-tagline">洞察から、行動へ</div>
+        <div class="side-menu-tagline">洞察から、行動へ。</div>
       </div>
       <button class="close-menu-btn" id="closeDrawerBtn" aria-label="閉じる">&times;</button>
     </div>
@@ -97,7 +97,7 @@
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         マイアカウント（個人）
       </a>
-      <a class="right-drawer-item" href="b2b-dashboard.html" id="navB2BLink" style="display:none;">
+      <a class="right-drawer-item" href="b2b-login.html" id="navB2BLink">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         マイアカウント（法人）
       </a>
@@ -219,17 +219,21 @@
 
   // モードに応じてナビゲーションを切り替え
   function applyModeNav() {
-    var mode = (typeof HinokaMode !== 'undefined') ? HinokaMode.get() : (sessionStorage.getItem('hinoka_mode') || '');
+    var mode = sessionStorage.getItem('hinoka_mode') || '';
     var b2bLink = document.getElementById('navB2BLink');
     var personalLink = document.getElementById('navPersonalLink');
     var b2bBadge = document.getElementById('navB2BBadge');
 
     if (mode === 'b2b') {
-      if (b2bLink) { b2bLink.style.display = ''; }
+      if (b2bLink) { b2bLink.style.display = ''; b2bLink.href = 'b2b-dashboard.html'; }
       if (personalLink) { personalLink.style.display = 'none'; }
       if (b2bBadge) { b2bBadge.style.display = ''; }
-    } else {
+    } else if (mode === 'personal') {
       if (b2bLink) { b2bLink.style.display = 'none'; }
+      if (personalLink) { personalLink.style.display = ''; }
+      if (b2bBadge) { b2bBadge.style.display = 'none'; }
+    } else {
+      if (b2bLink) { b2bLink.style.display = ''; b2bLink.href = 'b2b-login.html'; }
       if (personalLink) { personalLink.style.display = ''; }
       if (b2bBadge) { b2bBadge.style.display = 'none'; }
     }
