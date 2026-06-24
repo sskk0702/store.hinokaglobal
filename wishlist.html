@@ -207,12 +207,13 @@
 
         card.querySelector('.add-wish-cart').addEventListener('click', e => {
           e.stopPropagation();
-          const items = JSON.parse(localStorage.getItem('cartItems') || '[]');
+          const _ck = (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems';
+          const items = JSON.parse(localStorage.getItem(_ck) || '[]');
           const found = items.find(i => i.id === id);
           if (found) { found.qty++; } else {
             items.push({ id, name: p.name, price: p.price, img: img1, qty: 1, color:'', size:'' });
           }
-          localStorage.setItem('cartItems', JSON.stringify(items));
+          localStorage.setItem(_ck, JSON.stringify(items));
           window.dispatchEvent(new Event('cartUpdated'));
           if (typeof window.showCartToast === 'function') window.showCartToast();
         });
