@@ -15,7 +15,7 @@
       読み込み中...
     </div>
   </div>
-  
+
   <main class="auth-wrap" id="authSection" style="display:none;">
     <h1 class="account-title">MY ACCOUNT</h1>
     <p class="account-sub">ログインまたは新規登録してください</p>
@@ -49,7 +49,7 @@
 
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#555;margin-bottom:16px;cursor:pointer;">
           <input type="checkbox" id="rememberMeCheck" checked style="accent-color:#8b6f47;width:15px;height:15px;">
-          ログイン状態を保持（30日間）
+          ログイン状態を保持する（30日間）
         </label>
         <button class="auth-btn" id="loginBtn" type="button">ログイン</button>
         <p class="auth-note">パスワードをお忘れの方は <button class="text-btn" id="forgotPwLink" type="button">こちら</button></p>
@@ -68,7 +68,7 @@
         <p class="auth-note"><button class="text-btn" id="backToLogin" type="button">ログインに戻る</button></p>
       </div>
     </section>
-    
+
     <section class="auth-panel" id="auth-register">
       <div class="auth-card">
         <div class="msg-error" id="reg-error"></div>
@@ -235,6 +235,7 @@
     </div>
   </footer>
 
+  <script src="js/hinoka-mode.js"></script>
   <script src="js/nav.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
