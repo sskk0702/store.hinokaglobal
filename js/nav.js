@@ -223,6 +223,7 @@
       if (typeof firebase === 'undefined' || !firebase.auth) return;
       firebase.auth().onAuthStateChanged(function(user) {
         if (!user) return;
+        if (sessionStorage.getItem('hinoka_mode') === 'personal') return;
         firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
           var data = doc.exists ? doc.data() : {};
           var link = document.getElementById('navB2BLink');
