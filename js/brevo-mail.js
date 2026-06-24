@@ -165,13 +165,21 @@ export async function sendOrderConfirmEmail({
 // ── 銀行振込案内メール ────────────────────────────────────
 export async function sendBankTransferEmail({
   email, customerName, totalAmount,
-  bankName, bankBranch, bankNumber, bankHolder
+  bankName, bankBranch, bankNumber, bankHolder,
+  orderNumber
 }) {
+  const orderLine = orderNumber
+    ? `<p style="font-size:14px;color:#333;line-height:2;">注文番号：<strong>${orderNumber}</strong></p>`
+    : '';
+  const memoNote = orderNumber
+    ? `<p style="font-size:12px;color:#333;margin-top:12px;background:#fffde7;padding:12px;border:1px solid #ffd54f;">📝 お振込みの際、依頼人名欄（備考欄）に必ず <strong>「${orderNumber} + お名前」</strong> をご入力ください。<br>例：${orderNumber} ヤマダタロウ</p>`
+    : '';
   const html = `
     ${header}
     <p style="font-size:14px;color:#333;line-height:2;">
       ${customerName} 様
     </p>
+    ${orderLine}
     <p style="font-size:14px;color:#333;line-height:2;">
       以下の口座へ <strong>3営業日以内</strong> にお振込みください。
     </p>
@@ -186,6 +194,7 @@ export async function sendBankTransferEmail({
         お振込金額：<strong style="font-size:16px;">${totalAmount}</strong>
       </p>
     </div>
+    ${memoNote}
     <p style="font-size:12px;color:#e65100;">
       ⚠️ 期限内にご入金が確認できない場合、ご注文をキャンセルさせていただきます。<br>
       振込手数料はお客様ご負担となります。
