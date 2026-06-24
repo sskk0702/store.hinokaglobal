@@ -92,13 +92,17 @@
     .hero-meta .last-login {
       font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: 0.08em; margin-bottom: 10px;
     }
-    .logout-btn {
-      background: none; border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.7);
-      padding: 8px 16px; font-size: 11px; cursor: pointer;
-      letter-spacing: 0.1em; font-family: inherit; border-radius: 4px;
+    .logout-btn-bottom {
+      width: 100%; padding: 12px;
+      background: none; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--muted);
+      font-size: 12px; letter-spacing: 0.1em;
+      font-family: inherit; cursor: pointer;
       transition: all .2s;
     }
-    .logout-btn:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.5); }
+    .logout-btn-bottom:hover {
+      background: var(--dark); color: #fff; border-color: var(--dark);
+    }
     .hero-stats {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
     }
@@ -117,12 +121,12 @@
 
     /* Tier Info Banner */
     .tier-info {
-      background: #fff;
-      border: 1px solid rgba(201,169,110,.15);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
+      border: 1px solid var(--gold-light);
       border-radius: 14px;
       padding: 20px 28px;
       margin-bottom: 28px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+      box-shadow: 0 4px 16px rgba(139,111,71,.08), inset 0 1px 0 rgba(255,255,255,.9);
       position: relative;
     }
     .tier-info::before {
@@ -259,15 +263,15 @@
 
     /* Activity table */
     .activity-card {
-      background: #fff;
-      border: 1px solid rgba(201,169,110,.15);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
+      border: 1px solid var(--gold-light);
       border-radius: 14px;
       padding: 24px; margin-bottom: 28px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+      box-shadow: 0 4px 16px rgba(139,111,71,.08), inset 0 1px 0 rgba(255,255,255,.9);
       transition: transform .2s, box-shadow .2s;
     }
     .activity-card:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,.09);
+      box-shadow: 0 8px 24px rgba(139,111,71,.12);
     }
     .activity-table {
       width: 100%; border-collapse: collapse; font-size: 13px;
@@ -296,16 +300,16 @@
     /* Sidebar */
     .sidebar-col { display: flex; flex-direction: column; gap: 20px; }
     .side-card {
-      background: #fff;
-      border: 1px solid rgba(201,169,110,.15);
+      background: linear-gradient(135deg, var(--ivory), #f7eed8);
+      border: 1px solid var(--gold-light);
       border-radius: 14px;
       padding: 22px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.9);
+      box-shadow: 0 4px 16px rgba(139,111,71,.08), inset 0 1px 0 rgba(255,255,255,.9);
       transition: transform .2s, box-shadow .2s;
     }
     .side-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.09);
+      box-shadow: 0 8px 24px rgba(139,111,71,.12);
     }
     .side-card h3 {
       font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
@@ -352,10 +356,6 @@
     }
     .payment-save-btn:hover { opacity: 0.85; }
 
-    .support-card {
-      background: linear-gradient(135deg, var(--ivory), #f7eed8);
-      border: 1px solid var(--gold-light);
-    }
     .support-card h3 { color: var(--gold-dark); }
     .support-row {
       font-size: 12px; padding: 6px 0; color: var(--dark);
@@ -368,7 +368,7 @@
     .support-row a:hover { color: var(--gold-dark); }
 
     /* Password change */
-    .pw-card { background: #fff; border: 1px solid rgba(201,169,110,.15); border-radius: 14px; padding: 22px; box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+    .pw-card { background: linear-gradient(135deg, var(--ivory), #f7eed8); border: 1px solid var(--gold-light); border-radius: 14px; padding: 22px; box-shadow: 0 4px 16px rgba(139,111,71,.08); }
     .pw-card h3 {
       font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
       font-size: 13px; letter-spacing: 0.08em; color: var(--gold-dark);
@@ -447,7 +447,6 @@
         </div>
         <div class="hero-meta">
           <div class="last-login">前回ログイン: <span id="lastLogin">—</span></div>
-          <button class="logout-btn" id="logoutBtn" type="button">ログアウト →</button>
         </div>
       </div>
       <div class="hero-stats">
@@ -666,6 +665,9 @@
           <div class="pw-msg" id="pwMsg"></div>
           </div>
         </div>
+
+        <!-- Logout -->
+        <button class="logout-btn-bottom" id="logoutBtn" type="button">ログアウト</button>
 
       </aside>
     </div>
