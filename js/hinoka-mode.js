@@ -31,6 +31,24 @@
     },
     cartCount: function () {
       return this.loadCart().reduce(function (s, i) { return s + (i.qty || 1); }, 0);
+    },
+    injectModeBanner: function () {
+      if (!this.isB2B()) return;
+      var existing = document.getElementById('b2bModeBanner');
+      if (existing) return;
+      var banner = document.createElement('div');
+      banner.id = 'b2bModeBanner';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10001;background:#1a3a5c;color:#fff;text-align:center;font-size:11px;letter-spacing:0.1em;padding:4px 0;font-family:"Noto Sans JP",sans-serif;';
+      banner.innerHTML = '法人アカウントでご利用中　<a href="b2b-dashboard.html" style="color:#c9d6e3;margin-left:12px;text-decoration:underline;">ダッシュボード →</a>';
+      document.body.prepend(banner);
+      document.body.style.paddingTop = 'calc(var(--nav-height) + 24px)';
+      var nav = document.getElementById('main-nav');
+      if (nav) nav.style.top = '24px';
     }
   };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { HinokaMode.injectModeBanner(); });
+  } else {
+    HinokaMode.injectModeBanner();
+  }
 })();
