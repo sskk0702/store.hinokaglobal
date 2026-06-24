@@ -1328,7 +1328,10 @@
     document.getElementById('view-reviews').innerHTML = head(biHead('REVIEWS', 'レビュー管理'), 'レビュー待ち、投稿済み、写真付きレビューを管理します。') +
       tabsHtml(reviewTabs, state.reviewFilter, 'data-review-tab') +
       '<div class="review-list">' + (list.length ? list.map(function (r) {
-        return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body || '') + '</div><div class="action-row" style="margin-top:12px;"><button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">' + (r.status === 'pending' ? 'レビューを書く' : 'レビューを編集') + '</button></div></article>';
+        var actionBtn = r.status === 'pending'
+          ? '<button style="background:linear-gradient(135deg,#c9a96e,#8b6f47);border:none;cursor:pointer;font-size:11px;letter-spacing:0.1em;color:#fff;font-family:inherit;padding:8px 20px;border-radius:20px;box-shadow:0 3px 10px rgba(139,111,71,.3),inset 0 1px 0 rgba(255,255,255,.2);transition:box-shadow .2s,transform .15s;" type="button" data-review-id="' + esc(r.id) + '">レビューを書く</button>'
+          : '<span style="font-size:11px;color:#8b6f47;letter-spacing:0.06em;">✓ 投稿済み（' + esc(r.time || '') + '）</span>';
+        return '<article class="review-card"><div class="review-top"><div class="review-product">' + esc(r.product) + '</div><div class="rating">' + (r.rating ? '★'.repeat(r.rating) : 'レビュー待ち') + '</div></div><div class="review-body">' + esc(r.body || '') + '</div><div class="action-row" style="margin-top:12px;">' + actionBtn + '</div></article>';
       }).join('') : empty('レビューはありません。')) + '</div>';
     document.querySelectorAll('[data-review-tab]').forEach(function (b) { b.addEventListener('click', function () { state.reviewFilter = b.dataset.reviewTab; renderReviews(); }); });
     document.querySelectorAll('[data-review-id]').forEach(function (b) { b.addEventListener('click', function () { openReviewModal(b.dataset.reviewId); }); });
@@ -1371,6 +1374,13 @@
       var body = document.getElementById('reviewBody').value.trim();
       if (!selectedRating) return showToast('評価を選択してください');
       if (!body) return showToast('レビュー内容を入力してください');
+
+      // 低評価（1-2星）の場合は確認
+      if (selectedRating <= 2) {
+        if (!confirm('★' + selectedRating + 'の評価で投稿します。\n※ 低評価のレビューにはクーポン・ポイント特典は付与されません。\nよろしいですか？')) return;
+      }
+
+      var isFirstSubmission = r.status === 'pending';
       var list = getLS('hinoka_reviews', []);
       var idx  = list.findIndex(function (x) { return x.id === reviewId; });
       var updated = { id: reviewId, orderId: r.orderId, product: r.product, rating: selectedRating, body: body, status: 'done', hasPhoto: false, time: new Date().toLocaleString('ja-JP') };
@@ -1378,7 +1388,6 @@
       setLS('hinoka_reviews', list);
       window.dispatchEvent(new Event('reviewUpdated'));
 
-      // レビュー済み注文ステータスを更新（注文内の全商品レビュー完了でdoneへ）
       if (r.orderId) {
         var orders = getLS('hinoka_orders', []);
         var orderIdx = orders.findIndex(function(o){ return (o.ref || o.id) === r.orderId; });
@@ -1395,17 +1404,27 @@
         }
       }
 
-      // ボーナスポイント＋クーポン付与
-      var pts = calcPoints();
-      pts.total += 50; pts.available += 50;
-      setLS('hinoka_points_log', pts);
-      grantReviewCoupon();
-      div.remove();
-      state.reviewFilter = 'done';
-      renderReviews(); buildNavigation();
-      showToast('レビューを投稿しました！50pt＋¥100OFFクーポンをプレゼント🎁');
-      // 1.8秒後にクーポンタブへ遷移して獲得クーポンを表示
-      setTimeout(function(){ state.assetFilter = 'coupons'; switchView('assets'); }, 1800);
+      // 特典付与：初回投稿 かつ 3星以上のみ
+      if (isFirstSubmission && selectedRating >= 3) {
+        var pts = calcPoints();
+        pts.total += 50; pts.available += 50;
+        setLS('hinoka_points_log', pts);
+        grantReviewCoupon();
+        div.remove();
+        state.reviewFilter = 'done';
+        renderReviews(); buildNavigation();
+        showToast('レビューを投稿しました！50pt＋¥100OFFクーポンをプレゼント🎁');
+        setTimeout(function(){ state.assetFilter = 'coupons'; switchView('assets'); }, 1800);
+      } else {
+        div.remove();
+        state.reviewFilter = 'done';
+        renderReviews(); buildNavigation();
+        if (isFirstSubmission && selectedRating < 3) {
+          showToast('レビューを投稿しました。ご意見ありがとうございます。');
+        } else {
+          showToast('レビューを投稿しました。');
+        }
+      }
     });
   }
 
