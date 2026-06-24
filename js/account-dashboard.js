@@ -401,7 +401,7 @@
     clearTimeout(showToast._timer);
     showToast._timer = setTimeout(function () { el.classList.remove('show'); }, 2200);
   }
-  function showError(id, text) { var el = document.getElementById(id); if (!el) return; el.textContent = text; el.style.display = 'block'; }
+  function showError(id, text) { var el = document.getElementById(id); if (!el) return; el.innerHTML = text; el.style.display = 'block'; }
   function showSuccess(id, text) { var el = document.getElementById(id); if (!el) return; el.textContent = text; el.style.display = 'block'; }
   function hideMsg(id) { var el = document.getElementById(id); if (!el) return; el.style.display = 'none'; el.textContent = ''; }
   function setLoading(btnId, loading) {
@@ -1820,30 +1820,25 @@
   function _showAccountUI(user) {
     var currentMode = sessionStorage.getItem('hinoka_mode');
     if (currentMode === 'b2b') {
-      var load = document.getElementById('loadingSection');
-      var authSec = document.getElementById('authSection');
-      var dashSec = document.getElementById('dashboardSection');
-      if (load) load.style.display = 'none';
-      if (authSec) authSec.style.display = '';
-      if (dashSec) dashSec.style.display = 'none';
-      setTimeout(function() {
-        showError('login-error', '現在、法人アカウントでログイン中です。個人アカウントにログインするには、まず法人アカウントからログアウトしてください。');
-      }, 100);
+      auth.signOut().then(function() {
+        sessionStorage.removeItem('hinoka_mode');
+        showLogin();
+        setTimeout(function() {
+          showError('login-error', 'このアカウントは法人アカウントです。法人専用ページからログインしてください。<br><a href="b2b-login.html" style="color:var(--gold-dark);text-decoration:underline;">法人ログインページへ →</a>');
+        }, 100);
+      });
       return;
     }
     if (typeof firebase !== 'undefined' && firebase.firestore) {
       firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
         if (doc.exists && doc.data().accountType === 'b2b') {
-          sessionStorage.setItem('hinoka_mode', 'b2b');
-          var load = document.getElementById('loadingSection');
-          var authSec = document.getElementById('authSection');
-          var dashSec = document.getElementById('dashboardSection');
-          if (load) load.style.display = 'none';
-          if (authSec) authSec.style.display = '';
-          if (dashSec) dashSec.style.display = 'none';
-          setTimeout(function() {
-            showError('login-error', 'この法人アカウントは法人専用ページからログインしてください。');
-          }, 100);
+          auth.signOut().then(function() {
+            sessionStorage.removeItem('hinoka_mode');
+            showLogin();
+            setTimeout(function() {
+              showError('login-error', 'このアカウントは法人アカウントとして登録されています。個人アカウントとしてはご利用いただけません。<br><a href="b2b-login.html" style="color:var(--gold-dark);text-decoration:underline;">法人ログインページへ →</a>');
+            }, 100);
+          });
           return;
         }
         sessionStorage.setItem('hinoka_mode', 'personal');
