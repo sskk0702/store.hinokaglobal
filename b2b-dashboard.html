@@ -567,34 +567,74 @@
           <span class="head-sub">法人向け便利機能</span>
         </div>
         <section class="actions-grid" style="margin-bottom:28px;">
-          <div class="action-card" style="cursor:default;">
+          <div class="action-card" id="btnMonthlyReport" style="cursor:pointer;">
             <div class="action-icon">📊</div>
             <div class="action-text">
               <div class="action-title">月次購買レポート</div>
-              <div class="action-desc">部門別・カテゴリ別の購入実績を確認</div>
+              <div class="action-desc">購入実績を確認</div>
             </div>
+            <div class="action-arrow">→</div>
           </div>
-          <div class="action-card" style="cursor:default;">
+          <div class="action-card" id="btnRepeatOrder" style="cursor:pointer;">
             <div class="action-icon">🔄</div>
             <div class="action-text">
-              <div class="action-title">定期発注（リピート注文）</div>
+              <div class="action-title">リピート注文</div>
               <div class="action-desc">前回と同じ内容で再注文</div>
             </div>
+            <div class="action-arrow">→</div>
           </div>
-          <div class="action-card" style="cursor:default;">
+          <div class="action-card" id="btnFavorites" style="cursor:pointer;">
             <div class="action-icon">📋</div>
             <div class="action-text">
               <div class="action-title">お気に入りリスト</div>
-              <div class="action-desc">よく購入する商品をリスト化</div>
+              <div class="action-desc" id="favCount">0件登録中</div>
             </div>
+            <div class="action-arrow">→</div>
           </div>
-          <div class="action-card" style="cursor:default;">
+          <div class="action-card" id="btnAddresses" style="cursor:pointer;">
             <div class="action-icon">🏢</div>
             <div class="action-text">
-              <div class="action-title">複数配送先管理</div>
-              <div class="action-desc">拠点ごとの配送先を登録・管理</div>
+              <div class="action-title">配送先管理</div>
+              <div class="action-desc" id="addrCount">0件登録中</div>
             </div>
+            <div class="action-arrow">→</div>
           </div>
+        </section>
+
+        <!-- Monthly Report Panel (hidden by default) -->
+        <section class="activity-card" id="reportPanel" style="display:none;margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:16px;">📊 月次購買レポート</h3>
+            <button onclick="document.getElementById('reportPanel').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);">閉じる</button>
+          </div>
+          <div id="reportContent" style="font-size:13px;line-height:2;color:var(--muted);">読み込み中...</div>
+        </section>
+
+        <!-- Repeat Order Panel (hidden by default) -->
+        <section class="activity-card" id="repeatPanel" style="display:none;margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:16px;">🔄 リピート注文</h3>
+            <button onclick="document.getElementById('repeatPanel').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);">閉じる</button>
+          </div>
+          <div id="repeatContent" style="font-size:13px;line-height:2;color:var(--muted);">読み込み中...</div>
+        </section>
+
+        <!-- Favorites Panel (hidden by default) -->
+        <section class="activity-card" id="favPanel" style="display:none;margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:16px;">📋 お気に入りリスト</h3>
+            <button onclick="document.getElementById('favPanel').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);">閉じる</button>
+          </div>
+          <div id="favContent" style="font-size:13px;line-height:2;color:var(--muted);">読み込み中...</div>
+        </section>
+
+        <!-- Addresses Panel (hidden by default) -->
+        <section class="activity-card" id="addrPanel" style="display:none;margin-bottom:28px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:16px;">🏢 配送先管理</h3>
+            <button onclick="document.getElementById('addrPanel').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted);">閉じる</button>
+          </div>
+          <div id="addrContent" style="font-size:13px;line-height:2;color:var(--muted);">読み込み中...</div>
         </section>
 
         <!-- Recent Activity -->
@@ -994,6 +1034,9 @@
         // Load real orders
         var orderStats = await loadOrders(user.uid);
 
+        // Load business services data
+        initBusinessServices(user.uid, data);
+
         // Determine tier based on total spending
         var totalSpent = data.totalSpent || orderStats.grandTotal || 0;
         var tier = getTier(totalSpent);
@@ -1086,6 +1129,287 @@
       }
       this.disabled = false;
       this.textContent = 'パスワードを変更する';
+    });
+
+    // ── Business Services ──
+    var _bsUid = null;
+    var _bsOrders = [];
+    var _bsFavorites = [];
+    var _bsAddresses = [];
+
+    async function initBusinessServices(uid, userData) {
+      _bsUid = uid;
+
+      // Load favorites
+      try {
+        var favSnap = await db.collection('users').doc(uid).collection('b2b_favorites').get();
+        _bsFavorites = [];
+        favSnap.forEach(function(doc) { _bsFavorites.push(Object.assign({ id: doc.id }, doc.data())); });
+        document.getElementById('favCount').textContent = _bsFavorites.length + '件登録中';
+      } catch(e) { console.log('Favorites:', e.message); }
+
+      // Load addresses
+      try {
+        var addrSnap = await db.collection('users').doc(uid).collection('b2b_addresses').get();
+        _bsAddresses = [];
+        addrSnap.forEach(function(doc) { _bsAddresses.push(Object.assign({ id: doc.id }, doc.data())); });
+        document.getElementById('addrCount').textContent = _bsAddresses.length + '件登録中';
+      } catch(e) { console.log('Addresses:', e.message); }
+
+      // Cache orders for repeat/report
+      try {
+        var ordSnap = await db.collection('users').doc(uid).collection('b2b_orders')
+          .orderBy('date', 'desc').limit(50).get();
+        _bsOrders = [];
+        ordSnap.forEach(function(doc) { _bsOrders.push(Object.assign({ id: doc.id }, doc.data())); });
+      } catch(e) { console.log('Orders cache:', e.message); }
+    }
+
+    // Monthly Report
+    document.getElementById('btnMonthlyReport').addEventListener('click', function() {
+      var panel = document.getElementById('reportPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      if (_bsOrders.length === 0) {
+        document.getElementById('reportContent').innerHTML =
+          '<div style="text-align:center;padding:20px;color:var(--muted);">まだ注文履歴がありません。<br>ご注文後にこちらで月次レポートをご確認いただけます。</div>';
+        return;
+      }
+
+      var months = {};
+      _bsOrders.forEach(function(o) {
+        if (o.type === 'quote') return;
+        var d = o.date && o.date.toDate ? o.date.toDate() : (o.date ? new Date(o.date) : null);
+        if (!d) return;
+        var key = d.getFullYear() + '/' + ('0' + (d.getMonth()+1)).slice(-2);
+        if (!months[key]) months[key] = { count: 0, total: 0 };
+        months[key].count++;
+        months[key].total += (o.amount || 0);
+      });
+
+      var html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+      html += '<thead><tr style="border-bottom:2px solid var(--border);">';
+      html += '<th style="text-align:left;padding:10px 8px;color:var(--gold-dark);font-weight:500;">月</th>';
+      html += '<th style="text-align:center;padding:10px 8px;color:var(--gold-dark);font-weight:500;">注文件数</th>';
+      html += '<th style="text-align:right;padding:10px 8px;color:var(--gold-dark);font-weight:500;">合計金額</th>';
+      html += '</tr></thead><tbody>';
+      var keys = Object.keys(months).sort().reverse();
+      if (keys.length === 0) {
+        html += '<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--muted);">注文データがありません</td></tr>';
+      }
+      keys.forEach(function(k) {
+        html += '<tr style="border-bottom:1px solid var(--border);">';
+        html += '<td style="padding:10px 8px;font-weight:500;">' + k + '</td>';
+        html += '<td style="text-align:center;padding:10px 8px;">' + months[k].count + '件</td>';
+        html += '<td style="text-align:right;padding:10px 8px;font-weight:500;color:var(--gold-dark);">¥' + months[k].total.toLocaleString() + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('reportContent').innerHTML = html;
+    });
+
+    // Repeat Order
+    document.getElementById('btnRepeatOrder').addEventListener('click', function() {
+      var panel = document.getElementById('repeatPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      var completedOrders = _bsOrders.filter(function(o) { return o.type !== 'quote' && o.items && o.items.length > 0; });
+
+      if (completedOrders.length === 0) {
+        document.getElementById('repeatContent').innerHTML =
+          '<div style="text-align:center;padding:20px;color:var(--muted);">まだ注文履歴がありません。<br>ご注文後にこちらからリピート注文が可能になります。</div>';
+        return;
+      }
+
+      var html = '';
+      completedOrders.slice(0, 5).forEach(function(o, idx) {
+        var d = o.date && o.date.toDate ? o.date.toDate() : (o.date ? new Date(o.date) : null);
+        var dateStr = d ? d.getFullYear() + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + ('0'+d.getDate()).slice(-2) : '—';
+        html += '<div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;background:linear-gradient(145deg,#fdf8f3,#f0e6d6);">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        html += '<span style="font-weight:500;font-size:13px;">' + (o.orderNumber || '注文#' + (idx+1)) + '</span>';
+        html += '<span style="font-size:11px;color:var(--muted);">' + dateStr + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">';
+        o.items.slice(0, 3).forEach(function(item) {
+          html += item.name + ' ×' + (item.qty || 1) + '　';
+        });
+        if (o.items.length > 3) html += '他' + (o.items.length - 3) + '点';
+        html += '</div>';
+        html += '<button class="repeat-order-btn" data-order-index="' + idx + '" style="background:linear-gradient(135deg,#1e293b,#0f2040);color:var(--gold-light);border:none;border-radius:8px;padding:10px 20px;font-size:11px;letter-spacing:0.12em;cursor:pointer;font-family:inherit;transition:opacity .2s;">カートに追加する</button>';
+        html += '</div>';
+      });
+      document.getElementById('repeatContent').innerHTML = html;
+
+      // Bind repeat buttons
+      document.querySelectorAll('.repeat-order-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = parseInt(btn.dataset.orderIndex);
+          var order = completedOrders[idx];
+          if (!order || !order.items) return;
+          var cartKey = 'b2bCartItems';
+          var cart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+          order.items.forEach(function(item) {
+            var existing = cart.find(function(c) { return c.id === item.id && c.color === item.color && c.size === item.size; });
+            if (existing) {
+              existing.qty += (item.qty || 1);
+            } else {
+              cart.push(Object.assign({}, item));
+            }
+          });
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          btn.textContent = '✓ カートに追加しました';
+          btn.style.background = 'var(--gold-dark)';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.textContent = 'カートに追加する';
+            btn.style.background = 'linear-gradient(135deg,#1e293b,#0f2040)';
+            btn.style.color = 'var(--gold-light)';
+          }, 2000);
+        });
+      });
+    });
+
+    // Favorites
+    document.getElementById('btnFavorites').addEventListener('click', function() {
+      var panel = document.getElementById('favPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      if (_bsFavorites.length === 0) {
+        document.getElementById('favContent').innerHTML =
+          '<div style="text-align:center;padding:20px;">' +
+          '<div style="color:var(--muted);margin-bottom:16px;">お気に入りに商品が登録されていません。</div>' +
+          '<div style="font-size:12px;color:var(--muted);line-height:1.8;">商品ページから「お気に入り」ボタンで登録できます。<br>よく購入する商品をリスト化して、素早く再注文が可能です。</div>' +
+          '<a href="product-list.html" style="display:inline-block;margin-top:16px;padding:10px 24px;border:1px solid var(--gold);border-radius:8px;color:var(--gold-dark);font-size:12px;letter-spacing:0.1em;text-decoration:none;">商品一覧を見る →</a>' +
+          '</div>';
+        return;
+      }
+
+      var html = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">';
+      _bsFavorites.forEach(function(fav) {
+        html += '<div style="border:1px solid var(--border);border-radius:10px;padding:14px;background:#fff;display:flex;gap:12px;align-items:center;">';
+        if (fav.image) {
+          html += '<img src="' + fav.image + '" style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" onerror="this.style.display=\'none\'">';
+        }
+        html += '<div style="flex:1;min-width:0;">';
+        html += '<div style="font-size:12px;font-weight:500;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (fav.name || '商品') + '</div>';
+        html += '<div style="font-size:13px;color:var(--gold-dark);font-weight:500;">¥' + ((fav.price || 0).toLocaleString()) + '</div>';
+        html += '</div>';
+        html += '<button class="fav-cart-btn" data-fav-id="' + fav.id + '" style="flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:10px;cursor:pointer;">カートへ</button>';
+        html += '</div>';
+      });
+      html += '</div>';
+      document.getElementById('favContent').innerHTML = html;
+
+      document.querySelectorAll('.fav-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var favId = btn.dataset.favId;
+          var fav = _bsFavorites.find(function(f) { return f.id === favId; });
+          if (!fav) return;
+          var cartKey = 'b2bCartItems';
+          var cart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+          var existing = cart.find(function(c) { return c.id === fav.productId || c.id === fav.id; });
+          if (existing) {
+            existing.qty++;
+          } else {
+            cart.push({ id: fav.productId || fav.id, name: fav.name, price: fav.price, qty: 1, image: fav.image || '', moq: fav.moq || 1 });
+          }
+          localStorage.setItem(cartKey, JSON.stringify(cart));
+          btn.textContent = '✓';
+          setTimeout(function() { btn.textContent = 'カートへ'; }, 1500);
+        });
+      });
+    });
+
+    // Addresses
+    document.getElementById('btnAddresses').addEventListener('click', function() {
+      var panel = document.getElementById('addrPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      var html = '';
+      if (_bsAddresses.length > 0) {
+        _bsAddresses.forEach(function(addr, idx) {
+          html += '<div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;background:#fff;display:flex;justify-content:space-between;align-items:start;">';
+          html += '<div>';
+          html += '<div style="font-weight:500;font-size:13px;margin-bottom:4px;">' + (addr.label || '配送先' + (idx+1)) + '</div>';
+          html += '<div style="font-size:12px;color:var(--muted);line-height:1.8;">';
+          if (addr.postal) html += '〒' + addr.postal + '<br>';
+          html += (addr.prefecture || '') + (addr.city || '') + (addr.address || '') + '<br>';
+          if (addr.name) html += addr.name;
+          if (addr.phone) html += '　TEL: ' + addr.phone;
+          html += '</div></div>';
+          html += '<button class="addr-del-btn" data-addr-id="' + addr.id + '" style="flex-shrink:0;background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--muted);">削除</button>';
+          html += '</div>';
+        });
+      }
+
+      html += '<div style="margin-top:16px;border:2px dashed var(--border);border-radius:10px;padding:20px;">';
+      html += '<div style="font-weight:500;font-size:13px;margin-bottom:12px;">新しい配送先を追加</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '<input id="addrLabel" placeholder="名称（例：東京本社）" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '<input id="addrPostal" placeholder="郵便番号" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '<input id="addrPref" placeholder="都道府県" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '<input id="addrCity" placeholder="市区町村" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '<input id="addrDetail" placeholder="番地・建物名" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);grid-column:1/-1;">';
+      html += '<input id="addrName" placeholder="届け先氏名" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '<input id="addrPhone" placeholder="電話番号" style="padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--ivory);">';
+      html += '</div>';
+      html += '<button id="addrSaveBtn" style="margin-top:12px;background:linear-gradient(135deg,#1e293b,#0f2040);color:var(--gold-light);border:none;border-radius:8px;padding:10px 24px;font-size:12px;letter-spacing:0.1em;cursor:pointer;font-family:inherit;">登録する</button>';
+      html += '</div>';
+
+      document.getElementById('addrContent').innerHTML = html;
+
+      // Save address
+      document.getElementById('addrSaveBtn').addEventListener('click', async function() {
+        var label = document.getElementById('addrLabel').value.trim();
+        var postal = document.getElementById('addrPostal').value.trim();
+        var pref = document.getElementById('addrPref').value.trim();
+        var city = document.getElementById('addrCity').value.trim();
+        var detail = document.getElementById('addrDetail').value.trim();
+        var name = document.getElementById('addrName').value.trim();
+        var phone = document.getElementById('addrPhone').value.trim();
+
+        if (!label || !pref || !city) {
+          alert('名称・都道府県・市区町村は必須です。');
+          return;
+        }
+
+        this.disabled = true;
+        this.textContent = '保存中...';
+        try {
+          await db.collection('users').doc(_bsUid).collection('b2b_addresses').add({
+            label: label, postal: postal, prefecture: pref, city: city,
+            address: detail, name: name, phone: phone,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          _bsAddresses.push({ label: label, postal: postal, prefecture: pref, city: city, address: detail, name: name, phone: phone });
+          document.getElementById('addrCount').textContent = _bsAddresses.length + '件登録中';
+          this.textContent = '✓ 登録しました';
+          setTimeout(function() { document.getElementById('btnAddresses').click(); }, 1000);
+        } catch(e) {
+          alert('保存に失敗しました: ' + e.message);
+          this.disabled = false;
+          this.textContent = '登録する';
+        }
+      });
+
+      // Delete address
+      document.querySelectorAll('.addr-del-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          if (!confirm('この配送先を削除しますか？')) return;
+          var addrId = btn.dataset.addrId;
+          try {
+            await db.collection('users').doc(_bsUid).collection('b2b_addresses').doc(addrId).delete();
+            _bsAddresses = _bsAddresses.filter(function(a) { return a.id !== addrId; });
+            document.getElementById('addrCount').textContent = _bsAddresses.length + '件登録中';
+            document.getElementById('btnAddresses').click();
+          } catch(e) { alert('削除に失敗しました: ' + e.message); }
+        });
+      });
     });
   </script>
 </body>
