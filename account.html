@@ -16,118 +16,156 @@
     </div>
   </div>
 
-  <main class="auth-wrap" id="authSection" style="display:none;">
-    <h1 class="account-title">MY ACCOUNT</h1>
-    <p class="account-sub">ログインまたは新規登録してください</p>
+  <main class="pa-login-page" id="authSection" style="display:none;">
+    <div class="pa-login-content">
+      <div class="pa-login-wrapper">
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" type="button" data-auth-tab="login">ログイン</button>
-      <button class="auth-tab" type="button" data-auth-tab="register">新規登録</button>
+        <!-- Left — Branding -->
+        <div class="pa-brand-panel">
+          <div class="pa-brand-logo">HINOKA</div>
+          <div class="pa-brand-sub">Personal Member Portal</div>
+          <div class="pa-brand-title">マイアカウント</div>
+          <div class="pa-brand-desc">
+            ポイント還元・限定クーポン・ウィッシュリスト<br>
+            お買い物がもっと便利でお得になる会員特典をご用意。
+          </div>
+          <ul class="pa-benefit-list">
+            <li><span class="pa-benefit-icon">P</span><span>お買い物ポイント還元</span></li>
+            <li><span class="pa-benefit-icon">%</span><span>会員限定クーポン配布</span></li>
+            <li><span class="pa-benefit-icon">&#9825;</span><span>ウィッシュリスト管理</span></li>
+            <li><span class="pa-benefit-icon">&#9733;</span><span>会員ランク制度（割引率UP）</span></li>
+            <li><span class="pa-benefit-icon">&#9993;</span><span>新着・セール情報の優先配信</span></li>
+          </ul>
+        </div>
+
+        <!-- Right — Form -->
+        <div class="pa-form-panel">
+
+          <div class="pa-form-tabs">
+            <button class="pa-tab active" type="button" data-auth-tab="login">ログイン</button>
+            <button class="pa-tab" type="button" data-auth-tab="register">新規登録</button>
+          </div>
+
+          <!-- Login -->
+          <section class="auth-panel active" id="auth-login">
+            <div id="loginCard">
+              <div class="msg-error" id="login-error"></div>
+              <div class="msg-success" id="login-success"></div>
+
+              <button class="pa-social-btn" id="googleLoginBtn" type="button">
+                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+                Google でログイン
+              </button>
+              <div class="pa-divider">または</div>
+
+              <div class="pa-form-group">
+                <label for="login-email">メールアドレス</label>
+                <input type="email" id="login-email" placeholder="example@email.com" autocomplete="email">
+              </div>
+              <div class="pa-form-group">
+                <label for="login-pass">パスワード</label>
+                <div class="pa-input-wrap">
+                  <input type="password" id="login-pass" placeholder="パスワードを入力" autocomplete="current-password">
+                  <button type="button" class="pa-pw-toggle" data-target="login-pass" aria-label="パスワード表示切替">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <label class="pa-form-check">
+                <input type="checkbox" id="rememberMeCheck" checked>
+                <span>ログイン状態を保持する（30日間）</span>
+              </label>
+
+              <button class="pa-login-btn" id="loginBtn" type="button">ログイン</button>
+              <p class="pa-auth-note">パスワードをお忘れの方は <button class="pa-text-link" id="forgotPwLink" type="button">こちら</button></p>
+
+              <div class="pa-b2b-link-area">
+                <p>法人会員のお客様はこちら</p>
+                <a href="b2b-login.html">法人アカウントでログイン →</a>
+              </div>
+            </div>
+
+            <div id="resetPanel" style="display:none;" class="pa-reset-card">
+              <h2 class="pa-reset-title">PASSWORD RESET</h2>
+              <p class="pa-reset-desc">ご登録のメールアドレスへパスワード再設定リンクを送信します。</p>
+              <div class="msg-error" id="reset-error"></div>
+              <div class="msg-success" id="reset-success"></div>
+              <div id="resetFormArea">
+                <div class="pa-form-group">
+                  <label for="reset-email">メールアドレス</label>
+                  <input type="email" id="reset-email" placeholder="example@email.com">
+                </div>
+                <button class="pa-login-btn" id="resetSendBtn" type="button">リセットメールを送信</button>
+              </div>
+              <p class="pa-auth-note"><button class="pa-text-link" id="backToLogin" type="button">ログインに戻る</button></p>
+            </div>
+          </section>
+
+          <!-- Register -->
+          <section class="auth-panel" id="auth-register">
+            <div class="msg-error" id="reg-error"></div>
+            <div class="msg-success" id="reg-success"></div>
+
+            <button class="pa-social-btn" id="googleRegisterBtn" type="button">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+              Google で登録
+            </button>
+            <div class="pa-divider">または</div>
+
+            <div class="pa-form-row-2">
+              <div class="pa-form-group">
+                <label for="reg-last">姓</label>
+                <input type="text" id="reg-last" placeholder="山田">
+              </div>
+              <div class="pa-form-group">
+                <label for="reg-first">名</label>
+                <input type="text" id="reg-first" placeholder="花子">
+              </div>
+            </div>
+
+            <div class="pa-form-group">
+              <label for="reg-email">メールアドレス</label>
+              <input type="email" id="reg-email" placeholder="example@email.com" autocomplete="email">
+            </div>
+
+            <div class="pa-form-group">
+              <label for="reg-pass">パスワード</label>
+              <div class="pa-input-wrap">
+                <input type="password" id="reg-pass" placeholder="8文字以上" autocomplete="new-password">
+                <button type="button" class="pa-pw-toggle" data-target="reg-pass" aria-label="パスワード表示切替">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="pw-strength">
+                <span class="pw-bar" id="pwBar1"></span>
+                <span class="pw-bar" id="pwBar2"></span>
+                <span class="pw-bar" id="pwBar3"></span>
+              </div>
+              <div class="pw-strength-label" id="pwLabel"></div>
+            </div>
+
+            <div class="pa-form-group">
+              <label for="reg-pass2">パスワード確認</label>
+              <input type="password" id="reg-pass2" placeholder="もう一度入力" autocomplete="new-password">
+            </div>
+
+            <div class="pa-consent-box">
+              <label><input id="consentPrivacy" type="checkbox"> <span>プライバシーポリシーと利用規約に同意します。</span></label>
+              <label><input id="consentMarketing" type="checkbox"> <span>新商品・キャンペーンのお知らせを受け取ります。</span></label>
+            </div>
+
+            <button class="pa-login-btn" id="registerBtn" type="button">新規登録</button>
+
+            <div class="pa-b2b-link-area">
+              <p>法人のお客様はこちら</p>
+              <a href="b2b-register.html">法人会員の新規登録 →</a>
+            </div>
+          </section>
+
+        </div>
+      </div>
     </div>
-
-    <section class="auth-panel active" id="auth-login">
-      <div class="auth-card" id="loginCard">
-        <div class="msg-error" id="login-error"></div>
-        <div class="msg-success" id="login-success"></div>
-
-        <p class="social-note">Google アカウントでかんたんログイン</p>
-        <button class="social-btn" id="googleLoginBtn" type="button">
-          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
-          Google でログイン
-        </button>
-
-        <div class="social-divider">または</div>
-
-        <label class="form-label" for="login-email">メールアドレス</label>
-        <input class="form-input" id="login-email" type="email" placeholder="example@email.com" autocomplete="email">
-
-        <label class="form-label" for="login-pass">パスワード</label>
-        <div class="pw-wrap">
-          <input class="form-input" id="login-pass" type="password" placeholder="パスワードを入力" autocomplete="current-password">
-          <button class="pw-toggle" type="button" data-target="login-pass">表示</button>
-        </div>
-
-        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#555;margin-bottom:16px;cursor:pointer;">
-          <input type="checkbox" id="rememberMeCheck" checked style="accent-color:#8b6f47;width:15px;height:15px;">
-          ログイン状態を保持する（30日間）
-        </label>
-        <button class="auth-btn" id="loginBtn" type="button">ログイン</button>
-        <p class="auth-note">パスワードをお忘れの方は <button class="text-btn" id="forgotPwLink" type="button">こちら</button></p>
-
-        <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e6e0d4;text-align:center;">
-          <p style="font-size:11px;color:#8b8278;letter-spacing:0.06em;margin:0 0 10px;">法人会員のお客様はこちら</p>
-          <a href="b2b-login.html" style="display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#1a1710,#2a241a);color:#c9a96e;font-size:11px;letter-spacing:0.16em;text-decoration:none;transition:opacity 0.2s;">法人アカウントでログイン →</a>
-        </div>
-      </div>
-
-      <div class="auth-card" id="resetPanel" style="display:none;">
-        <h2 class="mini-title">PASSWORD RESET</h2>
-        <p class="muted-copy">ご登録のメールアドレスへパスワード再設定リンクを送信します。</p>
-        <div class="msg-error" id="reset-error"></div>
-        <div class="msg-success" id="reset-success"></div>
-        <div id="resetFormArea">
-          <label class="form-label" for="reset-email">メールアドレス</label>
-          <input class="form-input" id="reset-email" type="email" placeholder="example@email.com">
-          <button class="auth-btn" id="resetSendBtn" type="button">リセットメールを送信</button>
-        </div>
-        <p class="auth-note"><button class="text-btn" id="backToLogin" type="button">ログインに戻る</button></p>
-      </div>
-    </section>
-
-    <section class="auth-panel" id="auth-register">
-      <div class="auth-card">
-        <div class="msg-error" id="reg-error"></div>
-        <div class="msg-success" id="reg-success"></div>
-
-        <p class="social-note">Google アカウントでかんたん登録</p>
-        <button class="social-btn" id="googleRegisterBtn" type="button">
-          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9L37.5 9C34 5.9 29.2 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.6 26.9 36.5 24 36.5c-5.2 0-9.7-3.5-11.3-8.2l-6.5 5C9.9 39.7 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.8 2.3-2.2 4.2-4.2 5.5l6.2 5.2C41.4 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
-          Google で登録
-        </button>
-        <div class="social-divider">または</div>
-
-        <div class="form-row-2">
-          <div>
-            <label class="form-label" for="reg-last">姓</label>
-            <input class="form-input" id="reg-last" type="text" placeholder="山田">
-          </div>
-          <div>
-            <label class="form-label" for="reg-first">名</label>
-            <input class="form-input" id="reg-first" type="text" placeholder="花子">
-          </div>
-        </div>
-
-        <label class="form-label" for="reg-email">メールアドレス</label>
-        <input class="form-input" id="reg-email" type="email" placeholder="example@email.com" autocomplete="email">
-
-        <label class="form-label" for="reg-pass">パスワード</label>
-        <div class="pw-wrap">
-          <input class="form-input" id="reg-pass" type="password" placeholder="8文字以上" autocomplete="new-password">
-          <button class="pw-toggle" type="button" data-target="reg-pass">表示</button>
-        </div>
-        <div class="pw-strength">
-          <span class="pw-bar" id="pwBar1"></span>
-          <span class="pw-bar" id="pwBar2"></span>
-          <span class="pw-bar" id="pwBar3"></span>
-        </div>
-        <div class="pw-strength-label" id="pwLabel"></div>
-
-        <label class="form-label" for="reg-pass2">パスワード確認</label>
-        <input class="form-input" id="reg-pass2" type="password" placeholder="もう一度入力" autocomplete="new-password">
-
-        <div class="consent-box">
-          <label><input id="consentPrivacy" type="checkbox"> <span>プライバシーポリシーと利用規約に同意します。</span></label>
-          <label><input id="consentMarketing" type="checkbox"> <span>新商品・キャンペーンのお知らせを受け取ります。</span></label>
-        </div>
-
-        <button class="auth-btn" id="registerBtn" type="button">新規登録</button>
-
-        <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e6e0d4;text-align:center;">
-          <p style="font-size:11px;color:#8b8278;letter-spacing:0.06em;margin:0 0 10px;">法人のお客様はこちら</p>
-          <a href="b2b-register.html" style="display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#1a1710,#2a241a);color:#c9a96e;font-size:11px;letter-spacing:0.16em;text-decoration:none;transition:opacity 0.2s;">法人会員の新規登録 →</a>
-        </div>
-      </div>
-    </section>
   </main>
 
   <main class="account-shell" id="accountShell" style="display:none;">
