@@ -621,7 +621,7 @@
         .catch(function(err) {
           setLoading(false);
           if (err && err.code === 'not-b2b') {
-            showMsg('このメールアドレスは法人会員として登録されておりません。法人会員登録をお願いします。', 'error');
+            showMsg('このメールアドレスは個人アカウントとして登録されています。法人専用のメールアドレスで登録するか、法人会員登録をお申し込みください。', 'error');
           } else {
             showMsg(authErrorMessage(err && err.code), 'error');
           }
