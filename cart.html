@@ -378,6 +378,7 @@
     </div>
   </footer>
 
+  <script src="js/hinoka-mode.js"></script>
   <script src="js/nav.js" charset="utf-8"></script>
   <script src="js/products.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -388,13 +389,17 @@
   (function () {
     const SHIPPING_FEE = 550;
 
+    function _cartKey() {
+      return (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems';
+    }
     function loadCart() {
-      return JSON.parse(localStorage.getItem('cartItems') || '[]');
+      return JSON.parse(localStorage.getItem(_cartKey()) || '[]');
     }
 
     function saveCart(items) {
-      localStorage.setItem('cartItems', JSON.stringify(items));
+      localStorage.setItem(_cartKey(), JSON.stringify(items));
       window.dispatchEvent(new Event('cartUpdated'));
+      window.dispatchEvent(new Event('b2bCartUpdated'));
     }
 
     function render() {
@@ -510,6 +515,23 @@
       document.getElementById('total').textContent =
         `¥${total.toLocaleString()}`;
     }
+
+    // モード表示バナー
+    (function() {
+      var isB2B = typeof HinokaMode !== 'undefined' && HinokaMode.isB2B();
+      var cartHeader = document.querySelector('.cart-header') || document.querySelector('h1');
+      if (cartHeader) {
+        var mb = document.createElement('div');
+        if (isB2B) {
+          mb.style.cssText = 'background:linear-gradient(135deg,#1a1710,#2a241a);color:#e6d5b3;padding:10px 16px;margin-bottom:16px;border:1px solid #c9a96e;font-size:12px;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;';
+          mb.innerHTML = '<span style="background:#c9a96e;color:#1a1710;padding:2px 8px;font-size:10px;letter-spacing:0.1em;font-weight:600;">B2B</span> 法人アカウントのショッピングバッグです <a href="cart.html" style="margin-left:auto;color:#c9a96e;font-size:11px;text-decoration:underline;" onclick="sessionStorage.setItem(\'hinoka_mode\',\'personal\');location.reload();return false;">個人に切替</a>';
+        } else {
+          mb.style.cssText = 'background:#f9f4ec;color:#5a4a3a;padding:10px 16px;margin-bottom:16px;border:1px solid #e0d5c5;font-size:12px;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;';
+          mb.innerHTML = '<span style="background:#5a4a3a;color:#fff;padding:2px 8px;font-size:10px;letter-spacing:0.1em;font-weight:600;">個人</span> 個人アカウントのショッピングバッグです';
+        }
+        cartHeader.parentNode.insertBefore(mb, cartHeader.nextSibling);
+      }
+    })();
 
     render();
   })();
