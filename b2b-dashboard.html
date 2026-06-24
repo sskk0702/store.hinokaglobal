@@ -670,26 +670,42 @@
 
         <!-- Company Info -->
         <div class="side-card">
-          <h3>会社情報</h3>
-          <div class="info-row">
-            <span class="info-label">会社名</span>
-            <span class="info-val" id="infoCompany">—</span>
+          <h3 style="display:flex;justify-content:space-between;align-items:center;">会社情報 <button type="button" id="profileEditBtn" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:10px;cursor:pointer;font-family:inherit;color:var(--muted);letter-spacing:0.06em;">編集</button></h3>
+          <div id="profileView">
+            <div class="info-row">
+              <span class="info-label">会社名</span>
+              <span class="info-val" id="infoCompany">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">所在地</span>
+              <span class="info-val" id="infoAddress">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">担当者名</span>
+              <span class="info-val" id="infoContact">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">電話番号</span>
+              <span class="info-val" id="infoPhone">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">メールアドレス</span>
+              <span class="info-val" id="infoEmail">—</span>
+            </div>
           </div>
-          <div class="info-row">
-            <span class="info-label">所在地</span>
-            <span class="info-val" id="infoAddress">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">担当者名</span>
-            <span class="info-val" id="infoContact">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">電話番号</span>
-            <span class="info-val" id="infoPhone">—</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">メールアドレス</span>
-            <span class="info-val" id="infoEmail">—</span>
+          <div id="profileEdit" style="display:none;">
+            <div class="pw-field"><label>会社名</label><input type="text" class="pw-input" id="editCompany"></div>
+            <div class="pw-field"><label>担当者名</label><input type="text" class="pw-input" id="editContact"></div>
+            <div class="pw-field"><label>電話番号</label><input type="tel" class="pw-input" id="editPhone"></div>
+            <div class="pw-field"><label>郵便番号</label><input type="text" class="pw-input" id="editPostal" placeholder="000-0000"></div>
+            <div class="pw-field"><label>都道府県</label><input type="text" class="pw-input" id="editPref"></div>
+            <div class="pw-field"><label>市区町村・番地</label><input type="text" class="pw-input" id="editCity"></div>
+            <div class="pw-field"><label>建物名・部屋番号</label><input type="text" class="pw-input" id="editAddress"></div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button type="button" class="pw-save" id="profileSaveBtn" style="flex:1;">保存する</button>
+              <button type="button" id="profileCancelBtn" style="flex:1;padding:9px;background:none;border:1px solid var(--border);font-size:11px;cursor:pointer;font-family:inherit;letter-spacing:0.08em;color:var(--muted);">キャンセル</button>
+            </div>
+            <div class="pw-msg" id="profileMsg"></div>
           </div>
           <div class="info-row">
             <span class="info-label">法人会員ステータス</span>
@@ -847,6 +863,8 @@
       Object.keys(map).forEach(function(k) {
         var el = document.getElementById(map[k]);
         el.classList.toggle('current', k === tierName);
+        var oldBadge = el.querySelector('.tier-badge');
+        if (oldBadge) oldBadge.remove();
         if (k === tierName) {
           el.innerHTML += '<span class="tier-badge">現在のランク</span>';
         }
@@ -995,6 +1013,7 @@
         sessionStorage.setItem('hinoka_mode', 'b2b');
 
         // Company info from registration data
+        _profileData = data;
         var companyName = data.companyName || data.company || '法人会員';
         var contactName = data.contactName || (data.lastName || '') + ' ' + (data.firstName || '');
         contactName = contactName.trim() || 'ご担当者';
@@ -1070,6 +1089,63 @@
         document.getElementById('loadingSection').style.display = 'none';
         document.getElementById('dashSection').style.display = 'block';
       }
+    });
+
+    // ── Profile editing ──
+    var _profileData = {};
+    document.getElementById('profileEditBtn').addEventListener('click', function() {
+      document.getElementById('editCompany').value = _profileData.companyName || _profileData.company || '';
+      document.getElementById('editContact').value = _profileData.contactName || ((_profileData.lastName || '') + ' ' + (_profileData.firstName || '')).trim();
+      document.getElementById('editPhone').value = _profileData.phone || _profileData.phoneNumber || '';
+      document.getElementById('editPostal').value = _profileData.postal || '';
+      document.getElementById('editPref').value = _profileData.prefecture || '';
+      document.getElementById('editCity').value = _profileData.city || '';
+      document.getElementById('editAddress').value = _profileData.address || '';
+      document.getElementById('profileView').style.display = 'none';
+      document.getElementById('profileEdit').style.display = 'block';
+      this.style.display = 'none';
+    });
+    document.getElementById('profileCancelBtn').addEventListener('click', function() {
+      document.getElementById('profileView').style.display = '';
+      document.getElementById('profileEdit').style.display = 'none';
+      document.getElementById('profileEditBtn').style.display = '';
+      document.getElementById('profileMsg').textContent = '';
+    });
+    document.getElementById('profileSaveBtn').addEventListener('click', function() {
+      var user = firebase.auth().currentUser;
+      if (!user) return;
+      var btn = this;
+      btn.disabled = true;
+      var updates = {
+        companyName: document.getElementById('editCompany').value.trim(),
+        contactName: document.getElementById('editContact').value.trim(),
+        phone: document.getElementById('editPhone').value.trim(),
+        postal: document.getElementById('editPostal').value.trim(),
+        prefecture: document.getElementById('editPref').value.trim(),
+        city: document.getElementById('editCity').value.trim(),
+        address: document.getElementById('editAddress').value.trim()
+      };
+      db.collection('users').doc(user.uid).update(updates).then(function() {
+        Object.assign(_profileData, updates);
+        setText('infoCompany', updates.companyName || '—');
+        var addr = '';
+        if (updates.postal) addr += '〒' + updates.postal + ' ';
+        addr += (updates.prefecture || '') + (updates.city || '') + (updates.address || '');
+        setText('infoAddress', addr || '—');
+        setText('infoContact', updates.contactName || '—');
+        setText('infoPhone', updates.phone || '—');
+        document.getElementById('welcomeCompany').textContent = (updates.companyName || '法人会員') + ' 様';
+        document.getElementById('heroAvatar').textContent = (updates.companyName || 'B').charAt(0);
+        document.getElementById('profileView').style.display = '';
+        document.getElementById('profileEdit').style.display = 'none';
+        document.getElementById('profileEditBtn').style.display = '';
+        document.getElementById('profileMsg').textContent = '';
+        btn.disabled = false;
+      }).catch(function(e) {
+        document.getElementById('profileMsg').textContent = '保存に失敗しました: ' + e.message;
+        document.getElementById('profileMsg').style.color = '#c00';
+        btn.disabled = false;
+      });
     });
 
     document.getElementById('logoutBtn').addEventListener('click', function() {
