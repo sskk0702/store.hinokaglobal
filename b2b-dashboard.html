@@ -458,7 +458,6 @@
 
     var auth = firebase.auth();
     var db = firebase.firestore();
-    sessionStorage.removeItem('hinoka_mode');
 
     var form = document.getElementById('loginForm');
     var emailInput = document.getElementById('email');
@@ -466,6 +465,50 @@
     var rememberInput = document.getElementById('remember');
     var loginBtn = document.getElementById('loginBtn');
     var formMsg = document.getElementById('formMsg');
+
+    // Check if another mode is currently logged in
+    (function checkActiveSession() {
+      var currentMode = sessionStorage.getItem('hinoka_mode');
+      if (currentMode === 'personal' && auth.currentUser) {
+        loginBtn.disabled = true;
+        showMsg('現在、個人アカウントでログイン中です。法人アカウントにログインするには、まず個人アカウントからログアウトしてください。', 'error');
+        var logoutLink = document.createElement('a');
+        logoutLink.href = '#';
+        logoutLink.textContent = '個人アカウントからログアウトする →';
+        logoutLink.style.cssText = 'display:block;text-align:center;margin-top:12px;color:var(--gold-dark);font-size:12px;letter-spacing:0.08em;';
+        logoutLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          auth.signOut().then(function() {
+            sessionStorage.removeItem('hinoka_mode');
+            clearMsg();
+            loginBtn.disabled = false;
+            logoutLink.remove();
+            showMsg('ログアウトしました。法人アカウントでログインできます。', 'success');
+          });
+        });
+        formMsg.parentNode.insertBefore(logoutLink, formMsg.nextSibling);
+        return;
+      }
+      if (currentMode === 'b2b' && auth.currentUser) {
+        window.location.href = 'b2b-dashboard.html';
+        return;
+      }
+      // Not in any active mode — sign out stale session silently so fresh login works
+      if (auth.currentUser) {
+        auth.signOut();
+      }
+      sessionStorage.removeItem('hinoka_mode');
+    })();
+
+    function showMsg(text, type) {
+      formMsg.textContent = text;
+      formMsg.className = 'form-msg ' + (type || 'error');
+    }
+    function clearMsg() {
+      formMsg.textContent = '';
+      formMsg.className = 'form-msg';
+      formMsg.style.display = 'none';
+    }
 
     // Password toggle
     var pwToggle = document.getElementById('pwToggle');
@@ -479,16 +522,6 @@
         eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
       }
     });
-
-    function showMsg(text, type) {
-      formMsg.textContent = text;
-      formMsg.className = 'form-msg ' + (type || 'error');
-    }
-    function clearMsg() {
-      formMsg.textContent = '';
-      formMsg.className = 'form-msg';
-      formMsg.style.display = 'none';
-    }
     function setLoading(loading) {
       if (loading) {
         loginBtn.disabled = true;
