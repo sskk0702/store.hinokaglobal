@@ -599,47 +599,62 @@
         });
     });
 
-    // Password reset modal
-    var resetModal = document.getElementById('resetModal');
-    var resetEmail = document.getElementById('resetEmail');
-    var resetMsg = document.getElementById('resetMsg');
-    var resetSend = document.getElementById('resetSend');
-    var resetCancel = document.getElementById('resetCancel');
+    // Password reset modal — bind immediately, independently of other code
+    (function initResetModal() {
+      var resetModal = document.getElementById('resetModal');
+      var resetEmail = document.getElementById('resetEmail');
+      var resetMsg = document.getElementById('resetMsg');
+      var resetSend = document.getElementById('resetSend');
+      var resetCancel = document.getElementById('resetCancel');
+      var forgotLink = document.getElementById('forgotLink');
 
-    document.getElementById('forgotLink').addEventListener('click', function(e) {
-      e.preventDefault();
-      resetEmail.value = emailInput.value.trim();
-      resetMsg.textContent = ''; resetMsg.className = 'form-msg';
-      resetModal.classList.add('show');
-    });
-    resetCancel.addEventListener('click', function() {
-      resetModal.classList.remove('show');
-    });
-    resetModal.addEventListener('click', function(e) {
-      if (e.target === resetModal) resetModal.classList.remove('show');
-    });
-    resetSend.addEventListener('click', function() {
-      var em = resetEmail.value.trim();
-      resetMsg.className = 'form-msg';
-      resetMsg.textContent = '';
-      if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
-        resetMsg.textContent = '有効なメールアドレスを入力してください。';
-        resetMsg.className = 'form-msg error';
-        return;
-      }
-      resetSend.disabled = true;
-      auth.sendPasswordResetEmail(em)
-        .then(function() {
-          resetMsg.textContent = 'パスワード再設定メールを送信しました。受信ボックスをご確認ください。';
-          resetMsg.className = 'form-msg success';
-          resetSend.disabled = false;
-        })
-        .catch(function(err) {
-          resetMsg.textContent = authErrorMessage(err && err.code);
+      if (!forgotLink || !resetModal) { console.error('Reset modal elements not found'); return; }
+
+      forgotLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        resetEmail.value = emailInput.value.trim();
+        resetMsg.textContent = ''; resetMsg.className = 'form-msg';
+        resetModal.classList.add('show');
+      });
+
+      forgotLink.onclick = function(e) {
+        e.preventDefault();
+        resetEmail.value = emailInput.value.trim();
+        resetMsg.textContent = ''; resetMsg.className = 'form-msg';
+        resetModal.classList.add('show');
+        return false;
+      };
+
+      resetCancel.addEventListener('click', function() {
+        resetModal.classList.remove('show');
+      });
+      resetModal.addEventListener('click', function(e) {
+        if (e.target === resetModal) resetModal.classList.remove('show');
+      });
+      resetSend.addEventListener('click', function() {
+        var em = resetEmail.value.trim();
+        resetMsg.className = 'form-msg';
+        resetMsg.textContent = '';
+        if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+          resetMsg.textContent = '有効なメールアドレスを入力してください。';
           resetMsg.className = 'form-msg error';
-          resetSend.disabled = false;
-        });
-    });
+          return;
+        }
+        resetSend.disabled = true;
+        auth.sendPasswordResetEmail(em)
+          .then(function() {
+            resetMsg.textContent = 'パスワード再設定メールを送信しました。受信ボックスをご確認ください。';
+            resetMsg.className = 'form-msg success';
+            resetSend.disabled = false;
+          })
+          .catch(function(err) {
+            resetMsg.textContent = authErrorMessage(err && err.code);
+            resetMsg.className = 'form-msg error';
+            resetSend.disabled = false;
+          });
+      });
+    })();
   </script>
 </body>
 </html>
