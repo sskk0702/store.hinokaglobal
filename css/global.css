@@ -98,20 +98,21 @@ img { display: block; max-width: 100%; }
 .nav-b2b-badge {
   display: inline-block;
   margin-left: 6px;
-  padding: 1px 6px;
+  padding: 2px 7px;
   font-size: 8px;
   letter-spacing: 0.15em;
-  font-weight: 400;
-  background: none;
+  font-weight: 500;
+  background: rgba(201,169,110,.15);
   color: #c9a96e;
-  border: 1px solid rgba(201,169,110,.45);
+  border: 1px solid rgba(201,169,110,.55);
   border-radius: 2px;
   vertical-align: middle;
   font-family: 'Noto Sans JP', sans-serif;
 }
 #main-nav:not(.nav-scrolled) .nav-b2b-badge {
-  color: rgba(255,255,255,.7);
-  border-color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,.85);
+  border-color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.12);
 }
 #main-nav .hamburger-btn span,
 #main-nav .nav-more-btn span {
