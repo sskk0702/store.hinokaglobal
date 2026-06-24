@@ -11,7 +11,7 @@
         <span class="nav-menu-label">Menu</span>
       </div>
     </div>
-    <div class="nav-center"><a href="store.html" class="nav-logo">HINOKA</a></div>
+    <div class="nav-center"><a href="store.html" class="nav-logo">HINOKA</a><span id="navModeBadge" class="nav-mode-badge"></span></div>
     <div class="nav-right">
       <div class="nav-right-wrap">
         <span class="nav-menu-label">Menu</span>
@@ -93,9 +93,9 @@
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         新着商品
       </a>
-      <a class="right-drawer-item" href="account.html">
+      <a class="right-drawer-item" href="account.html" id="navAccountLink">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        マイアカウント
+        <span id="navAccountLabel">マイアカウント</span>
       </a>
       <a class="right-drawer-item" href="b2b-dashboard.html" id="navB2BLink" style="display:none;">
         <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -191,15 +191,38 @@
     try { return JSON.parse(localStorage.getItem(key) || '[]'); }
     catch (e) { return []; }
   }
+  function currentCartKey() {
+    return (typeof HinokaMode !== 'undefined' && HinokaMode.isB2B()) ? 'b2bCartItems' : 'cartItems';
+  }
   function updateBadges() {
-    var cart = readJson('cartItems').reduce(function (s, i) { return s + (i.qty || 1); }, 0);
+    var cart = readJson(currentCartKey()).reduce(function (s, i) { return s + (i.qty || 1); }, 0);
     var cartBadge = document.getElementById('drawerCartBadge');
     if (cartBadge) { cartBadge.textContent = cart; cartBadge.classList.toggle('visible', cart > 0); }
   }
-  updateBadges();
+  function updateModeUI() {
+    var isB2B = sessionStorage.getItem('hinoka_mode') === 'b2b';
+    var accountLink = document.getElementById('navAccountLink');
+    var accountLabel = document.getElementById('navAccountLabel');
+    var b2bLink = document.getElementById('navB2BLink');
+    var modeBadge = document.getElementById('navModeBadge');
+    if (isB2B) {
+      if (accountLink) { accountLink.href = 'b2b-dashboard.html'; }
+      if (accountLabel) { accountLabel.textContent = '法人アカウント'; }
+      if (b2bLink) { b2bLink.style.display = 'none'; }
+      if (modeBadge) { modeBadge.textContent = 'B2B'; modeBadge.style.cssText = 'display:inline-block;font-size:8px;letter-spacing:0.1em;background:#c9a96e;color:#1a1710;padding:1px 6px;margin-left:6px;vertical-align:middle;font-weight:600;font-family:"Noto Sans JP",sans-serif;'; }
+    } else {
+      if (accountLink) { accountLink.href = 'account.html'; }
+      if (accountLabel) { accountLabel.textContent = 'マイアカウント'; }
+      if (modeBadge) { modeBadge.textContent = ''; modeBadge.style.display = 'none'; }
+    }
+    updateBadges();
+  }
+  updateModeUI();
   window.addEventListener('cartUpdated', updateBadges);
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') updateBadges(); });
-  window.addEventListener('pageshow', updateBadges);
+  window.addEventListener('b2bCartUpdated', updateBadges);
+  window.addEventListener('hinokaModeChanged', updateModeUI);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { updateModeUI(); } });
+  window.addEventListener('pageshow', updateModeUI);
 
   window.showCartToast = function () {
     var t = document.getElementById('cartToast');
@@ -213,7 +236,7 @@
     if (e.key === 'Escape') { closeAll(); closeSearch(); }
   });
 
-  // B2B法人会員ならナビに法人ポータルリンクを表示
+  // B2B法人会員で個人モードの場合のみ法人ポータルリンクを表示
   function checkB2BNav() {
     try {
       if (typeof firebase === 'undefined' || !firebase.auth) return;
@@ -222,7 +245,9 @@
         firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
           var data = doc.exists ? doc.data() : {};
           var link = document.getElementById('navB2BLink');
-          if (data.accountType === 'b2b' && link) link.style.display = '';
+          var isB2BMode = sessionStorage.getItem('hinoka_mode') === 'b2b';
+          if (data.accountType === 'b2b' && link && !isB2BMode) link.style.display = '';
+          updateModeUI();
         }).catch(function(){});
       });
     } catch(e) {}
