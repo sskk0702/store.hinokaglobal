@@ -19,7 +19,7 @@
       </div>
     </div>
   </nav>
-
+  
   <div class="menu-overlay" id="menuOverlay"></div>
 
   <aside class="side-menu" id="sideMenu">
