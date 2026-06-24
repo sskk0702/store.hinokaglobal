@@ -536,6 +536,7 @@
 
     var auth = firebase.auth();
     var db = firebase.firestore();
+    sessionStorage.removeItem('hinoka_mode');
 
     var form = document.getElementById('loginForm');
     var emailInput = document.getElementById('email');
