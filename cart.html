@@ -139,11 +139,15 @@
     }
     .qty-btn:hover { background: rgba(201,169,110,0.28); border-color: var(--ca-gold); }
     .qty-num {
-      width: 34px; height: 27px; text-align: center; font-size: 12.5px;
+      width: 52px; height: 27px; text-align: center; font-size: 12.5px;
       border: 1px solid var(--ca-border2); border-left: none; border-right: none;
       outline: none; font-family: inherit;
       background: none; color: var(--ca-text); font-weight: 500;
+      -moz-appearance: textfield;
     }
+    .qty-num::-webkit-outer-spin-button,
+    .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .qty-num:focus { background: #fff; border-color: var(--ca-gold); }
 
     .cart-item-price {
       font-size: 15px; letter-spacing: 0.04em;
@@ -456,7 +460,7 @@
             <div class="cart-item-bottom">
               <div class="qty-control">
                 <button class="qty-btn" data-action="dec" data-index="${index}">−</button>
-                <input class="qty-num" type="text" value="${item.qty}" readonly>
+                <input class="qty-num" type="number" value="${item.qty}" min="${item.moq || 1}" data-index="${index}" data-moq="${item.moq || 1}">
                 <button class="qty-btn" data-action="inc" data-index="${index}">+</button>
               </div>
               <span class="cart-item-price">¥${(item.price * item.qty).toLocaleString()}</span>
@@ -483,6 +487,27 @@
           }
           saveCart(items);
           render();
+        });
+      });
+
+      // 数量直接入力
+      container.querySelectorAll('.qty-num').forEach(input => {
+        input.addEventListener('change', () => {
+          const items = loadCart();
+          const i = parseInt(input.dataset.index);
+          const minQty = parseInt(input.dataset.moq) || 1;
+          let val = parseInt(input.value);
+          if (isNaN(val) || val < minQty) {
+            val = minQty;
+            alert(`この商品の最低注文数量（MOQ）は${minQty}点です。`);
+          }
+          if (val > 9999) val = 9999;
+          items[i].qty = val;
+          saveCart(items);
+          render();
+        });
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         });
       });
 
