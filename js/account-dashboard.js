@@ -1831,8 +1831,31 @@
       }, 100);
       return;
     }
-    sessionStorage.setItem('hinoka_mode', 'personal');
-    _renderAccountUI(user);
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+      firebase.firestore().collection('users').doc(user.uid).get().then(function(doc) {
+        if (doc.exists && doc.data().accountType === 'b2b') {
+          sessionStorage.setItem('hinoka_mode', 'b2b');
+          var load = document.getElementById('loadingSection');
+          var authSec = document.getElementById('authSection');
+          var dashSec = document.getElementById('dashboardSection');
+          if (load) load.style.display = 'none';
+          if (authSec) authSec.style.display = '';
+          if (dashSec) dashSec.style.display = 'none';
+          setTimeout(function() {
+            showError('login-error', 'この法人アカウントは法人専用ページからログインしてください。');
+          }, 100);
+          return;
+        }
+        sessionStorage.setItem('hinoka_mode', 'personal');
+        _renderAccountUI(user);
+      }).catch(function() {
+        sessionStorage.setItem('hinoka_mode', 'personal');
+        _renderAccountUI(user);
+      });
+    } else {
+      sessionStorage.setItem('hinoka_mode', 'personal');
+      _renderAccountUI(user);
+    }
   }
 
   function _renderAccountUI(user) {
