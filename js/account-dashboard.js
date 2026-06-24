@@ -1920,7 +1920,8 @@
     document.getElementById('googleRegisterBtn').addEventListener('click', handleGoogleAuth);
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('registerBtn').addEventListener('click', register);
-    document.getElementById('forgotPwLink').addEventListener('click', function () {
+    document.getElementById('forgotPwLink').addEventListener('click', function (e) {
+      e.preventDefault();
       document.getElementById('loginCard').style.display  = 'none';
       document.getElementById('resetPanel').style.display = 'block';
       document.getElementById('reset-email').value = document.getElementById('login-email').value.trim();
