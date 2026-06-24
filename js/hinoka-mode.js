@@ -44,7 +44,7 @@
       if (existing) return;
       var banner = document.createElement('div');
       banner.id = 'b2bModeBanner';
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10001;background:linear-gradient(90deg,#111827,#1e293b,#0f2040);color:rgba(255,255,255,.8);text-align:center;font-size:10px;letter-spacing:0.12em;padding:5px 0;font-family:"Noto Sans JP",sans-serif;';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10001;background:linear-gradient(90deg,#111827,#1e293b,#0f2040);color:rgba(255,255,255,.9);text-align:center;font-size:11px;letter-spacing:0.18em;padding:6px 0;font-family:"Noto Sans JP",sans-serif;font-weight:500;';
       banner.innerHTML = '法人アカウントでご利用中';
       document.body.prepend(banner);
       document.body.style.paddingTop = 'calc(var(--nav-height) + 24px)';
